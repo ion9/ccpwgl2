@@ -84,9 +84,9 @@ export default class Tw2BaseClass
      * @param [opt={}]
      * @returns {*}
      */
-    static from(values, opt={})
+    static from(values, opt = {})
     {
-        const { skipUpdate, verb="from" } = opt;
+        const {skipUpdate, verb = "from"} = opt;
 
         const item = new this();
 
@@ -150,17 +150,17 @@ export default class Tw2BaseClass
      * @param eventData
      * @returns {*}
      */
-    EmitEvent(eventName, eventData={})
+    EmitEvent(eventName, eventData = {})
     {
         if (this._events && eventName in this._events)
         {
             eventData.evt = eventData.evt || eventName;
             eventData.ctx = eventData.ctx || this;
 
-            this._events.forEach((listener, options) =>
+            this._events[eventName].forEach((opt, key) =>
             {
-                listener.call(options.context, eventData);
-                if (options.once) this._events[eventName].delete(listener);
+                key.call(opt.context, eventData);
+                if (opt.once) this._events[eventName].delete(key);
             });
         }
         return this;
@@ -183,10 +183,10 @@ export default class Tw2BaseClass
 
         if (!this._events[eventName])
         {
-            this._events[eventName] = new Map();
+            this._events[eventName] = new Set();
         }
 
-        this._events[eventName].add(listener, { context, once });
+        this._events[eventName].add(listener, {context, once});
         return this;
     }
 

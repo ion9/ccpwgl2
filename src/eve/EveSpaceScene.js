@@ -75,6 +75,7 @@ export class EveSpaceScene
             }
         });
 
+        this.curveSets = [];
         this.lensflares = [];
         this.objects = [];
         this.planets = [];
@@ -82,7 +83,7 @@ export class EveSpaceScene
         this.ambientColor = quat.fromValues(0.25, 0.25, 0.25, 1);
         this.backgroundEffect = null;
         this.backgroundRenderingEnabled = 1;
-        this.clearColor = vec4.fromValues(0, 0, 0, 0);
+        this.clearColor = vec4.fromValues(0, 0, 0, 1);
         this.lodEnabled = false;
         this.fogStart = 0;
         this.fogEnd = 0;
@@ -263,6 +264,11 @@ export class EveSpaceScene
      */
     Update(dt)
     {
+        for (let i = 0; i < this.curveSets.length; i++)
+        {
+            this.curveSets[i].Update(dt);
+        }
+
         for (let i = 0; i < this.planets.length; ++i)
         {
             if ("Update" in this.planets[i])
@@ -352,11 +358,20 @@ export class EveSpaceScene
         if (this.lodEnabled)
         {
             g.frustum.Initialize(d.view, d.projection, d.viewportWidth, d.viewInverse, d.viewProjection);
+
             for (let i = 0; i < this.objects.length; ++i)
             {
                 if (this.objects[i].UpdateLod)
                 {
                     this.objects[i].UpdateLod(g.frustum);
+                }
+            }
+
+            for (let i = 0; i < this.planets.length; ++i)
+            {
+                if (this.planets[i].UpdateLod)
+                {
+                    this.planets[i].UpdateLod(g.frustum);
                 }
             }
         }
