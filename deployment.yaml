@@ -1,10 +1,10 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: php-example-service
+  name: ccpwgl2-service
 spec:
   selector:
-    app: php-example
+    app: ccpwgl2
   type: NodePort
   ports:
     - protocol: TCP
@@ -14,18 +14,18 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: php-example
+  name: ccpwgl2
   labels:
-    app: php-example
+    app: ccpwgl2
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: php-example
+      app: ccpwgl2
   template:
     metadata:
       labels:
-        app: php-example
+        app: ccpwgl2
     spec:
       imagePullSecrets:
       - name: pipeline-docker-registry

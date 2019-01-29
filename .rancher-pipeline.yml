@@ -8,7 +8,7 @@ stages:
   - publishImageConfig:
       dockerfilePath: ./Dockerfile
       buildContext: .
-      tag: php-example:${CICD_EXECUTION_SEQUENCE}
+      tag: ccpwgl2:${CICD_EXECUTION_SEQUENCE}
 - name: Deploy
   steps:
   - applyYamlConfig:
