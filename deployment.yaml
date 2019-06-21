@@ -1,3 +1,16 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: ccpwgl2-service
+spec:
+  selector:
+    app: ccpwgl2
+  type: ClusterIP
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
