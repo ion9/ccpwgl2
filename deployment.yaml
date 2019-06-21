@@ -1,3 +1,19 @@
+kind: Ingress
+metadata:
+  name: ccpwgl2-ingress
+spec:
+  tls:
+  - host: frontend.m4.com
+  secretName: m4
+  rules:
+  - host: frontend.m4.com
+  - http:
+      paths:
+      - path: /
+        backend:
+          serviceName: ccpwgl2-service
+          servicePort: 8000
+---
 kind: Service
 apiVersion: v1
 metadata:
