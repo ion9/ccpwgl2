@@ -9,7 +9,7 @@ spec:
     secretName: m4
   rules:
   - host: frontend.m4.com
-  - http:
+    http:
       paths:
       - path: /
         backend:
