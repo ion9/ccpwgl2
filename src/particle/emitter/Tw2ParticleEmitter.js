@@ -19,7 +19,18 @@ export class Tw2ParticleEmitter extends Tw2BaseClass
      */
     Initialize()
     {
-        throw new ErrAbstractClassMethod();
+        //throw new ErrAbstractClassMethod();
+    }
+
+    /**
+     * Gets object resources
+     * @param {Array} [out=[]] - Optional receiving array
+     * @returns {Array.<Tw2Resource>} [out]
+     */
+    GetResources(out = [])
+    {
+        if (this.particleSystem) this.particleSystem.GetResources(out);
+        return out;
     }
 
     /**
@@ -32,15 +43,3 @@ export class Tw2ParticleEmitter extends Tw2BaseClass
     }
 
 }
-
-Tw2BaseClass.define(Tw2ParticleEmitter, Type =>
-{
-    return {
-        type: "Tw2ParticleEmitter",
-        category: "ParticleEmitter",
-        isAbstract: true,
-        props: {
-            particleSystem: ["Tw2GpuParticleSystem", "Tw2ParticleSystem"]
-        }
-    };
-});

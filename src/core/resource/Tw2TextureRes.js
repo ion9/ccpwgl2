@@ -48,21 +48,20 @@ export class Tw2TextureRes extends Tw2Resource
     width = 0;
     height = 0;
     hasMipMaps = false;
-    requestResponseType = null;
     _currentSampler = 0;
     _isAttached = false;
-    _extension = null;
 
     /**
      * Prepares the resource
      * @param {*|Image|arrayBuffer} data
+     * @param {String} extension
      */
-    Prepare(data)
+    Prepare(data, extension)
     {
         const gl = device.gl;
         const format = "ccpGLFormat" in data ? data["ccpGLFormat"] : gl.RGBA;
 
-        switch (this._extension)
+        switch (extension)
         {
             case "cube":
                 this.texture = gl.createTexture();
@@ -127,8 +126,8 @@ export class Tw2TextureRes extends Tw2Resource
                     isMagic = header[DDS_HEADER_OFFSET_MAGIC] === DDS_MAGIC,
                     isCube = (header[DDS_HEADER_OFFSET_CAPS2] & DDSCAPS2_CUBEMAP) === DDSCAPS2_CUBEMAP,
                     fourCC = header[DDS_HEADER_OFFSET_PF_FOURCC],
-                    mipmaps = (header[DDS_HEADER_OFFSET_FLAGS] & DDSD_MIPMAPCOUNT) ?
-                        Math.max(1, header[DDS_HEADER_OFFSET_MIPMAP_COUNT]) : 1;
+                    mipmaps = 1; //(header[DDS_HEADER_OFFSET_FLAGS] & DDSD_MIPMAPCOUNT) ?
+                //Math.max(1, header[DDS_HEADER_OFFSET_MIPMAP_COUNT]) : 1;
 
                 // Check compatibility
                 if (!ext) throw new ErrResourceFormat("Compressed textures not supported by your device");
@@ -187,6 +186,8 @@ export class Tw2TextureRes extends Tw2Resource
                         width *= 0.5;
                         height *= 0.5;
                     }
+                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, mipmaps > 1 ? gl.LINEAR_MIPMAP_LINEAR : gl.LINEAR);
                     gl.bindTexture(gl.TEXTURE_2D, null);
                 }
                 break;
@@ -195,7 +196,6 @@ export class Tw2TextureRes extends Tw2Resource
                 throw new ErrResourceFormat(`Invalid format, ${this._extension} unsupported`);
         }
 
-        this._extension = null;
         this._isAttached = false;
         this.OnPrepared();
     }
@@ -208,8 +208,7 @@ export class Tw2TextureRes extends Tw2Resource
      */
     DoCustomLoad(path, extension)
     {
-        this._extension = extension;
-        switch (this._extension)
+        switch (extension)
         {
             case "cube":
                 this.isCube = true;
@@ -221,17 +220,25 @@ export class Tw2TextureRes extends Tw2Resource
                 break;
 
             case "dds":
-                // Pass back to the ResMan to load
-                this._extension = extension;
-                this.requestResponseType = "arraybuffer";
-                return false;
+                resMan._pendingLoads++;
+                resMan.Fetch(Tw2TextureRes.AddMipLevelSkipCount(path), "arraybuffer")
+                    .then(response =>
+                    {
+                        resMan._pendingLoads--;
+                        this.OnLoaded();
+                        resMan.Queue(this, response, extension);
+                    })
+                    .catch(err =>
+                    {
+                        resMan._pendingLoads--;
+                        this.OnError(err);
+                    });
+                return true;
 
             default:
-                this._extension = null;
                 throw new ErrResourceExtensionUnregistered({path, extension});
         }
 
-        this.OnRequested();
         resMan._pendingLoads++;
 
         const image = new Image();
@@ -253,7 +260,7 @@ export class Tw2TextureRes extends Tw2Resource
         image.onload = () =>
         {
             resMan._pendingLoads--;
-            resMan._prepareQueue.push([this, image, null]);
+            resMan.Queue(this, image, extension);
             this.OnLoaded();
         };
 
@@ -272,11 +279,8 @@ export class Tw2TextureRes extends Tw2Resource
             device.gl.deleteTexture(this.texture);
             this.texture = null;
         }
-        this._isPurged = true;
-        this._isGood = false;
         this._isAttached = false;
-        this._extension = null;
-        this.requestResponseType = null;
+        this.OnUnloaded();
         return true;
     }
 
@@ -288,10 +292,7 @@ export class Tw2TextureRes extends Tw2Resource
     {
         this.path = "";
         this.texture = texture;
-        this._isPurged = false;
         this._isAttached = true;
-        this._extension = null;
-        this.requestResponseType = null;
         this.OnLoaded({hide: true, data: {isAttachment: true}});
         this.OnPrepared({hide: true, data: {isAttachment: true}});
     }
@@ -360,16 +361,13 @@ export class Tw2TextureRes extends Tw2Resource
      */
     static AddMipLevelSkipCount(path)
     {
-        const
-            d = device,
-            mipExt = d.mipLevelSkipCount > 0 ? "." + d.mipLevelSkipCount.toString() : "";
-
+        const d = device;
         if (d.mipLevelSkipCount > 0)
         {
             const index = path.lastIndexOf(".");
             if (index >= 0)
             {
-                path = path.substr(0, index - 2) + mipExt + path.substr(index);
+                path = path.substr(0, index - 2) + "." + d.mipLevelSkipCount.toString() + path.substr(index);
             }
         }
         return path;
@@ -383,6 +381,38 @@ export class Tw2TextureRes extends Tw2Resource
     static Int32ToFourCC(value)
     {
         return String.fromCharCode(value & 0xff, (value >> 8) & 0xff, (value >> 16) & 0xff, (value >> 24) & 0xff);
+    }
+
+    /**
+     * Creates an image from a 2d texture
+     * @param texture
+     * @param width
+     * @param height
+     * @param format
+     * @returns {HTMLImageElement}
+     * @constructor
+     */
+    static CreateImageFrom2DTexture(texture, width = 512, height = 512, format = device.gl.RGBA)
+    {
+        const gl = device.gl;
+        const fb = gl.createFramebuffer();
+        gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
+        const data = new Uint8Array(width * height * 4);
+        gl.readPixels(0, 0, width, height, gl.RGBA, gl.UNSIGNED_BYTE, data);
+        gl.deleteFramebuffer(fb);
+
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const context = canvas.getContext("2d");
+        const imageData = context.createImageData(width, height);
+        imageData.data.set(data);
+        context.putImageData(imageData, 0, 0);
+
+        const img = new Image();
+        img.src = canvas.toDataURL();
+        return img;
     }
 
 }

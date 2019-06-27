@@ -1,5 +1,5 @@
 import {mat4, vec4} from "../../global";
-import {Tw2BaseClass} from "../../global";
+
 
 /**
  * EveSOFDataHullBoosterItem
@@ -10,7 +10,7 @@ import {Tw2BaseClass} from "../../global";
  * @property {Boolean} hasTrail   -
  * @property {mat4} transform     -
  */
-export class EveSOFDataHullBoosterItem extends Tw2BaseClass
+export class EveSOFDataHullBoosterItem
 {
 
     atlasIndex0 = 0;
@@ -19,20 +19,19 @@ export class EveSOFDataHullBoosterItem extends Tw2BaseClass
     hasTrail = false;
     transform = mat4.create();
 
+    /**
+     * Black definition
+     * @param {*} r
+     * @returns {*[]}
+     */
+    static black(r)
+    {
+        return [
+            ["atlasIndex0", r.uint],
+            ["atlasIndex1", r.uint],
+            ["functionality", r.vector4],
+            ["hasTrail", r.boolean],
+            ["transform", r.matrix],
+        ];
+    }
 }
-
-Tw2BaseClass.define(EveSOFDataHullBoosterItem, Type =>
-{
-    return {
-        isStaging: true,
-        type: "EveSOFDataHullBoosterItem",
-        props: {
-            atlasIndex0: Type.NUMBER,
-            atlasIndex1: Type.NUMBER,
-            functionality: Type.VECTOR4,
-            hasTrail: Type.BOOLEAN,
-            transform: Type.MATRIX4
-        }
-    };
-});
-

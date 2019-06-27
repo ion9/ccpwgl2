@@ -1,5 +1,5 @@
 import {quat, vec3, vec4} from "../../global";
-import {Tw2BaseClass} from "../../global";
+
 
 /**
  * EveSOFDataHullPlaneSetItem
@@ -16,12 +16,12 @@ import {Tw2BaseClass} from "../../global";
  * @property {quat} rotation            -
  * @property {vec3} scaling             -
  */
-export class EveSOFDataHullPlaneSetItem extends Tw2BaseClass
+export class EveSOFDataHullPlaneSetItem
 {
 
-    boneIndex = 0;
+    boneIndex = -1;
     color = vec4.create();
-    groupIndex = 0;
+    groupIndex = -1;
     layer1Scroll = vec4.create();
     layer1Transform = vec4.create();
     layer2Scroll = vec4.create();
@@ -31,26 +31,25 @@ export class EveSOFDataHullPlaneSetItem extends Tw2BaseClass
     rotation = quat.create();
     scaling = vec3.fromValues(1, 1, 1);
 
+    /**
+     * Black definition
+     * @param {*} r
+     * @returns {*[]}
+     */
+    static black(r)
+    {
+        return [
+            ["boneIndex", r.uint],
+            ["color", r.vector4],
+            ["groupIndex", r.uint],
+            ["layer1Scroll", r.vector4],
+            ["layer1Transform", r.vector4],
+            ["layer2Scroll", r.vector4],
+            ["layer2Transform", r.vector4],
+            ["maskMapAtlasIndex", r.uint],
+            ["position", r.vector3],
+            ["rotation", r.vector4],
+            ["scaling", r.vector3]
+        ];
+    }
 }
-
-Tw2BaseClass.define(EveSOFDataHullPlaneSetItem, Type =>
-{
-    return {
-        isStaging: true,
-        type: "EveSOFDataHullPlaneSetItem",
-        props: {
-            boneIndex: Type.NUMBER,
-            color: Type.RGBA_LINEAR,
-            groupIndex: Type.NUMBER,
-            layer1Scroll: Type.VECTOR4,
-            layer1Transform: Type.VECTOR4,
-            layer2Scroll: Type.VECTOR4,
-            layer2Transform: Type.VECTOR4,
-            maskMapAtlasIndex: Type.NUMBER,
-            position: Type.TR_TRANSLATION,
-            rotation: Type.TR_ROTATION,
-            scaling: Type.TR_SCALING
-        }
-    };
-});
-

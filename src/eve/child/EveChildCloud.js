@@ -5,8 +5,8 @@ import {EveChild} from "./EveChild";
 /**
  * EveChildCloud
  * TODO: Implement
- * @ccp EveChildCloud
  *
+ * @property {String} name                -
  * @property {Number} cellScreenSize      -
  * @property {Tw2Effect} effect           -
  * @property {Number} preTesselationLevel -
@@ -17,7 +17,8 @@ import {EveChild} from "./EveChild";
  */
 export class EveChildCloud extends EveChild
 {
-    // ccp
+
+    name = "";
     cellScreenSize = 0;
     effect = null;
     preTesselationLevel = 0;
@@ -26,23 +27,40 @@ export class EveChildCloud extends EveChild
     sortingModifier = 0;
     translation = vec3.create();
 
+    /**
+     * Gets object resources
+     * @param {Array} [out=[]] - Optional receiving array
+     * @returns {Array.<Tw2Resource>} [out]
+     */
+    GetResources(out = [])
+    {
+        if (this.effect) this.effect.GetResources(out);
+        return out;
+    }
+
+    /**
+     * Black definition
+     * @param {*} r
+     * @returns {*[]}
+     */
+    static black(r)
+    {
+        return [
+            ["cellScreenSize", r.float],
+            ["sortingModifier", r.float],
+            ["effect", r.object],
+            ["name", r.string],
+            ["preTesselationLevel", r.uint],
+            ["rotation", r.vector4],
+            ["scaling", r.vector3],
+            ["translation", r.vector3]
+        ];
+    }
+
+    /**
+     * Identifies that the class is in staging
+     * @property {null|Number}
+     */
+    static __isStaging = 4;
+
 }
-
-EveChild.define(EveChildCloud, Type =>
-{
-    return {
-        isStaging: true,
-        type: "EveChildCloud",
-        props: {
-            cellScreenSize: Type.NUMBER,
-            effect: ["Tw2Effect"],
-            preTesselationLevel: Type.NUMBER,
-            rotation: Type.TR_ROTATION,
-            scaling: Type.TR_SCALING,
-            sortingModifier: Type.NUMBER,
-            translation: Type.TR_TRANSLATION
-        },
-        notImplemented: ["*"]
-    };
-});
-

@@ -1,5 +1,5 @@
 import {vec2, vec4} from "../../global";
-import {Tw2BaseClass} from "../../global";
+
 
 /**
  * EveSOFDataGenericHullDamage
@@ -18,7 +18,7 @@ import {Tw2BaseClass} from "../../global";
  * @property {Number} hullParticleTurbulenceAmplitude -
  * @property {Number} hullParticleTurbulenceFrequency -
  */
-export class EveSOFDataGenericHullDamage extends Tw2BaseClass
+export class EveSOFDataGenericHullDamage
 {
 
     hullParticleAngle = 0;
@@ -35,28 +35,28 @@ export class EveSOFDataGenericHullDamage extends Tw2BaseClass
     hullParticleTurbulenceAmplitude = 0;
     hullParticleTurbulenceFrequency = 0;
 
+
+    /**
+     * Black definition
+     * @param {*} r
+     * @returns {*[]}
+     */
+    static black(r)
+    {
+        return [
+            ["hullParticleAngle", r.float],
+            ["hullParticleColor0", r.vector4],
+            ["hullParticleColor1", r.vector4],
+            ["hullParticleColor2", r.vector4],
+            ["hullParticleColorMidpoint", r.float],
+            ["hullParticleDrag", r.float],
+            ["hullParticleMinMaxLifeTime", r.vector2],
+            ["hullParticleMinMaxSpeed", r.vector2],
+            ["hullParticleRate", r.float],
+            ["hullParticleSizes", r.vector4],
+            ["hullParticleTurbulenceAmplitude", r.float],
+            ["hullParticleTurbulenceFrequency", r.float],
+            ["hullParticleTextureIndex", r.uint],
+        ];
+    }
 }
-
-Tw2BaseClass.define(EveSOFDataGenericHullDamage, Type =>
-{
-    return {
-        isStaging: true,
-        type: "EveSOFDataGenericHullDamage",
-        props: {
-            hullParticleAngle: Type.NUMBER,
-            hullParticleColor0: Type.RGBA_LINEAR,
-            hullParticleColor1: Type.RGBA_LINEAR,
-            hullParticleColor2: Type.RGBA_LINEAR,
-            hullParticleColorMidpoint: Type.NUMBER,
-            hullParticleDrag: Type.NUMBER,
-            hullParticleMinMaxLifeTime: Type.VECTOR2,
-            hullParticleMinMaxSpeed: Type.VECTOR2,
-            hullParticleRate: Type.NUMBER,
-            hullParticleSizes: Type.VECTOR4,
-            hullParticleTextureIndex: Type.NUMBER,
-            hullParticleTurbulenceAmplitude: Type.NUMBER,
-            hullParticleTurbulenceFrequency: Type.NUMBER
-        }
-    };
-});
-

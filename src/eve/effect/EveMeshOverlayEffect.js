@@ -1,5 +1,6 @@
-import {Tw2GeometryBatch} from "../../core";
-import {util, Tw2BaseClass, RM_OPAQUE, RM_TRANSPARENT, RM_ADDITIVE, RM_DECAL, RM_DISTORTION} from "../../global";
+import {Tw2GeometryBatch, Tw2CurveSet, Tw2Effect} from "../../core";
+import { Tw2BaseClass, RM_OPAQUE, RM_TRANSPARENT, RM_ADDITIVE, RM_DECAL, RM_DISTORTION, store} from "../../global";
+import {assignIfExists, toArray} from "../../global/util";
 
 
 /**
@@ -7,6 +8,7 @@ import {util, Tw2BaseClass, RM_OPAQUE, RM_TRANSPARENT, RM_ADDITIVE, RM_DECAL, RM
  * TODO: Implement "distortionEffects"
  * TODO: Identify if "decalEffects" is deprecated
  *
+ * @property {String} name                          - The overlay effect's name
  * @property {Array.<Tw2Effect>} additiveEffects    - Additive overlay effects
  * @property {Tw2CurveSet} curveSet                 - Animation curve set
  * @property {Boolean} display                      - Enables/ disables all batch accumulations
@@ -22,9 +24,10 @@ import {util, Tw2BaseClass, RM_OPAQUE, RM_TRANSPARENT, RM_ADDITIVE, RM_DECAL, RM
  * @property {Boolean} visible.additiveEffects      - Enables/ disables additive effect batch accumulation
  * @property {Boolean} visible.distortionEffects    - Currently not supported
  */
-export default class EveMeshOverlayEffect extends Tw2BaseClass
+export class EveMeshOverlayEffect extends Tw2BaseClass
 {
     // ccp
+    name = "";
     additiveEffects = [];
     curveSet = null;
     distortionEffects = [];
@@ -44,12 +47,77 @@ export default class EveMeshOverlayEffect extends Tw2BaseClass
     };
 
     /**
+     * Creates an area's effects
+     * @param {EveMeshOverlayEffect} dest
+     * @param {*} src
+     * @param {String|String[]} names
+     */
+    static createAreaEffects(dest, src, names)
+    {
+        names = toArray(names);
+        for (let i = 0; i < names.length; i++)
+        {
+            const name = names[i];
+            if (name in src && name in dest)
+            {
+                for (let i = 0; i < src[name].length; i++)
+                {
+                    dest[name].push(Tw2Effect.from(src[name][i]));
+                }
+            }
+        }
+    }
+
+    /**
+     * Creates a mesh from an object
+     * @param {*} [values]
+     * @param {*} [options]
+     * @returns {EveMeshOverlayEffect}
+     */
+    static from(values, options)
+    {
+        const item = new EveMeshOverlayEffect();
+
+        if (values)
+        {
+            assignIfExists(item, values, ["name", "display", "update"]);
+
+            if (values.curveSet)
+            {
+                item.curveSet = Tw2CurveSet.from(values.curveSet);
+            }
+
+            const areas = [
+                "additiveEffects", "distortionEffects", "opaqueEffects", "transparentEffects", "decalEffects"
+            ];
+
+            if (values.visible)
+            {
+                assignIfExists(item.visible, values.visible, areas);
+            }
+
+            this.createAreaEffects(item, values, areas);
+
+        }
+
+        if (!options || !options.skipUpdate)
+        {
+            // No Op
+        }
+
+        return item;
+    }
+
+    /**
      * Per frame update
      * @param {number} dt - delta Time
      */
     Update(dt)
     {
-        if (this.update && this.curveSet) this.curveSet.Update(dt);
+        if (this.update && this.curveSet)
+        {
+            this.curveSet.Update(dt);
+        }
     }
 
     /**
@@ -112,28 +180,29 @@ export default class EveMeshOverlayEffect extends Tw2BaseClass
         return [];
     }
 
+
+
+    /**
+     * Black definition
+     * @param {*} r
+     * @returns {*[]}
+     */
+    static black(r)
+    {
+        return [
+            ["additiveEffects", r.array],
+            ["curveSet", r.object],
+            ["distortionEffects", r.array],
+            ["name", r.string],
+            ["opaqueEffects", r.array],
+            ["transparentEffects", r.array],
+        ];
+    }
+
+    /**
+     * Identifies that the class is in staging
+     * @property {null|Number}
+     */
+    static __isStaging = 1;
+
 }
-
-Tw2BaseClass.define(EveMeshOverlayEffect, Type =>
-{
-    return {
-        type: "EveMeshOverlayEffect",
-        props: {
-            additiveEffects: [["Tw2Effect"]],
-            curveSet: ["TriCurveSet"],
-            distortionEffects: [["Tw2Effect"]],
-            display: Type.BOOLEAN,
-            opaqueEffects: [["Tw2Effect"]],
-            transparentEffects: [["Tw2Effect"]],
-            update: Type.BOOLEAN,
-            visible: Type.PLAIN
-        },
-        watch: [
-            "decalEffects"
-        ],
-        notImplemented: [
-            "distortionEffects"
-        ]
-    };
-});
-

@@ -10,30 +10,33 @@ import {mat4, quat, vec3} from "../../global";
  * TODO: Implement "staticTransform"
  * TODO: Implement "transformModifiers"
  *
- * @property {Array.<StateController>} controllers      -
- * @property {Array.<Tw2CurveSet>} curveSets            -
- * @property {Boolean} display                          -
- * @property {Boolean} hideOnLowQuality                 -
- * @property {Array.<Tr2PointLight>} lights             -
- * @property {mat4} localTransform                      -
- * @property {Array.<EveChild>} objects                 -
- * @property {Array.<TriObserverLocal>} observers       -
- * @property {quat} rotation                            -
- * @property {vec3} scaling                             -
- * @property {Boolean} staticTransform                  -
- * @property {Array.<ChildModifier>} transformModifiers -
- * @property {vec3} translation                         -
- * @property {mat4} _worldTransform                     -
- * @property {mat4} _worldTransformLast                 -
+ * @property {String} name                                 -
+ * @property {Array.<StateController>} controllers         -
+ * @property {Array.<Tw2CurveSet>} curveSets               -
+ * @property {Boolean} display                             -
+ * @property {Boolean} hideOnLowQuality                    -
+ * @property {EveChildInheritProperties} inheritProperties -
+ * @property {Array.<Tr2PointLight>} lights                -
+ * @property {mat4} localTransform                         -
+ * @property {Array.<EveChild>} objects                    -
+ * @property {Array.<TriObserverLocal>} observers          -
+ * @property {quat} rotation                               -
+ * @property {vec3} scaling                                -
+ * @property {Boolean} staticTransform                     -
+ * @property {Array.<ChildModifier>} transformModifiers    -
+ * @property {vec3} translation                            -
+ * @property {mat4} _worldTransform                        -
+ * @property {mat4} _worldTransformLast                    -
  */
 export class EveChildContainer extends EveChild
 {
 
-    // ccp
+    name = "";
     controllers = [];
     curveSets = [];
-    display = false;
+    display = true;
     hideOnLowQuality = false;
+    inheritProperties = null;
     lights = [];
     localTransform = mat4.create();
     objects = [];
@@ -48,6 +51,19 @@ export class EveChildContainer extends EveChild
     _worldTransform = mat4.create();
     _worldTransformLast = mat4.create();
 
+    /**
+     * Gets object resources
+     * @param {Array} [out=[]] - Optional receiving array
+     * @returns {Array.<Tw2Resource>} [out]
+     */
+    GetResources(out = [])
+    {
+        for (let i = 0; i < this.objects.length; i++)
+        {
+            this.objects[i].GetResources(out);
+        }
+        return out;
+    }
 
     /**
      * Per frame update
@@ -114,36 +130,38 @@ export class EveChildContainer extends EveChild
         }
     }
 
+    /**
+     * Black definition
+     * @param {*} r
+     * @returns {*[]}
+     */
+    static black(r)
+    {
+        return [
+            ["boneIndex", r.uint],
+            ["controllers", r.array],
+            ["display", r.boolean],
+            ["localTransform", r.matrix],
+            ["name", r.string],
+            ["curveSets", r.array],
+            ["hideOnLowQuality", r.boolean],
+            ["inheritProperties", r.object],
+            ["lights", r.array],
+            ["observers", r.array],
+            ["objects", r.array],
+            ["rotation", r.vector4],
+            ["scaling", r.vector3],
+            ["staticTransform", r.boolean],
+            ["transformModifiers", r.array],
+            ["translation", r.vector3]
+        ];
+    }
+
+    /**
+     * Identifies that the class is in staging
+     * @property {null|Number}
+     * @private
+     */
+    static __isStaging = 2;
+
 }
-
-EveChild.define(EveChildContainer, Type =>
-{
-    return {
-        isStaging: true,
-        type: "EveChildContainer",
-        props: {
-            controllers: [["Tr2Controller"]],
-            curveSets: [["TriCurveSet"]],
-            display: Type.BOOLEAN,
-            hideOnLowQuality: Type.BOOLEAN,
-            lights: [["Tr2PointLight"]],
-            localTransform: Type.TR_LOCAL,
-            objects: [["EveChildContainer", "EveChildMesh", "EveChildParticleSphere", "EveChildParticleSystem", "EveChildQuad"]],
-            observers: [["TriObserverLocal"]],
-            rotation: Type.TR_ROTATION,
-            scaling: Type.TR_SCALING,
-            staticTransform: Type.BOOLEAN,
-            transformModifiers: [["EveChildModifierAttachToBone", "EveChildModifierBillboard2D", "EveChildModifierBillboard3D", "EveChildModifierSRT", "EveChildModifierTranslateWithCamera"]],
-            translation: Type.TR_TRANSLATION
-        },
-        notImplemented: [
-            "controllers",
-            "hideOnLowQuality",
-            "lights",
-            "observers",
-            "staticTransform",
-            "transformModifiers"
-        ]
-    };
-});
-

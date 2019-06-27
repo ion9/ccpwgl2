@@ -1,5 +1,5 @@
 import {quat, vec3} from "../../global";
-import {Tw2BaseClass} from "../../global";
+
 
 /**
  * EveSOFDataTransform
@@ -8,25 +8,26 @@ import {Tw2BaseClass} from "../../global";
  * @property {vec3} position    -
  * @property {quat} rotation    -
  */
-export class EveSOFDataTransform extends Tw2BaseClass
+export class EveSOFDataTransform
 {
 
-    boneIndex = 0;
+    boneIndex = -1;
     position = vec3.create();
     rotation = quat.create();
+    scaling = vec3.fromValues(1, 1, 1);
 
+    /**
+     * Black definition
+     * @param {*} r
+     * @returns {*[]}
+     */
+    static black(r)
+    {
+        return [
+            ["boneIndex", r.uint],
+            ["position", r.vector3],
+            ["rotation", r.vector4],
+            ["scaling", r.vector3],
+        ];
+    }
 }
-
-Tw2BaseClass.define(EveSOFDataTransform, Type =>
-{
-    return {
-        isStaging: true,
-        type: "EveSOFDataTransform",
-        props: {
-            boneIndex: Type.NUMBER,
-            position: Type.TR_TRANSLATION,
-            rotation: Type.TR_ROTATION
-        }
-    };
-});
-

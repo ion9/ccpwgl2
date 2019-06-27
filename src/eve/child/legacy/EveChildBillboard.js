@@ -1,6 +1,8 @@
-import {vec3, quat, mat4, device} from "../../../global";
+import {vec3, quat, mat4, tw2} from "../../../global";
 import {Tw2PerObjectData} from "../../../core";
 import {EveChild} from "../EveChild";
+
+const { device } = tw2;
 
 /**
  * Mesh attachment to space object and oriented towards the camera
@@ -33,7 +35,7 @@ export class EveChildBillboard extends EveChild
     staticTransform = false;
     useSRT = true;
 
-    _perObjectData = new Tw2PerObjectData.from(EveChild.perObjectData);
+    _perObjectData = Tw2PerObjectData.from(EveChild.perObjectData);
     _worldTransform = mat4.create();
     _worldTransformLast = mat4.create();
 
@@ -100,22 +102,3 @@ export class EveChildBillboard extends EveChild
     }
 
 }
-
-EveChild.define(EveChildBillboard, Type =>
-{
-    return {
-        type: "EveChildBillboard",
-        deprecated: true,
-        props: {
-            display: Type.BOOLEAN,
-            localTransform: Type.TR_LOCAL,
-            lowestLodVisible: Type.NUMBER,
-            mesh: ["Tw2Mesh", "Tw2InstancedMesh"],
-            rotation: Type.TR_ROTATION,
-            translation: Type.TR_TRANSLATION,
-            scaling: Type.TR_SCALING,
-            staticTransform: Type.BOOLEAN,
-            useSRT: Type.BOOLEAN
-        }
-    };
-});

@@ -1,5 +1,3 @@
-import {Tw2BaseClass} from "../../global/index";
-
 /**
  * EveSOFDataPatternLayer
  *
@@ -13,37 +11,77 @@ import {Tw2BaseClass} from "../../global/index";
  * @property {String} textureName        -
  * @property {String} textureResFilePath -
  */
-export class EveSOFDataPatternLayer extends Tw2BaseClass
+export class EveSOFDataPatternLayer
 {
 
-    isTargetMtl1 = false;
-    isTargetMtl2 = false;
-    isTargetMtl3 = false;
-    isTargetMtl4 = false;
+    isTargetMtl1 = true;
+    isTargetMtl2 = true;
+    isTargetMtl3 = true;
+    isTargetMtl4 = true;
     materialSource = 0;
     projectionTypeU = 0;
     projectionTypeV = 0;
     textureName = "";
     textureResFilePath = "";
 
-}
+    /**
+     * Gets an address mode from a projection type
+     * @param {Number} projectionType
+     * @returns {Number}
+     */
+    static ToAddress(projectionType)
+    {
+        switch (projectionType)
+        {
+            case 2:
+                return 4;
 
-Tw2BaseClass.define(EveSOFDataPatternLayer, Type =>
-{
-    return {
-        isStaging: true,
-        type: "EveSOFDataPatternLayer",
-        props: {
-            isTargetMtl1: Type.BOOLEAN,
-            isTargetMtl2: Type.BOOLEAN,
-            isTargetMtl3: Type.BOOLEAN,
-            isTargetMtl4: Type.BOOLEAN,
-            materialSource: Type.NUMBER,
-            projectionTypeU: Type.NUMBER,
-            projectionTypeV: Type.NUMBER,
-            textureName: Type.STRING,
-            textureResFilePath: Type.PATH
+            case 1:
+                return 3;
+
+            default:
+                return 1;
         }
-    };
-});
+    }
 
+    /**
+     * Gets a projection type from an address mode
+     * @param {Number} addressMode
+     * @returns {Number}
+     */
+    static FromProjection(addressMode)
+    {
+        switch (addressMode)
+        {
+            case 4:
+                return 2;
+
+            case 3:
+                return 1;
+
+            default:
+                return 0;
+        }
+    }
+
+
+    /**
+     * Black definition
+     * @param {*} r
+     * @returns {*[]}
+     */
+    static black(r)
+    {
+        return [
+            ["isTargetMtl1", r.boolean],
+            ["isTargetMtl2", r.boolean],
+            ["isTargetMtl3", r.boolean],
+            ["isTargetMtl4", r.boolean],
+            ["materialSource", r.uint],
+            ["projectionTypeU", r.uint],
+            ["projectionTypeV", r.uint],
+            ["textureName", r.string],
+            ["textureResFilePath", r.path]
+        ];
+    }
+}

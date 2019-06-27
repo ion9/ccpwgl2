@@ -1,25 +1,22 @@
-import {Tw2BaseClass} from "../../global";
-
 /**
  * EveSOFDataHullController
  *
  * @property {String} path -
  */
-export class EveSOFDataHullController extends Tw2BaseClass
+export class EveSOFDataHullController
 {
 
     path = "";
 
+    /**
+     * Black definition
+     * @param {*} r
+     * @returns {*[]}
+     */
+    static black(r)
+    {
+        return [
+            ["path", r.string],
+        ];
+    }
 }
-
-Tw2BaseClass.define(EveSOFDataHullController, Type =>
-{
-    return {
-        isStaging: true,
-        type: "EveSOFDataHullController",
-        props: {
-            path: Type.PATH
-        }
-    };
-});
-

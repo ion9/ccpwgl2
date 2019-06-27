@@ -1,5 +1,5 @@
 import {vec4} from "../../global";
-import {Tw2BaseClass} from "../../global";
+
 
 /**
  * EveSOFDataBooster
@@ -26,11 +26,11 @@ import {Tw2BaseClass} from "../../global";
  * @property {vec4} trailColor                   -
  * @property {vec4} trailSize                    -
  * @property {vec4} warpGlowColor                -
- * @property {vec4} warpHalpColor                -
+ * @property {vec4} warpHaloColor                -
  * @property {EveSOFDataBoosterShape} warpShape0 -
  * @property {EveSOFDataBoosterShape} warpShape1 -
  */
-export class EveSOFDataBooster extends Tw2BaseClass
+export class EveSOFDataBooster
 {
 
     glowColor = vec4.create();
@@ -55,44 +55,64 @@ export class EveSOFDataBooster extends Tw2BaseClass
     trailColor = vec4.create();
     trailSize = vec4.create();
     warpGlowColor = vec4.create();
-    warpHalpColor = vec4.create();
+    warpHaloColor = vec4.create();
     warpShape0 = null;
     warpShape1 = null;
 
+    /**
+     * Alias for `warpHaloColor` (ccp typo)
+     * @returns {vec4}
+     */
+    get warpHalpColor()
+    {
+        return this.warpHaloColor;
+    }
+
+    /**
+     * Alias for `warpHaloColor` (ccp typo)
+     * @param {vec4} v
+     */
+    set warpHalpColor(v)
+    {
+        this.warpHaloColor = v;
+    }
+    /**
+     * Black definition
+     * @param {*} r
+     * @returns {*[]}
+     */
+    static black(r)
+    {
+        return [
+            ["glowColor", r.vector4],
+            ["glowScale", r.float],
+            ["gradient0ResPath", r.path],
+            ["gradient1ResPath", r.path],
+            ["haloColor", r.vector4],
+            ["haloScaleX", r.float],
+            ["haloScaleY", r.float],
+            ["lightFlickerAmplitude", r.float],
+            ["lightFlickerColor", r.vector4],
+            ["lightFlickerFrequency", r.float],
+            ["lightFlickerRadius", r.float],
+            ["lightColor", r.vector4],
+            ["lightRadius", r.float],
+            ["lightWarpColor", r.vector4],
+            ["lightWarpRadius", r.float],
+            ["shape0", r.object],
+            ["shape1", r.object],
+            ["shapeAtlasCount", r.uint],
+            ["shapeAtlasHeight", r.uint],
+            ["shapeAtlasResPath", r.string],
+            ["shapeAtlasWidth", r.uint],
+            ["symHaloScale", r.float],
+            ["trailColor", r.vector4],
+            ["trailSize", r.vector4],
+            ["volumetric", r.boolean],
+            ["warpGlowColor", r.vector4],
+            ["warpHalpColor", r.vector4],
+            ["warpShape0", r.object],
+            ["warpShape1", r.object]
+        ];
+    }
 }
-
-Tw2BaseClass.define(EveSOFDataBooster, Type =>
-{
-    return {
-        isStaging: true,
-        type: "EveSOFDataBooster",
-        props: {
-            glowColor: Type.RGBA_LINEAR,
-            glowScale: Type.NUMBER,
-            gradient0ResPath: Type.PATH,
-            gradient1ResPath: Type.PATH,
-            haloColor: Type.RGBA_LINEAR,
-            haloScaleX: Type.NUMBER,
-            haloScaleY: Type.NUMBER,
-            lightColor: Type.RGBA_LINEAR,
-            lightFlickerAmplitude: Type.NUMBER,
-            lightFlickerFrequency: Type.NUMBER,
-            lightRadius: Type.NUMBER,
-            lightWarpColor: Type.RGBA_LINEAR,
-            lightWarpRadius: Type.NUMBER,
-            shape0: ["EveSOFDataBoosterShape"],
-            shape1: ["EveSOFDataBoosterShape"],
-            shapeAtlasCount: Type.NUMBER,
-            shapeAtlasHeight: Type.NUMBER,
-            shapeAtlasResPath: Type.PATH,
-            symHaloScale: Type.NUMBER,
-            trailColor: Type.RGBA_LINEAR,
-            trailSize: Type.VECTOR4,
-            warpGlowColor: Type.RGBA_LINEAR,
-            warpHalpColor: Type.RGBA_LINEAR,
-            warpShape0: ["EveSOFDataBoosterShape"],
-            warpShape1: ["EveSOFDataBoosterShape"]
-        }
-    };
-});
-

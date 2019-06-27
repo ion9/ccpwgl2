@@ -6,20 +6,22 @@ import {Tw2BaseClass} from "../../global";
  *
  * @property {Number} value -
  */
-export default class Tw2Float extends Tw2BaseClass
+export class Tw2Float extends Tw2BaseClass
 {
 
     value = 0;
 
-}
+    /**
+     * Black definition
+     * @param {*} r
+     * @returns {*[]}
+     */
+    static black(r)
+    {
+        return [
+            ["value", r.float]
+        ];
+    }
 
-Tw2BaseClass.define(Tw2Float, Type =>
-{
-    return {
-        type: "Tw2Float",
-        props: {
-            value: Type.NUMBER
-        }
-    };
-});
+}
 

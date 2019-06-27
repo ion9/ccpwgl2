@@ -1,5 +1,5 @@
-import {quat, vec3} from "../../global/index";
-import {Tw2BaseClass} from "../../global/index";
+import {quat, vec3} from "../../global";
+
 
 /**
  * EveSOFDataPatternTransform
@@ -9,7 +9,7 @@ import {Tw2BaseClass} from "../../global/index";
  * @property {quat} rotation      -
  * @property {vec3} scaling       -
  */
-export class EveSOFDataPatternTransform extends Tw2BaseClass
+export class EveSOFDataPatternTransform
 {
 
     isMirrored = false;
@@ -17,19 +17,18 @@ export class EveSOFDataPatternTransform extends Tw2BaseClass
     rotation = quat.create();
     scaling = vec3.fromValues(1, 1, 1);
 
+    /**
+     * Black definition
+     * @param {*} r
+     * @returns {*[]}
+     */
+    static black(r)
+    {
+        return [
+            ["isMirrored", r.boolean],
+            ["position", r.vector3],
+            ["rotation", r.vector4],
+            ["scaling", r.vector3]
+        ];
+    }
 }
-
-Tw2BaseClass.define(EveSOFDataPatternTransform, Type =>
-{
-    return {
-        isStaging: true,
-        type: "EveSOFDataPatternTransform",
-        props: {
-            isMirrored: Type.BOOLEAN,
-            position: Type.TR_TRANSLATION,
-            rotation: Type.TR_ROTATION,
-            scaling: Type.TR_SCALING
-        }
-    };
-});
-

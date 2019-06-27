@@ -1,23 +1,18 @@
 /* eslint no-unused-vars:0 */
-import {vec3, quat, mat4, util, Tw2BaseClass} from "../../global";
+import {vec3, mat4, Tw2BaseClass} from "../../global";
 import {ErrAbstractClassMethod} from "../../core";
 
 /**
- * EveChild base class
- * TODO: Implement LOD
- *
- * @property {Boolean} _isEffectChild
+ * Root EveChild class
  */
-export class EveChild extends Tw2BaseClass
+export function EveChild()
 {
-    /**
-     * Identifies that the class is a child effect
-     * @returns {boolean}
-     */
-    get _isEffectChild()
-    {
-        return true;
-    }
+    Tw2BaseClass.defineID(this);
+}
+
+EveChild.prototype = Object.assign(Object.create(Tw2BaseClass.prototype), {
+
+    constructor: EveChild,
 
     /**
      * Per frame update
@@ -27,7 +22,17 @@ export class EveChild extends Tw2BaseClass
     Update(dt, parentTransform)
     {
         throw new ErrAbstractClassMethod();
-    }
+    },
+
+    /**
+     * Gets object resources
+     * @param {Array} [out=[]]
+     * @returns {Array<Tw2Resource>} out
+     */
+    GetResources(out = [])
+    {
+        throw new ErrAbstractClassMethod();
+    },
 
     /**
      * Gets render batches
@@ -40,34 +45,30 @@ export class EveChild extends Tw2BaseClass
         throw new ErrAbstractClassMethod();
     }
 
-    /**
-     * Class globals and scratch variables
-     * @type {Object}
-     */
-    static global = {
-        mat4_0: mat4.create(),
-        vec3_0: vec3.create()
-    };
-
-    /**
-     * Per object data
-     * @type {{ffe: *[]}}
-     */
-    static perObjectData = {
-        ffe: [
-            ["world", 16],
-            ["worldInverseTranspose", 16]
-        ]
-    };
-
-}
-
-Tw2BaseClass.define(EveChild, Type =>
-{
-    return {
-        type: "EveChild",
-        category: "ObjectChild",
-        isAbstract: true
-    };
 });
 
+/**
+ * Class globals and scratch variables
+ * @type {Object}
+ */
+EveChild.global = {
+    mat4_0: mat4.create(),
+    vec3_0: vec3.create()
+};
+
+/**
+ * Per object data
+ * @type {{ffe: *[]}}
+ */
+EveChild.perObjectData = {
+    ffe: [
+        ["world", 16],
+        ["worldInverseTranspose", 16]
+    ]
+};
+
+/**
+ * Identifies that the class is a child effect
+ * @returns {boolean}
+ */
+EveChild.__isEffectChild = true;

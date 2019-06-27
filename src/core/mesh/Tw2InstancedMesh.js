@@ -1,4 +1,4 @@
-import {vec3, util, resMan, device, Tw2BaseClass} from "../../global";
+import {vec3, util, resMan, Tw2BaseClass} from "../../global";
 import {Tw2InstancedMeshBatch} from "../batch";
 import {
     RM_ADDITIVE,
@@ -9,6 +9,9 @@ import {
     RM_TRANSPARENT,
     RM_PICKABLE
 } from "../../global/engine";
+import {assignIfExists, get} from "../../global/util";
+import {Tw2MeshArea} from "./Tw2MeshArea";
+import {Tw2Mesh} from "./Tw2Mesh";
 
 /**
  * Tw2InstancedMesh
@@ -21,7 +24,7 @@ import {
  * @property {Array.<Tw2MeshArea>} additiveAreas                                       -
  * @property {Array.<Tw2MeshArea>} decalAreas                                          -
  * @property {Array.<Tw2MeshArea>} depthAreas                                          -
- * @property {Boolean} display-                                                        -
+ * @property {Boolean} display                                                         -
  * @property {Array.<Tw2MeshArea>} distortionAreas                                     -
  * @property {Tw2GeometryRes} geometryRes                                              -
  * @property {String} geometryResPath                                                  -
@@ -30,6 +33,7 @@ import {
  * @property {Number} instanceMeshIndex                                                -
  * @property {vec3} maxBounds                                                          -
  * @property {vec3} minBounds                                                          -
+ * @property {String} name                                                             -
  * @property {Array.<Tw2MeshArea>} opaqueAreas                                         -
  * @property {Array.<Tw2MeshArea>} transparentAreas                                    -
  * @property {*} visible                                                               -
@@ -51,6 +55,7 @@ export class Tw2InstancedMesh extends Tw2BaseClass
     transparentAreas = [];
 
     //ccpwgl
+    name = "";
     display = true;
     geometryResource = null;
     pickableAreas = [];
@@ -63,6 +68,49 @@ export class Tw2InstancedMesh extends Tw2BaseClass
         pickableAreas: true,
         transparentAreas: true,
     };
+
+    /**
+     * Creates an instanced mesh from a plain object
+     * @param {*} [values]
+     * @param {*} [options]
+     * @returns {Tw2InstancedMesh}
+     */
+    static from(values, options)
+    {
+        const item = new Tw2InstancedMesh();
+        item.meshIndex = get(options, "index", 0);
+
+        if (values)
+        {
+            /*
+            if (values.instanceGeometryResource)
+            {
+                item.instanceGeometryResource = values.instanceGeometryResource;
+            }
+            */
+
+            assignIfExists(item, values, [
+                "name", "display", "geometryResPath",
+                "instanceGeometryResPath", "instanceMeshIndex"
+            ]);
+
+            const areaNames = [
+                "additiveAreas", "decalAreas", "depthAreas",
+                "distortionAreas", "opaqueAreas", "pickableAreas",
+                "transparentAreas"
+            ];
+
+            assignIfExists(item.visible, values.visible, areaNames);
+            Tw2Mesh.createAreaIfExists(item, values, areaNames);
+        }
+
+        if (!options || !options.skipUpdate)
+        {
+            item.Initialize();
+        }
+
+        return item;
+    }
 
     /**
      * Initializes the instanced mesh
@@ -240,35 +288,33 @@ export class Tw2InstancedMesh extends Tw2BaseClass
         }
     }
 
+    /**
+     * Black definition
+     * @param {*} r
+     * @returns {*[]}
+     */
+    static black(r)
+    {
+        return [
+            ["additiveAreas", r.array],
+            ["decalAreas", r.array],
+            ["depthAreas", r.array],
+            ["distortionAreas", r.array],
+            ["geometryResPath", r.string],
+            ["instanceGeometryResPath", r.string],
+            ["instanceGeometryResource", r.object],
+            ["instanceMeshIndex", r.uint],
+            ["minBounds", r.vector3],
+            ["maxBounds", r.vector3],
+            ["opaqueAreas", r.array],
+            ["transparentAreas", r.array],
+        ];
+    }
+
+    /**
+     * Identifies that the class is in staging
+     * @property {null|Number}
+     */
+    static __isStaging = 1;
+
 }
-
-
-Tw2BaseClass.define(Tw2InstancedMesh, Type =>
-{
-    return {
-        type: "Tw2InstancedMesh",
-        category: "Mesh",
-        props: {
-            additiveAreas: [["Tw2MeshArea"]],
-            decalAreas: [["Tw2MeshArea"]],
-            depthAreas: [["Tw2MeshArea"]],
-            display: Type.BOOLEAN,
-            distortionAreas: [["Tw2MeshArea"]],
-            geometryResPath: Type.PATH,
-            instanceGeometryResPath: Type.PATH,
-            instanceGeometryResource: ["Tr2ParticleSystem", "Tr2RuntimeInstanceData", "TriGeometryRes"],
-            instanceMeshIndex: Type.NUMBER,
-            maxBounds: Type.VECTOR3,
-            minBounds: Type.VECTOR3,
-            opaqueAreas: [["Tw2MeshArea"]],
-            pickableAreas: [["Tw2MeshArea"]],
-            transparentAreas: [["Tw2MeshArea"]],
-            visible: Type.PLAIN
-        },
-        notImplemented: [
-            "distortionAreas",
-            "pickableAreas"
-        ]
-    };
-});
-

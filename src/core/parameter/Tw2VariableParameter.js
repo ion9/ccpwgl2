@@ -30,7 +30,7 @@ export class Tw2VariableParameter extends Tw2Parameter
      */
     get variable()
     {
-        return store.GetVariable(this.variableName);
+        return store.variables.Get(this.variableName);
     }
 
     /**
@@ -49,7 +49,7 @@ export class Tw2VariableParameter extends Tw2Parameter
      */
     GetValue(serialize)
     {
-        return store.GetVariableValue(this.variableName, serialize);
+        return store.variables.Get(this.variableName, serialize);
     }
 
     /**
@@ -66,15 +66,17 @@ export class Tw2VariableParameter extends Tw2Parameter
         }
     }
 
+    /**
+     * Black definition
+     * @param {*} r
+     * @returns {*[]}
+     */
+    static black(r)
+    {
+        return [
+            ["name", r.string],
+            ["variableName", r.string]
+        ];
+    }
+
 }
-
-Tw2Parameter.define(Tw2VariableParameter, Type =>
-{
-    return {
-        type: "Tw2VariableParameter",
-        props: {
-            variableName: Type.STRING
-        }
-    };
-});
-

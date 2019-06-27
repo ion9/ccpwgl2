@@ -7,13 +7,10 @@ var ccpwgl = (function (ccpwgl_int)
 
     // Enables debug mode
     Object.defineProperty(ccpwgl, "debug", {
-        get: function ()
-        {
-            return ccpwgl_int.Tw2ObjectReader.DEBUG_ENABLED;
-        },
         set: function (a)
         {
             ccpwgl_int.Tw2ObjectReader.DEBUG_ENABLED = !!a;
+            ccpwgl_int.Tw2BlackReader.DEBUG_ENABLED = !!a;
         }
     });
 
@@ -137,6 +134,20 @@ var ccpwgl = (function (ccpwgl_int)
     };
 
     /**
+     * Creates a render target
+     * @param {number} width
+     * @param {number} height
+     * @param {boolean} depth
+     * @returns {ccpwgl_int.Tw2RenderTarget}
+     */
+    ccpwgl.createRenderTarget = function (width, height, depth)
+    {
+        var renderTarget = new ccpwgl_int.Tw2RenderTarget();
+        renderTarget.Create(width, height, depth);
+        return renderTarget;
+    };
+
+    /**
      * Bloom post effect
      * @type {?Tw2PostEffect}
      **/
@@ -182,20 +193,12 @@ var ccpwgl = (function (ccpwgl_int)
      * @type {!function(dt): void}
      */
     ccpwgl.onPostRender = null;
-
-    var sof = new ccpwgl_int.EveSOF();
-
-    // Store the sof locally for testing
-    sof.GetSofData(function (data)
-    {
-        ccpwgl.sof = data;
-    });
-
+    
     /**
      * Internal render/update function. Is called every frame.
      * @param {number} dt Frame time.
      **/
-    function render(dt)
+    var render = function (dt)
     {
         var clear = scene && scene.wrappedScene && useSceneClearColor ? scene.wrappedScene.clearColor : clearColor;
 
@@ -224,7 +227,12 @@ var ccpwgl = (function (ccpwgl_int)
                     scene.objects[i].onUpdate.call(scene.objects[i], dt);
                 }
             }
-            ccpwgl.post.Update(dt);
+
+            if (ccpwgl.post)
+            {
+                ccpwgl.post.Update(dt);
+            }
+
             scene.wrappedScene.Update(dt);
         }
         if (renderingEnabled)
@@ -251,7 +259,7 @@ var ccpwgl = (function (ccpwgl_int)
                 ccpwgl.onPostSceneRender(dt);
             }
 
-            if (!ccpwgl.post.Render())
+            if (!ccpwgl.post || !ccpwgl.post.Render())
             {
                 // We have crap in back buffer alpha channel, so clear it
                 d.gl.colorMask(false, false, false, true);
@@ -260,13 +268,14 @@ var ccpwgl = (function (ccpwgl_int)
                 d.gl.colorMask(true, true, true, true);
             }
         }
+
         if (ccpwgl.onPostRender)
         {
             ccpwgl.onPostRender(dt);
         }
 
         return true;
-    }
+    };
 
     /**
      * Initializes WebGL library. This function needs to be called before most of other
@@ -289,48 +298,26 @@ var ccpwgl = (function (ccpwgl_int)
      * - glParams: object; WebGL context creation parameters, see
      *   https://www.khronos.org/registry/webgl/specs/1.0/#2.2. Defaults to none.
      *
-     * @param {HTMLCanvasElement} canvas HTML Canvas object that is used for WebGL output.
-     * @param {Object} params Optional parameters.
+     * @param {HTMLCanvasElement|String} canvas  - Canvas
+     * @param {{}} options                       - params Optional parameters.
      * @returns {number} webgl version (0: none, 1: webgl, 2: webgl2)
      * @throws {NoWebGLError} If WebGL context is not available (IE or older browsers for example).
      */
     ccpwgl.initialize = function (canvas, params)
     {
-        function getOption(params, name, defaultValue)
-        {
-            if (params && name in params)
-            {
-                return params[name];
-            }
-            return defaultValue;
-        }
-
-        var d = ccpwgl_int.device;
-        d.mipLevelSkipCount = getOption(params, "textureQuality", 0);
-        d.shaderModel = getOption(params, "shaderQuality", "hi");
-        d.enableAnisotropicFiltering = getOption(params, "anisotropicFilter", true);
-
-        var glParams = getOption(params, "glParams", {});
-        glParams.webgl2 = !params || params.webgl2 === undefined ? true : params.webgl2;
-
-        var webglVersion = d.CreateDevice(canvas, glParams);
+        var webglVersion = ccpwgl_int.Initialize({
+            canvas: canvas,
+            glParams: params ? params.glParams : {},
+            device: params,
+            render: render
+        });
 
         if (!webglVersion) throw new ccpwgl.NoWebGLError();
-
-        d.Schedule(render);
 
         if ("postprocessing" in params)
         {
             ccpwgl.enablePostprocessing(params.postprocessing);
         }
-
-        function tick()
-        {
-            d.RequestAnimationFrame(tick);
-            d.Tick();
-        }
-
-        d.RequestAnimationFrame(tick);
 
         return webglVersion;
     };
@@ -352,7 +339,7 @@ var ccpwgl = (function (ccpwgl_int)
      */
     ccpwgl.setResourcePath = function (namespace, path)
     {
-        ccpwgl_int.store.RegisterPath(namespace, path);
+        ccpwgl_int.store.path.Set(namespace, path);
     };
 
     /**
@@ -366,6 +353,11 @@ var ccpwgl = (function (ccpwgl_int)
     {
         if (enable)
         {
+            if (!ccpwgl.post)
+            {
+                ccpwgl.post = new ccpwgl_int.Tw2PostEffectManager();
+            }
+
             if (!bloomEffect)
             {
                 const postDirectory = "res:/Graphics/Effect/Managed/Space/PostProcess/";
@@ -435,13 +427,36 @@ var ccpwgl = (function (ccpwgl_int)
     };
 
     /**
+     * Gets the current active camera
+     * @returns {Camera}
+     */
+    ccpwgl.getCamera = function ()
+    {
+        return camera;
+    };
+
+    var defaultErrorHandler = function (err)
+    {
+        throw err;
+    };
+
+    // Store the sof locally for testing
+    ccpwgl_int.eveSof.GetData().then(function(data)
+    {
+        ccpwgl.sof = data;
+    })
+    
+    /**
      * Returns the whole Space Object Factory file.
      * Provides a callback that is called once SOF data has been loaded.
-     * @param callback Function that is called when SOF data is ready. Called with a single parameter
+     * @param onResolved Function that is called when SOF data is ready. Called with a single parameter
+     * @param onRejected Function that is called on errors
      */
-    ccpwgl.getSofData = function (callback)
+    ccpwgl.getSofData = function (onResolved, onRejected)
     {
-        sof.GetSofData(callback);
+        ccpwgl_int.eveSof.GetData()
+            .then(onResolved)
+            .catch(onRejected || defaultErrorHandler);
     };
 
     /**
@@ -449,12 +464,15 @@ var ccpwgl = (function (ccpwgl_int)
      * function can be used to get all supported ship DNA strings (DNA string has a form 'hull:faction:race' that can
      * be passed to loadShip function) to construct 'random' ships. The function is asynchronous so the user needs to
      * provide a callback that is called once SOF data has been loaded.
-     * @param callback Function that is called when SOF data is ready. Called with a single parameter that is an mapping
+     * @param onResolved Function that is called when SOF data is ready. Called with a single parameter that is an mapping
      * of all hull names to their descriptions.
+     * @param onRejected Function that is called on errors
      */
-    ccpwgl.getSofHullNames = function (callback)
+    ccpwgl.getSofHullNames = function (onResolved, onRejected)
     {
-        sof.GetHullNames(callback);
+        ccpwgl_int.eveSof.GetHullNames()
+            .then(onResolved)
+            .catch(onRejected || defaultErrorHandler);
     };
 
     /**
@@ -462,12 +480,15 @@ var ccpwgl = (function (ccpwgl_int)
      * function can be used to get all supported ship DNA strings (DNA string has a form 'hull:faction:race' that can
      * be passed to loadShip function) to construct 'random' ships. The function is asynchronous so the user needs to
      * provide a callback that is called once SOF data has been loaded.
-     * @param callback Function that is called when SOF data is ready. Called with a single parameter that is an mapping
-     * of all faction names to their descriptions.
+     * @param onResolved Function that is called when SOF data is ready. Called with a single parameter that is an mapping
+     * of all hull names to their descriptions.
+     * @param onRejected Function that is called on errors
      */
-    ccpwgl.getSofFactionNames = function (callback)
+    ccpwgl.getSofFactionNames = function (onResolved, onRejected)
     {
-        sof.GetFactionNames(callback);
+        ccpwgl_int.eveSof.GetFactionNames()
+            .then(onResolved)
+            .catch(onRejected || defaultErrorHandler);
     };
 
     /**
@@ -475,45 +496,54 @@ var ccpwgl = (function (ccpwgl_int)
      * function can be used to get all supported ship DNA strings (DNA string has a form 'hull:faction:race' that can
      * be passed to loadShip function) to construct 'random' ships. The function is asynchronous so the user needs to
      * provide a callback that is called once SOF data has been loaded.
-     * @param callback Function that is called when SOF data is ready. Called with a single parameter that is an mapping
+     * @param onResolved Function that is called when SOF data is ready. Called with a single parameter that is an mapping
      * of all race names to their descriptions.
+     * @param onRejected Function that is called on errors
      */
-    ccpwgl.getSofRaceNames = function (callback)
+    ccpwgl.getSofRaceNames = function (onResolved, onRejected)
     {
-        sof.GetRaceNames(callback);
+        ccpwgl_int.eveSof.GetRaceNames()
+            .then(onResolved)
+            .catch(onRejected || defaultErrorHandler);
     };
+    
+    ccpwgl.getMaterialNames = function(onResolved, onRejected)
+    {
+        ccpwgl_int.eveSof.GetMaterialNames()
+            .then(onResolved)
+            .catch(onRejected || defaultErrorHandler);
+    }
+    
+    ccpwgl.getPatternNames = function(onResolved, onRejected)
+    {
+        ccpwgl_int.eveSof.GetPatternNames()
+            .then(onResolved)
+            .catch(onRejected || defaultErrorHandler);
+    }
+
+    ccpwgl.getHullPatternNames = function(hull, onResolved, onRejected)
+    {
+        ccpwgl_int.eveSof.GetHullPatternNames(hull)
+            .then(onResolved)
+            .catch(onRejected || defaultErrorHandler);
+    }
 
     /**
      * Returns a proper constructor function (either 'loadObject' or 'loadShip') appropriate for the given
      * hull name in a callback function.
      * @param hull {string} SOF hull name or full DNA
-     * @param callback Function that is called when SOF data is ready. Called with a single parameter that is a
+     * @param onResolved Function that is called when SOF data is ready. Called with a single parameter that is a
      * constructor name for the given hull.
+     * @param onRejected Function that is called on errors
      */
-    ccpwgl.getSofHullConstructor = function (hull, callback)
+    ccpwgl.getSofHullConstructor = function (hull, onResolved, onRejected)
     {
-        sof.GetSofData(function (data)
-        {
-            var c = hull.indexOf(":");
-            if (c > 0)
+        ccpwgl_int.eveSof.GetHullBuildClass(hull)
+            .then(function (buildClass)
             {
-                hull = hull.substr(0, c);
-            }
-            var h = data.hull[hull];
-            var constructor = null;
-            if (h)
-            {
-                if (h.buildClass == 2)
-                {
-                    constructor = "loadObject";
-                }
-                else
-                {
-                    constructor = "loadShip";
-                }
-            }
-            callback(constructor);
-        });
+                onResolved(buildClass === 2 ? "loadObject" : "loadShip");
+            })
+            .catch(onRejected || defaultErrorHandler);
     };
 
     /**
@@ -537,9 +567,30 @@ var ccpwgl = (function (ccpwgl_int)
         this.dna = null;
         /** Array of object overlay effects **/
         this.overlays = [];
+        /** Parameter for holding visibility status **/
+        var display = true;
+
+        Object.defineProperty(this, "display", {
+            get: function ()
+            {
+                return display;
+            },
+            set: function (bool)
+            {
+                display = bool;
+                for (let i = 0; i < this.wrappedObjects.length; i++)
+                {
+                    if (this.wrappedObjects[i])
+                    {
+                        this.wrappedObjects[i].display = display;
+                    }
+                }
+            }
+        });
 
         function onObjectLoaded(obj)
         {
+            obj.display = display;
             self.wrappedObjects[0] = obj;
             if ("transform" in self.wrappedObjects[0])
             {
@@ -560,6 +611,24 @@ var ccpwgl = (function (ccpwgl_int)
         }
 
         var self = this;
+
+        /**
+         * Gets the object's resources
+         * @param {Array<Tw2Resource>} [out=[]]
+         * @returns {Array<Tw2Resouce>} out
+         */
+        this.getResources = function (out)
+        {
+            if (!out) out = [];
+            for (let i = 0; i < this.wrappedObjects.length; i++)
+            {
+                if (this.wrappedObjects[i] && "GetResources" in this.wrappedObjects[i])
+                {
+                    this.wrappedObjects[i].GetResources(out);
+                }
+            }
+            return out;
+        };
 
         /**
          * Check if object .red file is still loading.
@@ -655,7 +724,7 @@ var ccpwgl = (function (ccpwgl_int)
                 overlay: null
             };
             this.overlays.push(overlay);
-            ccpwgl_int.resMan.GetObject(resPath, function (obj)
+            ccpwgl_int.GetObject(resPath, function (obj)
             {
                 overlay.overlay = obj;
                 rebuildOverlays();
@@ -686,12 +755,9 @@ var ccpwgl = (function (ccpwgl_int)
         if (resPath.match(/(\w|\d|[-_])+:(\w|\d|[-_])+:(\w|\d|[-_])+/))
         {
             this.dna = resPath;
-            sof.BuildFromDNA(resPath, onObjectLoaded);
         }
-        else
-        {
-            ccpwgl_int.resMan.GetObject(resPath, onObjectLoaded);
-        }
+
+        ccpwgl_int.GetObject(resPath, onObjectLoaded);
     }
 
     /**
@@ -735,6 +801,26 @@ var ccpwgl = (function (ccpwgl_int)
         this.killCount = 0;
         /** Function to call when turret fires  @type {!function(ship, muzzlePositions): void} **/
         this.turretFireCallback = null;
+        /** Parameter for holding visibility status **/
+        var display = true;
+
+        Object.defineProperty(this, "display", {
+            get: function ()
+            {
+                return display;
+            },
+            set: function (bool)
+            {
+                display = bool;
+                for (let i = 0; i < this.wrappedObjects.length; i++)
+                {
+                    if (this.wrappedObjects[i])
+                    {
+                        this.wrappedObjects[i].display = display;
+                    }
+                }
+            }
+        });
 
         var faction = null;
 
@@ -753,6 +839,7 @@ var ccpwgl = (function (ccpwgl_int)
         {
             return function (obj)
             {
+                obj.display = display;
                 self.wrappedObjects[index] = obj;
                 if (!(obj instanceof ccpwgl_int.EveShip))
                 {
@@ -830,6 +917,24 @@ var ccpwgl = (function (ccpwgl_int)
         }
 
         /**
+         * Gets the object's resources
+         * @param {Array<Tw2Resource>} [out=[]]
+         * @returns {Array<Tw2Resouce>} out
+         */
+        this.getResources = function (out)
+        {
+            if (!out) out = [];
+            for (let i = 0; i < this.wrappedObjects.length; i++)
+            {
+                if (this.wrappedObjects[i] && "GetResources" in this.wrappedObjects[i])
+                {
+                    this.wrappedObjects[i].GetResources(out);
+                }
+            }
+            return out;
+        };
+
+        /**
          * Adds an overlay effect to the object.
          *
          * @param {string} resPath Resource path to overlay effect.
@@ -843,7 +948,7 @@ var ccpwgl = (function (ccpwgl_int)
                 overlay: null
             };
             this.overlays.push(overlay);
-            ccpwgl_int.resMan.GetObject(resPath, function (obj)
+            ccpwgl_int.GetObject(resPath, function (obj)
             {
                 overlay.overlay = obj;
                 rebuildOverlays();
@@ -1030,7 +1135,7 @@ var ccpwgl = (function (ccpwgl_int)
 
             for (var i = 0; i < self.wrappedObjects.length; ++i)
             {
-                ccpwgl_int.resMan.GetObject(resPath, loaded(i));
+                ccpwgl_int.GetObject(resPath, loaded(i));
             }
         };
 
@@ -1285,14 +1390,14 @@ var ccpwgl = (function (ccpwgl_int)
 
 
             ship.RebuildTurretPositions();
-            ccpwgl_int.resMan.GetObject(
+            ccpwgl_int.GetObject(
                 resPath,
                 function (object)
                 {
                     object.locatorName = name;
                     if (faction)
                     {
-                        sof.SetupTurretMaterial(object, faction, faction);
+                        ccpwgl_int.eveSof.SetupTurretMaterial(object, faction, faction);
                     }
                     ship.turretSets.push(object);
                     ship.RebuildTurretPositions();
@@ -1461,19 +1566,16 @@ var ccpwgl = (function (ccpwgl_int)
 
         for (i = 0; i < resPath.length; ++i)
         {
-            if (resPath[i].match(/(\w|\d|[-_])+:(\w|\d|[-_])+:(\w|\d|[-_])+/))
+            if (i == 0)
             {
-                if (i == 0)
+                // DNA
+                if (resPath[i].match(/(\w|\d|[-_])+:(\w|\d|[-_])+:(\w|\d|[-_])+/))
                 {
                     this.dna = resPath[0];
                     faction = this.dna.split(":")[1];
                 }
-                sof.BuildFromDNA(resPath[i], OnShipPartLoaded(i));
-            }
-            else
-            {
-                ccpwgl_int.resMan.GetObject(resPath[i], OnShipPartLoaded(i));
-                if (i == 0)
+                // Path
+                else
                 {
                     var p = resPath[0].toLowerCase();
                     for (var f in factions)
@@ -1485,6 +1587,8 @@ var ccpwgl = (function (ccpwgl_int)
                     }
                 }
             }
+
+            ccpwgl_int.GetObject(resPath[i], OnShipPartLoaded(i));
         }
     }
 
@@ -1510,6 +1614,37 @@ var ccpwgl = (function (ccpwgl_int)
 
         /** Per-frame on update callback @type {!function(dt): void} **/
         this.onUpdate = null;
+
+        var display = true;
+        Object.defineProperty(this, "display", {
+            get: function ()
+            {
+                return display;
+            },
+            set: function (bool)
+            {
+                display = bool;
+                this.wrappedObjects[0].display = display;
+            }
+        });
+
+        /**
+         * Gets the object's resources
+         * @param {Array<Tw2Resource>} [out=[]]
+         * @returns {Array<Tw2Resouce>} out
+         */
+        this.getResources = function (out)
+        {
+            if (!out) out = [];
+            for (let i = 0; i < this.wrappedObjects.length; i++)
+            {
+                if (this.wrappedObjects[i] && "GetResources" in this.wrappedObjects[i])
+                {
+                    this.wrappedObjects[i].GetResources(out);
+                }
+            }
+            return out;
+        };
 
         /**
          * Check if planet's resources are loaded and the resulting height map is generated.
@@ -1730,7 +1865,7 @@ var ccpwgl = (function (ccpwgl_int)
         this.load = function (resPath, onload)
         {
             var self = this;
-            ccpwgl_int.resMan.GetObject(
+            ccpwgl_int.GetObject(
                 resPath,
                 function (obj)
                 {
@@ -1921,7 +2056,7 @@ var ccpwgl = (function (ccpwgl_int)
         this.loadSun = function (resPath, onload)
         {
             var self = this;
-            ccpwgl_int.resMan.GetObject(
+            ccpwgl_int.GetObject(
                 resPath,
                 function (obj)
                 {
@@ -2462,6 +2597,24 @@ var ccpwgl = (function (ccpwgl_int)
     };
 
     /**
+     * Sets the active scene from a previously loaded scene
+     * @param {Scene} newScene
+     */
+    ccpwgl.setScene = function (newScene)
+    {
+        scene = newScene;
+    };
+
+    /**
+     * Gets the active scene
+     * @returns {Scene}
+     */
+    ccpwgl.getScene = function ()
+    {
+        return scene;
+    };
+
+    /**
      * Loads a new scene from .red file and makes it the current scene (the one that
      * will be automatically updated rendered into the canvas).
      *
@@ -2495,7 +2648,7 @@ var ccpwgl = (function (ccpwgl_int)
 
         if (background && typeof background == "string")
         {
-            ccpwgl_int.resMan.GetObject("res:/dx9/scene/starfield/starfieldNebula.red", function (obj)
+            ccpwgl_int.GetObject("res:/dx9/scene/starfield/starfieldNebula.red", function (obj)
             {
                 scene.wrappedScene.backgroundEffect = obj;
                 if ("NebulaMap" in obj.parameters)
