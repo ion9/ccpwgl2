@@ -12,6 +12,8 @@ import {
 /**
  * Tr2MeshLod
  * TODO: Implement "depthAreas"
+ * TODO: Implement "geometryRes"
+ * TODO: Implement LOD
  * TODO: What should the mesh index be for it's render batch?
  * TODO: Confirm "associatedResources" is geometryRes cache
  * @ccp Tr2MeshLod
@@ -54,99 +56,21 @@ export class Tr2MeshLod extends Tw2BaseClass
         depthAreas: true
     };
 
-    _geometryPending = null;
-    _geometryQuality = null;
-
-
     /**
-     * Initializes the mesh
+     * Initializes the object
      */
     Initialize()
     {
-        this.SetQuality(0);
-    }
-
-    /**
-     * Sets lod level
-     * @param {Number} [level=3]
-     */
-    SetQuality(level = 3)
-    {
-        level = Math.min(3, Math.max(0, level));
-        if (this._geometryQuality === level) return;
-
-        // Clear any pending geometry changes
-        if (this._geometryPending)
-        {
-            this._geometryPending.UnregisterNotification(this);
-            this._geometryPending = null;
-        }
-
-        let res = null;
-        if (this.geometryRes && level < 3)
-        {
-            const
-                aRes = this.associatedResources,
-                path = this.geometryRes;
-
-            // Low
-            if (level === 2)
-            {
-                if (!aRes[2] && path.lowDetailResPath) aRes[2] = resMan.GetResource(path.lowDetailResPath);
-                res = aRes[2];
-            }
-
-            // Medium
-            if (level === 1 || !res)
-            {
-                if (!aRes[1] && path.mediumDetailResPath) aRes[1] = resMan.GetResource(path.mediumDetailResPath);
-                res = aRes[1];
-            }
-
-            // High
-            if (!res)
-            {
-                if (!aRes[0] && path.highDetailResPath) aRes[0] = resMan.GetResource(path.highDetailResPath);
-                res = aRes[0];
-            }
-        }
-        else
-        {
-            this.geometryResource = null;
-        }
-
-        if (res && res !== this.geometryResource)
-        {
-            if (res.IsGood())
-            {
-                this.geometryResource = res;
-            }
-            else
-            {
-                this._geometryPending = res;
-                res.RegisterNotification(this);
-            }
-        }
-
-        this.EmitEvent("lod_changed", {level});
-        this._geometryQuality = level;
+        // TODO Implement Initialize
     }
 
     /**
      * Rebuilds cached data
      * @param {Tw2GeometryRes} res
      */
-    RebuildCachedData(res)
+    OnResPrepared(res)
     {
         this.geometryResource = res;
-        res.UnregisterNotification(this);
-
-        if (this._geometryPending)
-        {
-            this._geometryPending.UnregisterNotification(this);
-        }
-
-        this._geometryPending = null;
     }
 
     /**
@@ -279,29 +203,32 @@ export class Tr2MeshLod extends Tw2BaseClass
             }
         }
     }
-}
 
-Tw2BaseClass.define(Tr2MeshLod, Type =>
-{
-    return {
-        isStaging: true,
-        type: "Tr2MeshLod",
-        category: "Mesh",
-        props: {
-            additiveAreas: [["Tw2MeshArea"]],
-            associatedResources: Type.ARRAY,
-            decalAreas: [["Tw2MeshArea"]],
-            depthAreas: [["Tw2MeshArea"]],
-            display: Type.BOOLEAN,
-            geometryRes: ["Tr2LodResource"],
-            opaqueAreas: [["Tw2MeshArea"]],
-            pickableAreas: [["Tw2MeshArea"]],
-            transparentAreas: [["Tw2MeshArea"]],
-            visible: Type.PLAIN
-        },
-        notImplemented: [
-            "depthAreas"
-        ]
-    };
-});
+    /**
+     * Black definition
+     * @param {*} r
+     * @returns {*[]}
+     */
+    static black(r)
+    {
+        return [
+            ["additiveAreas", r.array],
+            ["associatedResources", r.array],
+            ["decalAreas", r.array],
+            ["depthAreas", r.array],
+            ["distortionAreas", r.array],
+            ["geometryRes", r.object],
+            ["opaqueAreas", r.array],
+            ["pickableAreas", r.array],
+            ["transparentAreas", r.array],
+        ];
+    }
+
+    /**
+     * Identifies that the class is in staging
+     * @property {null|Number}
+     */
+    static __isStaging = 3;
+
+}
 

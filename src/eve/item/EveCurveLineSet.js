@@ -216,30 +216,11 @@ export class EveCurveLineSetItem extends EveObjectSetItem
 
 }
 
-EveObjectSetItem.define(EveCurveLineSetItem, Type =>
-{
-    return {
-        type: "EveCurveLineSetItem",
-        props: {
-            animatedSpeed: Type.NUMBER,
-            animatedScale: Type.NUMBER,
-            color1: Type.RGBA_LINEAR,
-            color2: Type.RGBA_LINEAR,
-            intermediatePosition: Type.VECTOR3,
-            multiColor: Type.RGBA_LINEAR,
-            multiColorBorder: Type.NUMBER,
-            overlayColor: Type.RGBA_LINEAR,
-            position1: Type.VECTOR3,
-            position2: Type.VECTOR3,
-            type: {type: Type.NUMBER, values: EveCurveLineSetItem.Type},
-            width: Type.NUMBER
-        }
-    };
-});
-
-
 /**
  * Curve line set
+ * TODO: The black definition seems way too small - find an example black file that uses this class
+ * TODO: Implement "lineWidthFactor"
+ * TODO: Implement "depthOffset"
  * TODO: Share "lineEffect" between line sets?
  * TODO: Share "pickEffect" between line sets?
  * TODO: Replace "parentTransform" usages and cache with "worldTransform" instead?
@@ -266,7 +247,7 @@ export class EveCurveLineSet extends EveObjectSet
 {
 
     // ccp
-    lineEffect = Tw2Effect.create({
+    lineEffect = Tw2Effect.from({
         effectFilePath: "res:/Graphics/Effect/Managed/Space/SpecialFX/Lines3D.fx",
         textures: {
             "TexMap": "res:/texture/global/white.dds.0.png",
@@ -344,6 +325,17 @@ export class EveCurveLineSet extends EveObjectSet
     {
         this.OnValueChanged();
         this.Rebuild();
+    }
+
+    /**
+     * Gets object resources
+     * @param {Array} [out=[]] - Optional receiving array
+     * @returns {Array.<Tw2Resource>} [out]
+     */
+    GetResources(out=[])
+    {
+        if (this.lineEffect) this.lineEffect.GetResources(out);
+        return out;
     }
 
     /**
@@ -488,13 +480,14 @@ export class EveCurveLineSet extends EveObjectSet
     /**
      * Unloads the line set's buffers
      */
-    Unload()
+    Unload(skipEvent)
     {
         if (this._vb)
         {
             device.gl.deleteBuffer(this._vb);
             this._vb = null;
         }
+        super.Unload(skipEvent);
     }
 
     /**
@@ -502,12 +495,16 @@ export class EveCurveLineSet extends EveObjectSet
      */
     Rebuild()
     {
-        this.Unload();
+        this.Unload(true);
         this.RebuildItems();
         this._vbSize = this.lineCount;
         this._dirty = false;
         const visibleItems = this._visibleItems.length;
-        if (!visibleItems) return;
+        if (!visibleItems)
+        {
+            super.Rebuild();
+            return;
+        }
 
         const
             g = EveCurveLineSet.global,
@@ -613,6 +610,8 @@ export class EveCurveLineSet extends EveObjectSet
         device.gl.bindBuffer(device.gl.ARRAY_BUFFER, this._vb);
         device.gl.bufferData(device.gl.ARRAY_BUFFER, data, device.gl.STATIC_DRAW);
         device.gl.bindBuffer(device.gl.ARRAY_BUFFER, null);
+
+        super.Rebuild();
     }
 
     /**
@@ -902,27 +901,24 @@ export class EveCurveLineSet extends EveObjectSet
         {usage: "COLOR", usageIndex: 1, elements: 4},
         {usage: "COLOR", usageIndex: 2, elements: 4}
     ];
+
+    /**
+     * Black definition
+     * @param {*} r
+     * @returns {*[]}
+     */
+    static black(r)
+    {
+        return [
+            ["lineEffect", r.object],
+            ["pickEffect", r.object],
+        ];
+    }
+
+    /**
+     * Identifies that the class is in staging
+     * @property {null|Number}
+     */
+    static __isStaging = 1;
+
 }
-
-Tw2BaseClass.define(EveCurveLineSet, Type =>
-{
-    return {
-        type: "EveCurveLineSet",
-        props: {
-            additive: Type.BOOLEAN,
-            depthOffset: Type.NUMBER,
-            lineEffect: ["Tw2Effect"],
-            lineWidthFactor: Type.NUMBER,
-            pickable: Type.BOOLEAN,
-            pickEffect: ["Tw2Effect"],
-            position: Type.TR_TRANSLATION,
-            rotation: Type.TR_ROTATION,
-            scaling: Type.TR_SCALING,
-            transform: Type.TR_LOCAL
-        },
-        notImplemented: [
-            "depthOffset"
-        ]
-    };
-});
-

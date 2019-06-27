@@ -1,60 +1,40 @@
-import Tw2Schema from "./Tw2Schema";
-import {generateID} from "../util/index";
 import {ErrAbstractClassMethod} from "../../core/Tw2Error";
+import {isArray, isFunction, isObjectObject, isPlain, isPrimary, isTyped} from "../util";
+import {Tw2EventEmitter} from "./Tw2EventEmitter";
 
 /**
- * Tw2StagingClass
- *
- * @property {String} name
- * @property {Number|String} _id
- * @property {*} _parent
+ * Base class
+ * @param {Tw2Library} [tw2]
  */
-export default class Tw2BaseClass
+export function Tw2BaseClass(tw2)
 {
+    Tw2BaseClass.defineID(this);
+}
 
-    name = "";
-    _id = generateID();
-    _parent = null;
+Tw2BaseClass.prototype = Object.assign(Object.create(Tw2EventEmitter.prototype), {
 
-    /**
-     * Constructor
-     */
-    constructor()
-    {
-        const schema = Tw2Schema.get(this.constructor);
-        if (schema) schema.OnInstantiation(this);
-    }
-
-    /* ----------------------------------------------------------------------------------------------------------------
-
-                                                    Utilities
-
-    -----------------------------------------------------------------------------------------------------------------*/
+    constructor: Tw2BaseClass,
 
     /**
      * Copies another object's values
-     * @param a
-     * @param [opt]
+     * @param {*} a
+     * @param {*} [opt]
      * @returns {*}
      */
-    Copy(a, opt = {})
+    Copy(a, opt)
     {
-        const {skipUpdate, skipNames, verb = "copy"} = opt;
-        const values = a.GetValues({}, {skipNames, verb});
-        return this.SetValues(values, {skipUpdate, verb});
-    }
+        return this.constructor.copy(this, a, opt);
+    },
 
     /**
      * Clones the object
      * @param [opt]
      * @returns {*}
      */
-    Clone(opt = {})
+    Clone(opt)
     {
-        const {skipUpdate, skipNames, verb = "clone"} = opt;
-        const values = this.GetValues({}, {skipNames, verb});
-        return this.constructor.from(values, {skipUpdate, verb});
-    }
+        this.constructor.clone(this, opt);
+    },
 
     /**
      * Sets the object's values from a plain object
@@ -62,10 +42,10 @@ export default class Tw2BaseClass
      * @param [opt]
      * @returns {Boolean}
      */
-    SetValues(values, opt)
+    Set(values, opt)
     {
-        return this.constructor.__setValues(this, values, opt);
-    }
+        return this.constructor.set(this, values, opt);
+    },
 
     /**
      * Gets the object's values as a plain object
@@ -73,484 +53,266 @@ export default class Tw2BaseClass
      * @param [opt]
      * @returns {*}
      */
-    GetValues(out, opt)
+    Get(out, opt)
     {
-        return this.constructor.__getValues(this, out, opt);
-    }
-
-    /**
-     * Creates an object from values
-     * @param [values]
-     * @param [opt={}]
-     * @returns {*}
-     */
-    static from(values, opt = {})
-    {
-        const {skipUpdate, verb = "from"} = opt;
-
-        const item = new this();
-
-        if (values)
-        {
-            item.SetValues(values, {skipUpdate: true, verb});
-        }
-
-        if (!skipUpdate)
-        {
-            if ("Initialize" in item)
-            {
-                item.Initialize();
-            }
-            else
-            {
-                item.UpdateValues();
-            }
-        }
-
-        return item;
-    }
-
-    /**
-     * Sets the object's values
-     * @param a
-     * @param values
-     * @param opt
-     * @returns {Boolean}
-     */
-    static __setValues(a, values, opt)
-    {
-        const schema = Tw2Schema.get(this);
-        if (!schema) throw new ErrAbstractClassMethod();
-        return schema.SetValues(a, values, opt);
-    }
-
-    /**
-     * Gets the object's values
-     * @param a
-     * @param out
-     * @param opt
-     * @returns {*}
-     */
-    static __getValues(a, out, opt)
-    {
-        const schema = Tw2Schema.get(this);
-        if (!schema) throw new ErrAbstractClassMethod();
-        return schema.GetValues(a, out, opt);
-    }
-
-    /* ----------------------------------------------------------------------------------------------------------------
-
-                                                   Event Emitter
-
-    -----------------------------------------------------------------------------------------------------------------*/
-
-    /**
-     * Emits an event
-     * @param eventName
-     * @param eventData
-     * @returns {*}
-     */
-    EmitEvent(eventName, eventData = {})
-    {
-        if (this._events && eventName in this._events)
-        {
-            eventData.evt = eventData.evt || eventName;
-            eventData.ctx = eventData.ctx || this;
-
-            this._events[eventName].forEach((opt, key) =>
-            {
-                key.call(opt.context, eventData);
-                if (opt.once) this._events[eventName].delete(key);
-            });
-        }
-        return this;
-    }
-
-    /**
-     * Adds a listener to an event
-     * @param eventName
-     * @param listener
-     * @param [context]
-     * @param [once]
-     * @returns {*}
-     */
-    OnEvent(eventName, listener, context, once)
-    {
-        if (!this._events)
-        {
-            this._events = {};
-        }
-
-        if (!this._events[eventName])
-        {
-            this._events[eventName] = new Set();
-        }
-
-        this._events[eventName].add(listener, {context, once});
-        return this;
-    }
-
-    /**
-     * Adds a listener to an event and removes after the first emit
-     * @param eventName
-     * @param listener
-     * @param [context]
-     * @returns {*}
-     */
-    OnceEvent(eventName, listener, context)
-    {
-        return this.OnEvent(eventName, listener, context, true);
-    }
-
-    /**
-     * Checks if an event name has a listener
-     * @param eventName
-     * @returns {boolean}
-     */
-    HasEventListener(eventName)
-    {
-        return this._events ? eventName in this._events && this._events[eventName].size > 0 : false;
-    }
-
-    /**
-     * Removes a listener from an event
-     * @param eventName
-     * @param listener
-     * @returns {*}
-     */
-    OffEvent(eventName, listener)
-    {
-        if (this._events && eventName in this._events)
-        {
-            this._events[eventName].delete(listener);
-        }
-        return this;
-    }
-
-    /**
-     * Clears all listeners off an event
-     * @param eventName
-     * @returns {*}
-     */
-    ClearEvent(eventName)
-    {
-        if (this._events && eventName in this._events)
-        {
-            this._events[eventName].clear();
-            Reflect.delete(this._events, eventName);
-        }
-        return this;
-    }
-
-    /**
-     * Purges all events
-     * @returns {*}
-     */
-    PurgeEvents()
-    {
-        if (this._events)
-        {
-            for (const eventName in this._events)
-            {
-                if (this._events.hasOwnProperty(eventName))
-                {
-                    this.ClearEvent(eventName);
-                }
-            }
-            Reflect.deleteProperty(this, "_events");
-        }
-        return this;
-    }
-
-    /* ----------------------------------------------------------------------------------------------------------------
-
-                                                    Change handlers
-
-    -----------------------------------------------------------------------------------------------------------------*/
+        return this.constructor.get(this, out, opt);
+    },
 
     /**
      * Internal handler for value changes
-     * @param [controller]
-     * @param [skipEvents]
+     * @param [opt]
      */
-    OnValueChanged(controller, skipEvents)
+    OnValueChanged(opt)
     {
 
-    }
+    },
 
     /**
      * Triggers update handlers
-     * @param [controller]
-     * @param [skipEvents]
+     * @param {*} [opt]
      */
-    UpdateValues(controller, skipEvents)
+    UpdateValues(opt)
     {
-        this.OnValueChanged();
+        this.OnValueChanged(opt);
 
-        if (this._parent && this._parent.OnChildValueChanged)
+        if (!opt || !opt["skipEvents"])
         {
-            this._parent.OnChildValueChanged(this, controller, skipEvents);
+            this.emit("modified", opt);
         }
-
-        if (!skipEvents)
-        {
-            this.EmitEvent("modified", {controller});
-        }
-    }
+    },
 
     /**
      * Internal handler for object destruction
-     * @param [controller]
-     * @param [skipEvents]
+     * @param [opt]
      */
-    OnDestroy(controller, skipEvents)
+    OnDestroy(opt)
     {
 
-    }
+    },
 
     /**
      * Destroys the object
-     * @param [controller]
-     * @param [skipEvents]
+     * @param {*} [opt]
      */
-    Destroy(controller, skipEvents)
+    Destroy(opt)
     {
-        this.OnDestroy(controller, skipEvents);
+        this.OnDestroy(opt);
 
-        if (!skipEvents)
+        if (!opt || !opt["skipEvents"])
         {
-            this.EmitEvent("destroy", {controller});
+            this.emit("destroy", opt);
         }
 
-        this.PurgeEvents();
-    }
-
-    /* ----------------------------------------------------------------------------------------------------------------
-
-                                                    Traversal
-
-    -----------------------------------------------------------------------------------------------------------------*/
+        this.kill();
+    },
 
     /**
-     * Unsets the object's parent
-     * @param {*} parent
-     * @returns {boolean}
-     */
-    UnsetParent(parent)
-    {
-        if (this._parent && this._parent === parent)
-        {
-            this._parent = null;
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Sets the object's parent
-     * @param {*} parent
-     * @returns {boolean}
-     */
-    SetParent(parent)
-    {
-        if (this._parent === null)
-        {
-            this._parent = parent;
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Gets child resources
-     * TODO: resource properties aren't stored in props so this needs to be overridden for classes with resources
-     * @param {Array<Tw2Resource>} [out=[]]
-     * @returns {Array<Tw2Resource>} out
-     */
-    GetResources(out = [])
-    {
-        const con = this.constructor;
-        con.perChild(this, (parent, child) =>
-        {
-            if ("GetResources" in child)
-            {
-                child.GetResources(out);
-            }
-        });
-        return out;
-    }
-
-    /**
-     * Finds an object with a given id, searching this object and then it's children
-     * @param {String|Number} id
-     * @returns {null|*}
-     */
-    FindID(id)
-    {
-        if (!id) return null;
-
-        if (this._id === id) return this;
-
-        return this.constructor.perChild(this, (parent, child) =>
-        {
-            if ("FindID" in child)
-            {
-                const result = child.FindID(id);
-                if (result) return result;
-            }
-            return null;
-        });
-    }
-
-    /**
-     * Finds an object by it's id, searching from the root object first
-     * @param {String|Number} id
-     * @returns {null|*}
-     */
-    FindIDFromRoot(id)
-    {
-        return this._parent ? this._parent.FindIDFromRoot(id) : this.FindID(id);
-    }
-
-    /**
-     * Traverses the object, including itself
+     * Traverses the object
      * @param {Function} callback
      * @param {*} [parent]
-     * @param {String} [prop]
-     * @param {Number} [index]
-     * @returns {null|*}
-     */
-    Traverse(callback, parent, prop, index)
-    {
-        const result = callback(parent, this, prop, index);
-        if (result) return result;
-
-        const con = this.constructor;
-        return con.perChild(this, (parent, child, prop, index) =>
-        {
-            if ("Traverse" in child)
-            {
-                const result = child.Traverse(callback, parent, prop, index);
-                if (result) return result;
-            }
-        });
-    }
-
-    /**
-     * Fires a callback on an object's children, and no further
-     * @param {*} obj
-     * @param {Function} callback
+     * @param {String} [path]
      * @returns {*}
      */
-    static perChild(obj, callback)
+    Traverse(callback, parent, path)
     {
-        if (obj.constructor.__isLeaf) return null;
+        const result = callback(this, parent, path);
+        if (result) return result;
 
-        const schema = Tw2Schema.get(obj.constructor);
-        if (!schema) throw new ErrAbstractClassMethod();
-        if (!schema.keys) return null;
-
-        const
-            arrKeys = schema.keys.array,
-            objKeys = schema.keys.object;
-
-        if (arrKeys)
+        function onChild(child, parent, path)
         {
-            for (let x = 0; x < arrKeys.length; x++)
+            if (isFunction(child.Traverse))
             {
-                const
-                    prop = arrKeys[x],
-                    arr = obj[prop];
-
-                if (arr)
-                {
-                    for (let i = 0; i < arr.length; i++)
-                    {
-                        const item = arr[i];
-                        if (item)
-                        {
-                            const result = callback(obj, item, prop, i);
-                            if (result) return result;
-                        }
-                    }
-                }
+                const result = child.Traverse(callback, parent, path);
+                if (result) return result;
             }
         }
 
-        if (objKeys)
-        {
-            for (let x = 0; x < objKeys.length; x++)
-            {
-                const
-                    prop = objKeys[x],
-                    item = obj[prop];
+        return this.constructor.perChild(this, onChild, path);
+    }
 
-                if (item)
+});
+
+let OBJECT_ID = 0;
+
+/**
+ * Defines an id
+ * @param {*} target
+ */
+Tw2BaseClass.defineID = function(target)
+{
+    Reflect.defineProperty(target, "_id", {
+        value: OBJECT_ID++,
+        writable: false,
+        configurable: true
+    });
+};
+
+/**
+ * Creates an object from values
+ * @param [values]
+ * @param [opt={}]
+ * @returns {*}
+ */
+Tw2BaseClass.from = function (values, opt)
+{
+    if (values && values instanceof this) return values;
+    const item = new this();
+    if (values)  this.set(item, values, {skipUpdate: true});
+    if (!opt || !opt.skipUpdate) if ("Initialize" in item) item.Initialize();
+    return item;
+};
+
+/**
+ * Internal handler for copying one object's values to another
+ * @param {*} a
+ * @param {*} b
+ * @param {*} [opt]
+ * @private
+ */
+Tw2BaseClass.copy = function (a, b, opt = {})
+{
+    const {skipUpdate} = opt;
+    return this.set(a, this.get(b, {}, {skipIds: true}), {skipUpdate, verb: "copy"});
+};
+
+/**
+ * Internal handler for cloning an object
+ * @param {*} a
+ * @param {*} [opt]
+ * @private
+ */
+Tw2BaseClass.clone = function (a, opt)
+{
+    return this.from(this.get(a, {}, {skipIds: true}), opt);
+};
+
+/**
+ * Internal handler for setting an object's values from a plain object
+ * @param {*} a
+ * @param {*} [values]
+ * @param {*} [opt]
+ * @returns {boolean}
+ * @private
+ */
+Tw2BaseClass.set = function (a, values, opt = {})
+{
+    throw new ErrAbstractClassMethod();
+};
+
+/**
+ * Internal handler for getting an object's value as a plain object
+ * @param {*} a
+ * @param {*} [out={}]
+ * @param {*} [opt]
+ * @returns {*} out
+ * @private
+ */
+Tw2BaseClass.get = function (a, out = {}, opt = {})
+{
+    throw new ErrAbstractClassMethod();
+};
+
+/**
+ *
+ * @type {*}
+ * @private
+ */
+Tw2BaseClass.keys = null;
+
+/**
+ *
+ * @type {*}
+ */
+Tw2BaseClass.black = null;
+
+/**
+ *
+ * @type {null|String}
+ */
+Tw2BaseClass.category = null;
+
+/**
+ * Caches the classes keys
+ * -- Fallback if schema not present
+ * @param {*} obj
+ */
+function cacheKeys(obj)
+{
+    const cache = obj.constructor.keys || {};
+
+    function add(name, key)
+    {
+        if (!cache[name]) cache[name] = [];
+        if (!cache[name].includes(key)) cache[name].push(key);
+    }
+
+    for (const key in obj)
+    {
+        if (obj.hasOwnProperty(key) && key.charAt(0) !== "_")
+        {
+            const value = obj[key];
+            if (isPrimary(value)) add("primary", key);
+            else if (isArray(value)) add("array", key);
+            else if (isTyped(value)) add("typed", key);
+            else if (value === null || isObjectObject(value)) add("object", key);
+            else if (isPlain(value)) add("plain", key);
+        }
+    }
+
+    obj.constructor.keys = cache;
+}
+
+/**
+ * Fires a callback on an object's children, and no further
+ * @param {*} obj
+ * @param {Function} callback
+ * @param {String} [path="root"]
+ * @returns {!*}
+ */
+Tw2BaseClass.perChild = function (obj, callback, path="root")
+{
+    if (!obj.constructor.keys) cacheKeys(obj);
+
+    const {array, object} = obj.constructor.keys;
+
+    if (array)
+    {
+        for (let i = 0; i < array.length; i++)
+        {
+            const
+                key = array[i],
+                arr = obj[key];
+
+            for (let x = 0; x < arr.length; x++)
+            {
+                const item = arr[x];
+
+                if (isObjectObject(item))
                 {
-                    const result = callback(obj, item, prop);
+                    let currentPath = `${path}/${key}/${x}`;
+                    const result = callback(item, obj, currentPath);
                     if (result) return result;
                 }
             }
         }
-
-        return null;
     }
 
-    /* ----------------------------------------------------------------------------------------------------------------
-
-                                                    Meta data
-
-    -----------------------------------------------------------------------------------------------------------------*/
-
-    /**
-     * The classes' type
-     * @returns {?String}
-     * @private
-     */
-    static __type = null;
-
-    /**
-     * The classes' category
-     * @returns {?String}
-     * @private
-     */
-    static __category = null;
-
-    /**
-     * Identifies that the object is a resource
-     * @type {boolean}
-     */
-    static __isResource = false;
-
-    /**
-     * Identifies that the class is being developed and may not be functional
-     * @type {Boolean}
-     * @private
-     */
-    static __isStaging = false;
-
-    /**
-     * Identifies if the class has no traversable children
-     * @returns {Boolean}
-     * @private
-     */
-    static __isLeaf = false;
-
-
-    /* ----------------------------------------------------------------------------------------------------------------
-
-                                                        Schema
-
-    -----------------------------------------------------------------------------------------------------------------*/
-
-    /**
-     * Defines a classes schema
-     * @param Constructor
-     * @param func
-     */
-    static define(Constructor, func)
+    if (object)
     {
-        return Tw2Schema.create(Constructor, func, this !== Tw2BaseClass ? this : undefined);
-    }
+        for (let i = 0; i < object.length; i++)
+        {
+            const
+                key = object[i],
+                item = obj[key];
 
-}
+            if (isObjectObject(item))
+            {
+                let currentPath = `${path}/${key}`;
+                const result = callback(item, obj, currentPath);
+                if (result) return result;
+            }
+        }
+    }
+};
+
+

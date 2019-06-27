@@ -1,29 +1,31 @@
 import {vec4} from "../../global";
-import {Tw2BaseClass} from "../../global";
+
 
 /**
  * EveSOFDataFactionPlaneSet
  *
+ * @property {String} name       -
  * @property {vec4} color        -
  * @property {Number} groupIndex -
  */
-export class EveSOFDataFactionPlaneSet extends Tw2BaseClass
+export class EveSOFDataFactionPlaneSet
 {
 
+    name = "";
     color = vec4.create();
-    groupIndex = 0;
+    groupIndex = -1;
 
+    /**
+     * Black definition
+     * @param {*} r
+     * @returns {*[]}
+     */
+    static black(r)
+    {
+        return [
+            ["color", r.vector4],
+            ["groupIndex", r.uint],
+            ["name", r.string],
+        ];
+    }
 }
-
-Tw2BaseClass.define(EveSOFDataFactionPlaneSet, Type =>
-{
-    return {
-        isStaging: true,
-        type: "EveSOFDataFactionPlaneSet",
-        props: {
-            color: Type.RGBA_LINEAR,
-            groupIndex: Type.NUMBER
-        }
-    };
-});
-

@@ -1,8 +1,7 @@
-import {Tw2BaseClass} from "../../global";
-
 /**
  * EveSOFDataHullArea
  *
+ * @property {String} name                            -
  * @property {Number} areaType                        -
  * @property {Number} blockedMaterials                -
  * @property {Number} count                           -
@@ -11,9 +10,10 @@ import {Tw2BaseClass} from "../../global";
  * @property {String} shader                          -
  * @property {Array.<EveSOFDataTexture>} textures     -
  */
-export class EveSOFDataHullArea extends Tw2BaseClass
+export class EveSOFDataHullArea
 {
 
+    name = "";
     areaType = 0;
     blockedMaterials = 0;
     count = 0;
@@ -22,22 +22,22 @@ export class EveSOFDataHullArea extends Tw2BaseClass
     shader = "";
     textures = [];
 
+    /**
+     * Black definition
+     * @param {*} r
+     * @returns {*[]}
+     */
+    static black(r)
+    {
+        return [
+            ["areaType", r.uint],
+            ["blockedMaterials", r.uint],
+            ["count", r.uint],
+            ["index", r.uint],
+            ["name", r.string],
+            ["parameters", r.array],
+            ["shader", r.string],
+            ["textures", r.array]
+        ];
+    }
 }
-
-Tw2BaseClass.define(EveSOFDataHullArea, Type =>
-{
-    return {
-        isStaging: true,
-        type: "EveSOFDataHullArea",
-        props: {
-            areaType: Type.NUMBER,
-            blockedMaterials: Type.NUMBER,
-            count: Type.NUMBER,
-            index: Type.NUMBER,
-            parameters: [["EveSOFDataParameter"]],
-            shader: Type.STRING,
-            textures: [["EveSOFDataTexture"]]
-        }
-    };
-});
-

@@ -1,25 +1,22 @@
-import {Tw2BaseClass} from "../../global";
-
 /**
  * EveSOFDataFactionVisibilityGroupSet
  *
  * @property {Array.<EveSOFDataGenericString>} visibilityGroups -
  */
-export class EveSOFDataFactionVisibilityGroupSet extends Tw2BaseClass
+export class EveSOFDataFactionVisibilityGroupSet
 {
 
     visibilityGroups = [];
 
+    /**
+     * Black definition
+     * @param {*} r
+     * @returns {*[]}
+     */
+    static black(r)
+    {
+        return [
+            ["visibilityGroups", r.array],
+        ];
+    }
 }
-
-Tw2BaseClass.define(EveSOFDataFactionVisibilityGroupSet, Type =>
-{
-    return {
-        isStaging: true,
-        type: "EveSOFDataFactionVisibilityGroupSet",
-        props: {
-            visibilityGroups: [["EveSOFDataGenericString"]]
-        }
-    };
-});
-

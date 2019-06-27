@@ -11,24 +11,23 @@ import {util, Tw2BaseClass} from "../../global";
  * @property {Boolean} playOnLoad                                  -
  * @property {Array.<Tw2CurveSetRange>} ranges                     -
  * @property {Number} scale                                        -
- * @property {Number} scaledTime                                   -
  * @property {Boolean} useSimTimeRebase                            -
  * @property {Boolean} _isPlaying                                  -
+ * @property {Number} _scaledTime                                  -
  */
 export class Tw2CurveSet extends Tw2BaseClass
 {
-    // ccp
+    
+    name = "";
     bindings = [];
     curves = [];
     playOnLoad = true;
     ranges = [];
     scale = 1;
     useSimTimeRebase = false;
-    scaledTime = 0;
 
-    // ccpwgl
+    scaledTime = 0;         // Used in old models
     _isPlaying = false;
-
 
     /**
      * Initializes the Tw2CurveSet
@@ -125,25 +124,22 @@ export class Tw2CurveSet extends Tw2BaseClass
         return length;
     }
 
+    /**
+     * Black definition
+     * @param {*} r
+     * @returns {*[]}
+     */
+    static black(r)
+    {
+        return [
+            ["bindings", r.array],
+            ["curves", r.array],
+            ["name", r.string],
+            ["playOnLoad", r.boolean],
+            ["ranges", r.array],
+            ["scale", r.float],
+            ["useSimTimeRebase", r.boolean]
+        ];
+    }
+
 }
-
-Tw2BaseClass.define(Tw2CurveSet, Type =>
-{
-    return {
-        isStaging: true,
-        type: "Tw2CurveSet",
-        props: {
-            bindings: [["Tw2ValueBinding"]],
-            curves: Type.ARRAY,
-            playOnLoad: Type.BOOLEAN,
-            ranges: [["Tw2CurveSetRange"]],
-            scale: Type.NUMBER,
-            scaledTime: Type.NUMBER,
-            useSimTimeRebase: Type.BOOLEAN
-        },
-        notImplemented: [
-            "simTimeRebase"
-        ]
-    };
-});
-

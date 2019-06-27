@@ -1,58 +1,81 @@
 import {vec3, quat, mat4, device} from "../../global";
 import {Tw2PerObjectData} from "../../core";
-import {EveObject} from "./EveObject";
+import {EveObject} from "./legacy/EveObject";
 
 /**
  * EveTransform
- * TODO: Implement LOD
+ * TODO: Implement "distanceBasedScaleArg1"
+ * TODO: Implement "distanceBasedScaleArg2"
+ * TODO: Implement "overrideBoundsMax"
+ * TODO: Implement "overrideBoundsMin"
+ * TODO: Implement "sortValueMultiplier"
+ * TODO: Implement "useDistanceBasedScale"
+ * TODO: Implement "useLodLevel"
+ * TODO: Implement "visibilityThreshold"
+ * @ccp EveTransform
  *
- * @property {{}} visible                                           - Batch accumulation options for the transforms's elements
- * @property {Boolean} visible.mesh                                 - Enables/ disables mesh batch accumulation
- * @property {Boolean} visible.children                             - Enables/ disables child batch accumulation
- * @property {Tw2Mesh} mesh
- * @property {Array.<Tw2CurveSet>} curveSets
- * @property {Array} children
- * @property {Array.<Tw2ParticleSystem>} particleSystems
- * @property {Array.<Tw2StaticEmitter|Tw2DynamicEmitter>} particleEmitters
- * @property {Number} Modifier
- * @property {Number} sortValueMultiplier
- * @property {Number} distanceBasedScaleArg1
- * @property {Number} distanceBasedScaleArg2
- * @property {Boolean} useDistanceBasedScale
- * @property {vec3} scaling
- * @property {vec3} translation
- * @property {quat} rotation
- * @property {mat4} localTransform
- * @property {mat4} worldTransform
- * @property {Array.<mat4>} _mat4Cache
- * @property {Array.<vec3>} _vec3Cache
- * @property {Tw2PerObjectData} _perObjectData
- * @class
+ * @property {String} name                                                 -
+ * @property {Array.<EveObject>} children                                  -
+ * @property {Array.<Tw2CurveSet>} curveSets                               -
+ * @property {Boolean} display                                             -
+ * @property {Number} distanceBasedScaleArg1                               -
+ * @property {Number} distanceBasedScaleArg2                               -
+ * @property {Boolean} hideOnLowQuality                                    -
+ * @property {Tw2Mesh|Tr2MeshLod} mesh                                     -
+ * @property {Number} modifier                                             -
+ * @property {Array.<TriObserverLocal>} observers                          -
+ * @property {vec3} overrideBoundsMax                                      -
+ * @property {vec3} overrideBoundsMin                                      -
+ * @property {Array.<ParticleEmitter|ParticleEmitterGPU>} particleEmitters -
+ * @property {Array.<ParticleSystem>} particleSystems                      -
+ * @property {quat} rotation                                               -
+ * @property {vec3} scaling                                                -
+ * @property {Number} sortValueMultiplier                                  -
+ * @property {vec3} translation                                            -
+ * @property {Boolean} update                                              -
+ * @property {Boolean} useDistanceBasedScale                               -
+ * @property {Boolean} useLodLevel                                         -
+ * @property {Number} visibilityThreshold                                  -
+ * @property {Object} visible                                              -
+ * @property {mat4} localTransform                                         -
+ * @property {mat4} worldTransform                                         -
+ * @property {Tw2PerObjectData} _perObjectData                             -
  */
 export class EveTransform extends EveObject
 {
 
+    name = "";
+    children = [];
+    curveSets = [];
+    display = true;
+    distanceBasedScaleArg1 = 0.2;
+    distanceBasedScaleArg2 = 0.63;
+    hideOnLowQuality = false;
+    mesh = null;
+    modifier = EveTransform.Modifier.NONE;
+    observers = [];
+    overrideBoundsMax = vec3.create();
+    overrideBoundsMin = vec3.create();
+    particleEmitters = [];
+    particleSystems = [];
+    rotation = quat.create();
+    scaling = vec3.fromValues(1, 1, 1);
+    sortValueMultiplier = 1.0;
+    translation = vec3.create();
+    update = false;
+    useDistanceBasedScale = false;
+    useLodLevel = false;
+    visibilityThreshold = 0;
+
+    //ccpwgl
     visible = {
         mesh: true,
         children: true
     };
-    mesh = null;
-    curveSets = [];
-    children = [];
-    particleSystems = [];
-    particleEmitters = [];
-    modifier = EveTransform.Modifier.NONE;
-    sortValueMultiplier = 1.0;
-    distanceBasedScaleArg1 = 0.2;
-    distanceBasedScaleArg2 = 0.63;
-    useDistanceBasedScale = false;
-    scaling = vec3.fromValues(1, 1, 1);
-    translation = vec3.create();
-    rotation = quat.create();
+
     localTransform = mat4.create();
     worldTransform = mat4.create();
     _perObjectData = Tw2PerObjectData.from(EveTransform.perObjectData);
-
 
     /**
      * Initializes the EveTransform
@@ -63,21 +86,17 @@ export class EveTransform extends EveObject
     }
 
     /**
-     * Gets transform res objects
+     * Gets object resources
      * @param {Array} [out=[]] - Optional receiving array
-     * @param {Boolean} [excludeChildren] - True to exclude children's res objects
      * @returns {Array.<Tw2Resource>} [out]
      */
-    GetResources(out = [], excludeChildren)
+    GetResources(out = [])
     {
         if (this.mesh) this.mesh.GetResources(out);
 
-        if (!excludeChildren)
+        for (let i = 0; i < this.children.length; i++)
         {
-            for (let i = 0; i < this.children; i++)
-            {
-                this.children[i].GetResources(out);
-            }
+            this.children[i].GetResources(out);
         }
 
         return out;
@@ -91,7 +110,7 @@ export class EveTransform extends EveObject
     {
         const
             d = device,
-            g = EveTransform.global,
+            g = EveObject.global,
             finalScale = g.vec3_0,
             parentScale = g.vec3_1,
             dir = g.vec3_2,
@@ -332,5 +351,45 @@ export class EveTransform extends EveObject
         EVE_SIMPLE_HALO: 102,
         EVE_CAMERA_ROTATION: 103
     };
+
+    /**
+     * Black definition
+     * @param {*} r
+     * @returns {*[]}
+     */
+    static black(r)
+    {
+        return [
+            ["children", r.array],
+            ["curveSets", r.array],
+            ["display", r.boolean],
+            ["distanceBasedScaleArg1", r.float],
+            ["distanceBasedScaleArg2", r.float],
+            ["hideOnLowQuality", r.boolean],
+            ["name", r.string],
+            ["mesh", r.object],
+            ["meshLod", r.object],
+            ["modifier", r.uint],
+            ["observers", r.array],
+            ["overrideBoundsMax", r.vector3],
+            ["overrideBoundsMin", r.vector3],
+            ["particleEmitters", r.array],
+            ["particleSystems", r.array],
+            ["rotation", r.vector4],
+            ["scaling", r.vector3],
+            ["sortValueMultiplier", r.float],
+            ["translation", r.vector3],
+            ["update", r.boolean],
+            ["useDistanceBasedScale", r.boolean],
+            ["useLodLevel", r.boolean],
+            ["visibilityThreshold", r.float]
+        ];
+    }
+
+    /**
+     * Identifies that the class is in staging
+     * @property {null|Number}
+     */
+    static __isStaging = 1;
 
 }

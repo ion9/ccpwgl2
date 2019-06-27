@@ -3,8 +3,7 @@
 const
     path = require("path"),
     TerserPlugin = require("terser-webpack-plugin"),
-    ProgressBarPlugin = require("progress-bar-webpack-plugin"),
-    LodashModuleReplacementPlugin = require("lodash-webpack-plugin");
+    ProgressBarPlugin = require("progress-bar-webpack-plugin");
 
 module.exports = {
 
@@ -31,12 +30,11 @@ module.exports = {
     output: {
         path: path.resolve(__dirname, "./dist"),
         filename: "[name].js",
-        library: "ccpwgl_int",
+        //library: "ccpwgl_int",
         libraryTarget: "umd"
     },
 
     plugins: [
-        new LodashModuleReplacementPlugin(),
         new ProgressBarPlugin(),
         new TerserPlugin({
             include: /\.min\.js$/,

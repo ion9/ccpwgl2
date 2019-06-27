@@ -1,25 +1,22 @@
-import {Tw2BaseClass} from "../../global";
-
 /**
  * EveSOFDataGenericString
  *
  * @property {String} str -
  */
-export class EveSOFDataGenericString extends Tw2BaseClass
+export class EveSOFDataGenericString
 {
 
     str = "";
 
+    /**
+     * Black definition
+     * @param {*} r
+     * @returns {*[]}
+     */
+    static black(r)
+    {
+        return [
+            ["str", r.string],
+        ];
+    }
 }
-
-Tw2BaseClass.define(EveSOFDataGenericString, Type =>
-{
-    return {
-        isStaging: true,
-        type: "EveSOFDataGenericString",
-        props: {
-            str: Type.STRING
-        }
-    };
-});
-

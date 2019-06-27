@@ -1,23 +1,29 @@
 import {mat4, Tw2BaseClass} from "../../global";
+import {assignIfExists} from "../../global/util";
 
 /**
  * Contains transform information for T3 Attachments, Boosters, Turrets and XLTurrets
  * TODO: Make bone private and update all uses
+ * TODO: Properties "atlasIndex0" and "atlasIndex1" may be for internal use only
  * @ccp EveLocator2
  *
  * @property {?number} atlasIndex0          - A booster locator's atlasIndex0
  * @property {?number} atlasIndex1          - A booster locator's atlasIndex1
- * @property {?Tw2Bone} bone                - A turret locator's bone
  * @property {mat4} transform               - The locator's transform
+ * @property {?Tw2Bone} _bone               - A turret locator's bone
  */
 export class EveLocator2 extends Tw2BaseClass
 {
 
-    atlasIndex0 = null;
-    atlasIndex1 = null;
-    bone = null;
+    name = "";
     transform = mat4.create();
 
+    // EveLocator only?
+    atlasIndex0 = null;
+    atlasIndex1 = null;
+
+    // ccpwgl
+    bone = null;
 
     /**
      * Gets the locator's bone from an animation controller
@@ -43,6 +49,22 @@ export class EveLocator2 extends Tw2BaseClass
     }
 
     /**
+     * Creates a locator from options
+     * @param {*} [values]
+     * @param {*} [options]
+     * @returns {EveLocator2}
+     */
+    static from(values, options)
+    {
+        const item = new EveLocator2();
+        if (values)
+        {
+            assignIfExists(item, values, ["transform", "name", "atlasIndex0", "atlasIndex1"]);
+        }
+        return item;
+    }
+
+    /**
      * Locator name prefixes
      * @type {{AUDIO: string, ATTACH: string, BOOSTER: string, TURRET: string, XL_TURRET: string}}
      */
@@ -54,20 +76,25 @@ export class EveLocator2 extends Tw2BaseClass
         XL_TURRET: "locator_xl"
     };
 
-}
+    /**
+     * Black definition
+     * @param {*} r
+     * @returns {*[]}
+     */
+    static black(r)
+    {
+        return [
+            ["name", r.string],
+            ["transform", r.matrix]
+        ];
+    }
 
-Tw2BaseClass.define(EveLocator2, Type =>
-{
-    return {
-        type: "EveLocator2",
-        category: "Locator",
-        props: {
-            atlasIndex0: Type.NUMBER,
-            atlasIndex1: Type.NUMBER,
-            bone: Type.REF,
-            transform: Type.TR_LOCAL
-        }
-    };
-});
+    /**
+     * Identifies that the class is in staging
+     * @property {null|Number}
+     */
+    static __isStaging = 1;
+
+}
 
 export {EveLocator2 as EveLocator};

@@ -94,9 +94,10 @@ export class Tw2VideoRes extends Tw2Resource
 
     /**
      * Prepares the resource
+     * @param {undefined} response
      * @param {String} extension
      */
-    Prepare(extension)
+    Prepare(response, extension)
     {
         const gl = device.gl;
 
@@ -130,9 +131,10 @@ export class Tw2VideoRes extends Tw2Resource
      *
      * @param {String} path
      * @param {String} extension
+     * @param {Tw2ResMan} resMan
      * @returns {Boolean} returns true to tell the resMan not to handle http requests
      */
-    DoCustomLoad(path, extension)
+    DoCustomLoad(path, extension, resMan)
     {
         switch (extension)
         {
@@ -144,9 +146,6 @@ export class Tw2VideoRes extends Tw2Resource
             default:
                 throw new ErrResourceExtensionUnregistered({path, extension});
         }
-
-        this.OnRequested();
-        resMan._pendingLoads++;
 
         this.video = document.createElement("video");
         this.video.crossOrigin = "anonymous";
@@ -170,7 +169,7 @@ export class Tw2VideoRes extends Tw2Resource
             this._playable = true;
             this.video.oncanplay = null;
             resMan._pendingLoads--;
-            resMan._prepareQueue.push([this, extension, null]);
+            resMan.Queue(this, undefined, extension);
             this.OnLoaded();
         };
 
@@ -220,6 +219,7 @@ export class Tw2VideoRes extends Tw2Resource
         this._playable = false;
         this.playOnLoad = true;
         this.video = null;
+        this.OnUnloaded();
         return true;
     }
 

@@ -77,6 +77,57 @@ export class Tw2Error extends Error
 
 }
 
+/**
+ * Throws when trying to register a reserved store key
+ */
+export class ErrStoreKeyReserved extends Tw2Error
+{
+    constructor(data)
+    {
+        super(data, "%store% key is reserved: %key%");
+    }
+}
+
+/**
+ * Throws when trying to register an invalid store value
+ */
+export class ErrStoreValueInvalid extends Tw2Error
+{
+    constructor(data)
+    {
+        super(data, "%store% value is invalid for key: %key%");
+    }
+}
+
+/**
+ * Throws when trying to retrieve a store value that doesn't exist
+ */
+export class ErrStoreValueMissing extends Tw2Error
+{
+    constructor(data)
+    {
+        super(data, "%store% value is missing for key: %key%");
+    }
+}
+
+/**
+ * Throws when trying to create a store variable with an invalid type
+ */
+export class ErrStoreTypeInvalid extends Tw2Error
+{
+    constructor(data)
+    {
+        super(data, "Invalid variable type for %store%: %type%");
+    }
+}
+
+export class ErrStoreKeyProtected extends Tw2Error
+{
+    constructor(data)
+    {
+        super(data, "%store% cannot be overwritten: %key%");
+    }
+}
 
 /**
  * Throws on http request errors
@@ -137,27 +188,36 @@ export class ErrHTTPReadyState extends Tw2Error
     }
 }
 
-
 /**
  * Throws when xml is not a valid format
  */
-export class ErrXMLBinaryFormat extends Tw2Error
+export class ErrBinaryFormat extends Tw2Error
 {
     constructor(data)
     {
-        super(data, "Invalid binary format");
+        super(data, "Invalid binary format: %formatError=undefined%");
     }
 }
 
+/**
+ * Throws on binary reader read errors
+ */
+export class ErrBinaryReaderReadError extends Tw2Error
+{
+    constructor(data)
+    {
+        super(data, "Error reading binary: %readError=undefined%");
+    }
+}
 
 /**
  * Throws when an xml object type is undefined
  */
-export class ErrXMLObjectTypeUndefined extends Tw2Error
+export class ErrBinaryObjectTypeNotFound extends Tw2Error
 {
     constructor(data)
     {
-        super(data, "XML Object type \"%type%\" undefined type");
+        super(data, "Binary object type \"%type%\" not found");
     }
 }
 

@@ -1,4 +1,4 @@
-import {util, resMan, device, Tw2BaseClass} from "../../global";
+import {util, resMan, device, store} from "../../global";
 import {
     RM_ADDITIVE,
     RM_DEPTH,
@@ -8,6 +8,7 @@ import {
     RM_TRANSPARENT,
     RM_PICKABLE
 } from "../../global/engine";
+import {assignIfExists, get, toArray} from "../../global/util";
 
 /**
  * Tw2Mesh
@@ -20,6 +21,7 @@ import {
  * Todo: Handle "useSHLighting" meshAreas
  * @ccp Tr2Mesh
  *
+ * @property {String} name                            -
  * @property {Array.<Tw2MeshArea>} additiveAreas      -
  * @property {Array.<Tw2MeshArea>} decalAreas         -
  * @property {Boolean} deferGeometryLoad              -
@@ -40,7 +42,7 @@ import {
 export class Tw2Mesh
 {
 
-    // ccp
+    name = "";
     additiveAreas = [];
     decalAreas = [];
     deferGeometryLoad = false;
@@ -96,7 +98,7 @@ export class Tw2Mesh
      */
     GetResources(out = [])
     {
-        if (!out.includes(this.geometryResource))
+        if (this.geometryResource && !out.includes(this.geometryResource))
         {
             out.push(this.geometryResource);
         }
@@ -208,37 +210,96 @@ export class Tw2Mesh
         }
     }
 
+    /**
+     * Creates an area if it exists
+     * @param {*} dest
+     * @param {*} src
+     * @param {String|String[]} names
+     */
+    static createAreaIfExists(dest, src, names)
+    {
+        names = toArray(names);
+        for (let i = 0; i < names.length; i++)
+        {
+            const name = names[i];
+            if (name in src && name in dest)
+            {
+                for (let i = 0; i < src[name].length; i++)
+                {
+                    const
+                        type = src[name][i].__type || "Tw2MeshArea",
+                        Constructor = store.classes.Get(type);
+
+                    dest[name].push(Constructor.from(src[name][i], { index: i }));
+                }
+            }
+        }
+    }
+
+    /**
+     * Creates a mesh from a plain object
+     * @param {*} [values]
+     * @param {*} [options]
+     * @returns {Tw2Mesh}
+     */
+    static from(values, options)
+    {
+        const item = new Tw2Mesh();
+        item.index = get(options, "index", 0);
+
+        if (values)
+        {
+            assignIfExists(item, values, [
+                "name", "display", "deferGeometryLoad",
+                "geometryResPath", "meshIndex"
+            ]);
+
+            const areaNames = [
+                "additiveAreas", "decalAreas", "depthAreas",
+                "depthNormalAreas", "distortionAreas", "opaqueAreas",
+                "opaquePrepassAreas", "pickableAreas", "transparentAreas"
+            ];
+
+            assignIfExists(item.visible, values.visible, areaNames);
+            this.createAreaIfExists(item, values, areaNames);
+        }
+
+        if (!options || !options.skipUpdate)
+        {
+            item.Initialize();
+        }
+
+        return item;
+    }
+
+    /**
+     * Black definition
+     * @param {*} r
+     * @returns {*[]}
+     */
+    static black(r)
+    {
+        return [
+            ["additiveAreas", r.array],
+            ["decalAreas", r.array],
+            ["deferGeometryLoad", r.boolean],
+            ["depthAreas", r.array],
+            ["depthNormalAreas", r.array],
+            ["distortionAreas", r.array],
+            ["geometryResPath", r.string],
+            ["meshIndex", r.uint],
+            ["name", r.string],
+            ["opaqueAreas", r.array],
+            ["opaquePrepassAreas", r.array],
+            ["pickableAreas", r.array],
+            ["transparentAreas", r.array],
+        ];
+    }
+
+    /**
+     * Identifies that the class is in staging
+     * @property {null|Number}
+     */
+    static __isStaging = 1;
+
 }
-
-Tw2BaseClass.define(Tw2Mesh, Type =>
-{
-    return {
-        isStaging: true,
-        type: "Tw2Mesh",
-        category: "Mesh",
-        props: {
-            additiveAreas: [["Tr2MeshArea"]],
-            decalAreas: [["Tr2MeshArea"]],
-            deferGeometryLoad: Type.BOOLEAN,
-            depthAreas: [["Tr2MeshArea"]],
-            depthNormalAreas: [["Tr2MeshArea"]],
-            distortionAreas: [["Tr2MeshArea"]],
-            display: Type.BOOLEAN,
-            geometryResPath: Type.PATH,
-            meshIndex: Type.NUMBER,
-            opaqueAreas: [["Tr2MeshArea"]],
-            opaquePrepassAreas: [["Tr2MeshArea"]],
-            pickableAreas: [["Tr2MeshArea"]],
-            transparentAreas: [["Tr2MeshArea"]],
-            visible: Type.PLAIN
-        },
-        notImplemented: [
-            "deferGeometryLoad",
-            "depthAreas",
-            "depthNormalAreas",
-            "distortionAreas",
-            "opaquePrepassAreas"
-        ]
-    };
-});
-

@@ -1,25 +1,25 @@
-import {Tw2BaseClass} from "../../global";
-
 /**
  * EveSOFDataHullLocatorSet
  *
+ * @property {String} name                          -
  * @property {Array.<EveSOFDataTransform>} locators -
  */
-export class EveSOFDataHullLocatorSet extends Tw2BaseClass
+export class EveSOFDataHullLocatorSet
 {
 
+    name = "";
     locators = [];
 
+    /**
+     * Black definition
+     * @param {*} r
+     * @returns {*[]}
+     */
+    static black(r)
+    {
+        return [
+            ["name", r.string],
+            ["locators", r.array]
+        ];
+    }
 }
-
-Tw2BaseClass.define(EveSOFDataHullLocatorSet, Type =>
-{
-    return {
-        isStaging: true,
-        type: "EveSOFDataHullLocatorSet",
-        props: {
-            locators: [["EveSOFDataTransform"]]
-        }
-    };
-});
-

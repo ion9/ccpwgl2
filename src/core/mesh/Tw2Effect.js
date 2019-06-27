@@ -1,5 +1,6 @@
 import {util, resMan, device, store} from "../../global";
 import {Tw2TextureParameter} from "../parameter/Tw2TextureParameter";
+import Tw2BaseClass from "../../global/class/Tw2BaseClass";
 
 /**
  * Tw2Effect
@@ -16,7 +17,7 @@ import {Tw2TextureParameter} from "../parameter/Tw2TextureParameter";
  * @property {Boolean} autoParameter
  * @class
  */
-export class Tw2Effect
+export class Tw2Effect //extends Tw2BaseClass
 {
 
     _id = util.generateID();
@@ -95,12 +96,13 @@ export class Tw2Effect
 
     /**
      * Rebuilds Cached Data
-     * @param resource
+     * @param {Tw2EffectRes} res
      */
-    RebuildCachedData(resource)
+    OnResPrepared(res)
     {
-        this.shader = resource.GetShader(this.options);
+        this.shader = res.GetShader(this.options);
         this.BindParameters();
+        return true;
     }
 
     /**
@@ -190,10 +192,10 @@ export class Tw2Effect
                                     });
                                 }
                             }
-                            else if (store.HasVariable(name))
+                            else if (store.variables.Has(name))
                             {
                                 stage.parameters.push({
-                                    parameter: store.GetVariable(name),
+                                    parameter: store.variables.Get(name),
                                     constantBuffer: stage.constantBuffer,
                                     offset: constant.offset,
                                     size: constant.size
@@ -201,7 +203,7 @@ export class Tw2Effect
                             }
                             else if (constant.isAutoregister && Type)
                             {
-                                const variable = store.RegisterVariable(name, undefined, Type);
+                                const variable = store.variables.Create(name, undefined, Type);
                                 if (variable)
                                 {
                                     stage.parameters.push({
@@ -224,7 +226,7 @@ export class Tw2Effect
                                     value = value[0];
                                 }
 
-                                const param = store.CreateType(name, value, Type);
+                                const param = store.variables.Create(name, value, Type);
                                 if (param)
                                 {
                                     this.parameters[name] = param;
@@ -253,13 +255,13 @@ export class Tw2Effect
                             {
                                 param = this.parameters[name];
                             }
-                            else if (store.HasVariable(name))
+                            else if (store.variables.Has(name))
                             {
-                                param = store.GetVariable(name);
+                                param = store.variables.Get(name);
                             }
                             else if (stageRes.textures[k].isAutoregister)
                             {
-                                param = store.RegisterVariable(name, undefined, Tw2TextureParameter);
+                                param = store.variables.Create(name, undefined, Tw2TextureParameter);
                             }
                             else if (this.autoParameter)
                             {
@@ -447,7 +449,7 @@ export class Tw2Effect
         let updated = false;
         for (let key in options)
         {
-            if (options.hasOwnProperty(key))
+            if (options.hasOwnProperty(key) && options[key] !== undefined)
             {
                 const
                     value = options[key],
@@ -503,7 +505,7 @@ export class Tw2Effect
         let updated = false;
         for (let key in options)
         {
-            if (options.hasOwnProperty(key))
+            if (options.hasOwnProperty(key) && options[key] !== undefined)
             {
                 const
                     value = options[key],
@@ -519,7 +521,7 @@ export class Tw2Effect
                 }
                 else
                 {
-                    const parameter = store.CreateType(key, value);
+                    const parameter = store.variables.Create(key, value);
                     if (parameter)
                     {
                         this.parameters[key] = parameter;
@@ -542,7 +544,7 @@ export class Tw2Effect
         let updated = false;
         for (let key in options)
         {
-            if (options.hasOwnProperty(key))
+            if (options.hasOwnProperty(key) && options[key] !== undefined)
             {
                 const param = this.parameters[key];
                 if (param && param instanceof Tw2TextureParameter)
@@ -629,38 +631,54 @@ export class Tw2Effect
 
     /**
      * Creates a Tw2Effect from an object
-     * @param {{}} [opt]
-     * @param {String} [opt.name='']
-     * @param {String} [opt.effectFilePath='']
-     * @param {Boolean} [opt.autoParameter]
-     * @param {{string: *}} [opt.parameters]
-     * @param {{string: string}} [opt.textures]
-     * @param {{string: {}}} [opt.overrides]
+     * @param {{}|Tw2Effect} [values]
+     * @param {String} [values.name='']
+     * @param {String} [values.effectFilePath='']
+     * @param {Boolean} [values.autoParameter]
+     * @param {{string: *}} [values.parameters]
+     * @param {{string: string}} [values.textures]
+     * @param {{string: {}}} [values.overrides]
+     * @param {*} [options]
      * @returns {Tw2Effect}
      */
-    static create(opt = {})
+    static from(values, options)
     {
+        // Allow already constructed effect to be passed
+        if (values && values instanceof Tw2Effect)
+        {
+            return values;
+        }
+
         const effect = new this();
-        util.assignIfExists(effect, opt, ["name", "effectFilePath", "display", "autoParameter",]);
-        if ("parameters" in opt) effect.SetParameters(opt.parameters);
-        if ("textures" in opt) effect.SetTextures(opt.textures);
-        if ("overrides" in opt) effect.SetOverrides(opt.overrides);
 
-        if (effect.name === "" && opt.effectFilePath !== "")
+        if (values)
         {
-            let path = opt.effectFilePath;
-            effect.name = path.substring(path.lastIndexOf("/") + 1, path.length);
+            util.assignIfExists(effect, values, ["name", "effectFilePath", "display", "autoParameter",]);
+
+            if ("parameters" in values) effect.SetParameters(values.parameters);
+            if ("textures" in values) effect.SetTextures(values.textures);
+            if ("overrides" in values) effect.SetOverrides(values.overrides);
+
+            if (effect.name === "" && values.effectFilePath !== "")
+            {
+                let path = values.effectFilePath;
+                effect.name = path.substring(path.lastIndexOf("/") + 1, path.length);
+            }
+
+            if (!effect.name && effect.effectFilePath)
+            {
+                effect.name = effect.effectFilePath.substring(
+                    effect.effectFilePath.lastIndexOf("/") + 1,
+                    effect.effectFilePath.lastIndexOf(".")
+                );
+            }
         }
 
-        if (!effect.name && effect.effectFilePath)
+        if (!options || !options.skipUpdate)
         {
-            effect.name = effect.effectFilePath.substring(
-                effect.effectFilePath.lastIndexOf("/") + 1,
-                effect.effectFilePath.lastIndexOf(".")
-            );
+            effect.Initialize();
         }
 
-        effect.Initialize();
         return effect;
     }
 

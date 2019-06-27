@@ -8,8 +8,8 @@ import {EveChild} from "./EveChild";
  * TODO: Implement "lodSphereRadius"
  * TODO: Implement "minScreenSize"
  * TODO: Implement "useDynamicLod"
- * @ccp EveChildParticleSystem
  *
+ * @property {String} name                                                     -
  * @property {Boolean} display                                                 -
  * @property {mat4} localTransform                                             -
  * @property {Number} lodSphereRadius                                          -
@@ -28,7 +28,8 @@ import {EveChild} from "./EveChild";
 export class EveChildParticleSystem extends EveChild
 {
     // ccp
-    display = false;
+    name = "";
+    display = true;
     localTransform = mat4.create();
     lodSphereRadius = 0;
     mesh = null;
@@ -45,6 +46,29 @@ export class EveChildParticleSystem extends EveChild
     _worldTransform = mat4.create();
     _worldTransformLast = mat4.create();
     _perObjectData = Tw2PerObjectData.from(EveChild.perObjectData);
+
+    /**
+     * Gets object resources
+     * @param {Array} [out=[]] - Optional receiving array
+     * @returns {Array.<Tw2Resource>} [out]
+     */
+    GetResources(out = [])
+    {
+        if (this.mesh) this.mesh.GetResources(out);
+
+        for (let i = 0; i < this.particleEmitters.length; i++)
+        {
+            this.particleEmitters[i].GetResources(out);
+        }
+
+        for (let i = 0; i < this.particleSystems.length; i++)
+        {
+            this.particleSystems[i].GetResources(out);
+        }
+
+        return out;
+    }
+
 
     /**
      * Per frame update
@@ -88,29 +112,33 @@ export class EveChildParticleSystem extends EveChild
         }
     }
 
-}
+    /**
+     * Black definition
+     * @param {*} r
+     * @returns {*[]}
+     */
+    static black(r)
+    {
+        return [
+            ["display", r.boolean],
+            ["localTransform", r.matrix],
+            ["lodSphereRadius", r.float],
+            ["mesh", r.object],
+            ["minScreenSize", r.float],
+            ["name", r.string],
+            ["particleEmitters", r.array],
+            ["particleSystems", r.array],
+            ["rotation", r.vector4],
+            ["scaling", r.vector3],
+            ["translation", r.vector3],
+            ["useDynamicLod", r.boolean]
+        ];
+    }
 
-EveChild.define(EveChildParticleSystem, Type =>
-{
-    return {
-        type: "EveChildParticleSystem",
-        props: {
-            display: Type.BOOLEAN,
-            localTransform: Type.TR_LOCAL,
-            lodSphereRadius: Type.NUMBER,
-            mesh: ["Tr2InstancedMesh"],
-            minScreenSize: Type.NUMBER,
-            particleEmitters: [["Tr2DynamicEmitter", "Tr2GpuSharedEmitter", "Tr2GpuUniqueEmitter", "Tr2StaticEmitter"]],
-            particleSystems: [["Tr2ParticleSystem", "Tr2GpuParticleSystem"]],
-            rotation: Type.TR_ROTATION,
-            scaling: Type.TR_SCALING,
-            translation: Type.TR_TRANSLATION,
-            useDynamicLod: Type.BOOLEAN
-        },
-        notImplemented: [
-            "lodSphereRadius",
-            "minScreenSize",
-            "useDynamicLod"
-        ]
-    };
-});
+    /**
+     * Identifies that the class is in staging
+     * @property {null|Number}
+     */
+    static __isStaging = 1;
+
+}
