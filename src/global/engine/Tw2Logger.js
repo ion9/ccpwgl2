@@ -37,9 +37,9 @@ export class Tw2Logger extends Tw2EventEmitter
     display = true;
     visible = {
         log: true,
-        info: true,
-        debug: true,
-        warn: true,
+        info: false,
+        debug: false,
+        warn: false,
         error: true
     };
     history = 100;
@@ -141,6 +141,7 @@ export class Tw2Logger extends Tw2EventEmitter
             {
                 console.group(header, log.message);
                 if (log.err) console.debug(log.err.stack || log.err.toString());
+                if (log.stack) console.debug(log.stack);
                 if (log.data) console.debug(JSON.stringify(log.data, null, 4));
                 console.groupEnd();
             }

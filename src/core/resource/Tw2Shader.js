@@ -2,6 +2,7 @@ import {quat, util, device} from "../../global";
 import {Tw2VertexDeclaration, Tw2VertexElement} from "../vertex";
 import {Tw2SamplerState} from "../sampler";
 import {ErrShaderCompile, ErrShaderLink} from "../Tw2Error";
+import shaderOverrides from "./shaderOverrides.json";
 
 /**
  * Tw2Shader
@@ -27,6 +28,7 @@ export class Tw2Shader
      */
     constructor(reader, version, stringTable, stringTableOffset, path)
     {
+
         /**
          * ReadString
          * @returns {String}
@@ -85,6 +87,8 @@ export class Tw2Shader
                         stageType = reader.ReadUInt8(),
                         inputCount = reader.ReadUInt8();
 
+                    stage.stageType = stageType === 0 ? "vertex" : "fragment";
+
                     for (let inputIx = 0; inputIx < inputCount; ++inputIx)
                     {
                         const usage = reader.ReadUInt8();
@@ -116,13 +120,31 @@ export class Tw2Shader
                     {
                         shaderSize = reader.ReadUInt32();
                         let so = reader.ReadUInt32();
-                        shaderCode = stringTable.substr(so, shaderSize);
+                        shaderCode = Tw2Shader.InspectShaderCode(stringTable.substr(so, shaderSize), path);
                         shadowShaderSize = reader.ReadUInt32();
                         so = reader.ReadUInt32();
-                        shadowShaderCode = stringTable.substr(so, shadowShaderSize);
+                        shadowShaderCode = Tw2Shader.InspectShaderCode(stringTable.substr(so, shadowShaderSize), path);
+
+                        if (Tw2Shader.DEBUG_ENABLED)
+                        {
+                            stage.shaderCode = shaderCode;
+                            stage.shadowShaderCode = shadowShaderCode;
+                        }
                     }
 
-                    stage.shader = Tw2Shader.CompileShader(stageType, "", shaderCode, path);
+                    try
+                    {
+                        stage.shader = Tw2Shader.CompileShader(stageType, "", shaderCode, path);
+
+                    }
+                    catch (err)
+                    {
+                        console.group();
+                        console.error(err.message);
+                        console.dir(stage);
+                        console.groupEnd();
+                        throw err;
+                    }
 
                     if (validShadowShader)
                     {
@@ -212,101 +234,91 @@ export class Tw2Shader
                     const samplerCount = reader.ReadUInt8();
                     for (let samplerIx = 0; samplerIx < samplerCount; ++samplerIx)
                     {
-                        const
-                            registerIndex = reader.ReadUInt8(),
-                            samplerName = version >= 4 ? ReadString() : "";
-
-                        reader.ReadUInt8(); // comparison
-
-                        const
-                            minFilter = reader.ReadUInt8(),
-                            magFilter = reader.ReadUInt8(),
-                            mipFilter = reader.ReadUInt8(),
-                            addressU = reader.ReadUInt8(),
-                            addressV = reader.ReadUInt8(),
-                            addressW = reader.ReadUInt8();
-
-                        reader.ReadFloat32(); // mipLODBias
-
-                        const maxAnisotropy = reader.ReadUInt8();
-
-                        reader.ReadUInt8(); //comparisonFunc
-
-                        const borderColor = quat.create();
-                        borderColor[0] = reader.ReadFloat32();
-                        borderColor[1] = reader.ReadFloat32();
-                        borderColor[2] = reader.ReadFloat32();
-                        borderColor[3] = reader.ReadFloat32();
-
-                        reader.ReadFloat32(); //minLOD
-                        reader.ReadFloat32(); //maxLOD
+                        const s = new Tw2SamplerState();
+                        s.registerIndex = reader.ReadUInt8();
+                        s.name = version >= 4 ? ReadString() : "";
+                        s._comparison = reader.ReadUInt8();     // not used
+                        s.minFilter = reader.ReadUInt8();
+                        s.magFilter = reader.ReadUInt8();
+                        s.mipFilter = reader.ReadUInt8();
+                        s.addressU = reader.ReadUInt8();
+                        s.addressV = reader.ReadUInt8();
+                        s.addressW = reader.ReadUInt8(); 
+                        s.mipLODBias = reader.ReadFloat32();    // not used
+                        s._maxAnisotropy = reader.ReadUInt8();
+                        s._comparisonFunc = reader.ReadUInt8(); // not used
+                        s._borderColor = quat.fromValues(
+                            reader.ReadFloat32(),
+                            reader.ReadFloat32(),
+                            reader.ReadFloat32(),
+                            reader.ReadFloat32()
+                        );
+                        s._minLOD = reader.ReadFloat32();       // not used
+                        s._maxLOD = reader.ReadFloat32();       // not used
 
                         if (version < 4) reader.ReadUInt8();
 
-                        const sampler = new Tw2SamplerState();
-                        sampler.registerIndex = registerIndex;
-                        sampler.name = samplerName;
-
-                        if (minFilter === 1)
+                        if (s.minFilter === 1)
                         {
-                            switch (mipFilter)
+                            switch (s.mipFilter)
                             {
                                 case 0:
-                                    sampler.minFilter = gl.NEAREST;
+                                    s.minFilter = gl.NEAREST;
                                     break;
 
                                 case 1:
-                                    sampler.minFilter = gl.NEAREST_MIPMAP_NEAREST;
+                                    s.minFilter = gl.NEAREST_MIPMAP_NEAREST;
                                     break;
 
                                 default:
-                                    sampler.minFilter = gl.NEAREST_MIPMAP_LINEAR;
+                                    s.minFilter = gl.NEAREST_MIPMAP_LINEAR;
                             }
-                            sampler.minFilterNoMips = gl.NEAREST;
+                            s.minFilterNoMips = gl.NEAREST;
                         }
                         else
                         {
-                            switch (mipFilter)
+                            switch (s.mipFilter)
                             {
                                 case 0:
-                                    sampler.minFilter = gl.LINEAR;
+                                    s.minFilter = gl.LINEAR;
                                     break;
 
                                 case 1:
-                                    sampler.minFilter = gl.LINEAR_MIPMAP_NEAREST;
+                                    s.minFilter = gl.LINEAR_MIPMAP_NEAREST;
                                     break;
 
                                 default:
-                                    sampler.minFilter = gl.LINEAR_MIPMAP_LINEAR;
+                                    s.minFilter = gl.LINEAR_MIPMAP_LINEAR;
                             }
-                            sampler.minFilterNoMips = gl.LINEAR;
+                            s.minFilterNoMips = gl.LINEAR;
                         }
 
-                        sampler.magFilter = magFilter === 1 ? gl.NEAREST : gl.LINEAR;
-                        sampler.addressU = wrapModes[addressU];
-                        sampler.addressV = wrapModes[addressV];
-                        sampler.addressW = wrapModes[addressW];
+                        s.magFilter = s.magFilter === 1 ? gl.NEAREST : gl.LINEAR;
+                        s.addressU = wrapModes[s.addressU];
+                        s.addressV = wrapModes[s.addressV];
+                        s.addressW = wrapModes[s.addressW];
 
-                        if (minFilter === 3 || magFilter === 3 || mipFilter === 3)
+                        if (s.minFilter === 3 || s.magFilter === 3 || s.mipFilter === 3)
                         {
-                            sampler.anisotropy = Math.max(maxAnisotropy, 1);
+                            s.anisotropy = Math.max(s.maxAnisotropy, 1);
                         }
 
                         for (let n = 0; n < stage.textures.length; ++n)
                         {
-                            if (stage.textures[n].registerIndex === sampler.registerIndex)
+                            if (stage.textures[n].registerIndex === s.registerIndex)
                             {
-                                sampler.samplerType = stage.textures[n].type === 4 ? gl.TEXTURE_CUBE_MAP : gl.TEXTURE_2D;
-                                sampler.isVolume = stage.textures[n].type === 3;
+                                s.samplerType = stage.textures[n].type === 4 ? gl.TEXTURE_CUBE_MAP : gl.TEXTURE_2D;
+                                s.isVolume = stage.textures[n].type === 3;
                                 break;
                             }
                         }
 
-                        sampler.ComputeHash();
-                        stage.samplers.push(sampler);
+                        s.ComputeHash();
+                        stage.samplers.push(s);
                     }
 
                     if (version >= 3) reader.ReadUInt8();
+                    if (version > 7) reader.ReadUInt8();
 
                     pass.stages[stageType] = stage;
                 }
@@ -350,6 +362,7 @@ export class Tw2Shader
                 technique.passes[passIx] = pass;
             }
         }
+
         const parameterCount = reader.ReadUInt16();
         for (let paramIx = 0; paramIx < parameterCount; ++paramIx)
         {
@@ -606,6 +619,32 @@ export class Tw2Shader
     }
 
     /**
+     * Inspects shader code for a path and fixes any known errors
+     * TODO: Fix source files
+     * @param {String} code
+     * @param {String} path
+     * @returns {String}
+     */
+    static InspectShaderCode(code, path)
+    {
+        const
+            fileName = path.substring(path.lastIndexOf("/") + 1, path.lastIndexOf(".")).toLowerCase(),
+            overrides = shaderOverrides[fileName];
+
+        if (!overrides) return code;
+        
+        for (const key in overrides)
+        {
+            if (overrides.hasOwnProperty(key))
+            {
+                code = code.replace(key, overrides[key]);
+            }
+        }
+
+        return code;
+    }
+
+    /**
      * Constant names that are ignored
      * @type {String[]}
      */
@@ -615,5 +654,7 @@ export class Tw2Shader
         "PerFramePS",
         "PerObjectPS"
     ];
+
+    static DEBUG_ENABLED = false;
 
 }

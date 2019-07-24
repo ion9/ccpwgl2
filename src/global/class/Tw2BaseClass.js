@@ -1,19 +1,19 @@
 import {ErrAbstractClassMethod} from "../../core/Tw2Error";
-import {isArray, isFunction, isObjectObject, isPlain, isPrimary, isTyped} from "../util";
+import {generateID, isArray, isFunction, isObjectObject, isPlain, isPrimary, isTyped} from "../util";
 import {Tw2EventEmitter} from "./Tw2EventEmitter";
 
+
 /**
- * Base class
- * @param {Tw2Library} [tw2]
+ * Tw2BaseClass
  */
-export function Tw2BaseClass(tw2)
+export class Tw2BaseClass extends Tw2EventEmitter
 {
-    Tw2BaseClass.defineID(this);
-}
 
-Tw2BaseClass.prototype = Object.assign(Object.create(Tw2EventEmitter.prototype), {
-
-    constructor: Tw2BaseClass,
+    constructor()
+    {
+        super();
+        Tw2BaseClass.defineID(this);
+    }
 
     /**
      * Copies another object's values
@@ -24,7 +24,7 @@ Tw2BaseClass.prototype = Object.assign(Object.create(Tw2EventEmitter.prototype),
     Copy(a, opt)
     {
         return this.constructor.copy(this, a, opt);
-    },
+    }
 
     /**
      * Clones the object
@@ -34,7 +34,7 @@ Tw2BaseClass.prototype = Object.assign(Object.create(Tw2EventEmitter.prototype),
     Clone(opt)
     {
         this.constructor.clone(this, opt);
-    },
+    }
 
     /**
      * Sets the object's values from a plain object
@@ -45,7 +45,7 @@ Tw2BaseClass.prototype = Object.assign(Object.create(Tw2EventEmitter.prototype),
     Set(values, opt)
     {
         return this.constructor.set(this, values, opt);
-    },
+    }
 
     /**
      * Gets the object's values as a plain object
@@ -56,7 +56,7 @@ Tw2BaseClass.prototype = Object.assign(Object.create(Tw2EventEmitter.prototype),
     Get(out, opt)
     {
         return this.constructor.get(this, out, opt);
-    },
+    }
 
     /**
      * Internal handler for value changes
@@ -65,7 +65,7 @@ Tw2BaseClass.prototype = Object.assign(Object.create(Tw2EventEmitter.prototype),
     OnValueChanged(opt)
     {
 
-    },
+    }
 
     /**
      * Triggers update handlers
@@ -79,7 +79,7 @@ Tw2BaseClass.prototype = Object.assign(Object.create(Tw2EventEmitter.prototype),
         {
             this.emit("modified", opt);
         }
-    },
+    }
 
     /**
      * Internal handler for object destruction
@@ -88,7 +88,7 @@ Tw2BaseClass.prototype = Object.assign(Object.create(Tw2EventEmitter.prototype),
     OnDestroy(opt)
     {
 
-    },
+    }
 
     /**
      * Destroys the object
@@ -104,7 +104,7 @@ Tw2BaseClass.prototype = Object.assign(Object.create(Tw2EventEmitter.prototype),
         }
 
         this.kill();
-    },
+    }
 
     /**
      * Traverses the object
@@ -130,106 +130,175 @@ Tw2BaseClass.prototype = Object.assign(Object.create(Tw2EventEmitter.prototype),
         return this.constructor.perChild(this, onChild, path);
     }
 
-});
+    /**
+     * Internal handler for copying one object's values to another
+     * @param {*} a
+     * @param {*} b
+     * @param {*} [opt]
+     * @private
+     */
+    static copy(a, b, opt = {})
+    {
+        opt.verb = "copy";
+        const values = this.get(b, {}, {skipIDs: true});
+        return this.set(a, values, opt);
+    }
 
-let OBJECT_ID = 0;
+    /**
+     * Internal handler for cloning an object
+     * @param {*} a
+     * @param {*} [opt]
+     * @private
+     */
+    static clone(a, opt)
+    {
+        const values = this.get(a, {}, {skipIDs: true});
+        return this.from(values, opt);
+    }
 
-/**
- * Defines an id
- * @param {*} target
- */
-Tw2BaseClass.defineID = function(target)
-{
-    Reflect.defineProperty(target, "_id", {
-        value: OBJECT_ID++,
-        writable: false,
-        configurable: true
-    });
-};
+    /**
+     * Creates an object from values
+     * @param [values]
+     * @param [opt={}]
+     * @returns {*}
+     */
+    static from(values, opt)
+    {
+        if (values && values instanceof this)
+        {
+            return values;
+        }
 
-/**
- * Creates an object from values
- * @param [values]
- * @param [opt={}]
- * @returns {*}
- */
-Tw2BaseClass.from = function (values, opt)
-{
-    if (values && values instanceof this) return values;
-    const item = new this();
-    if (values)  this.set(item, values, {skipUpdate: true});
-    if (!opt || !opt.skipUpdate) if ("Initialize" in item) item.Initialize();
-    return item;
-};
+        const item = new this();
+        if (values)
+        {
+            this.set(item, values, {skipUpdate: true, verb: "create"});
+        }
 
-/**
- * Internal handler for copying one object's values to another
- * @param {*} a
- * @param {*} b
- * @param {*} [opt]
- * @private
- */
-Tw2BaseClass.copy = function (a, b, opt = {})
-{
-    const {skipUpdate} = opt;
-    return this.set(a, this.get(b, {}, {skipIds: true}), {skipUpdate, verb: "copy"});
-};
+        if ((!opt || !opt.skipUpdate) && "Initialize" in item)
+        {
+            item.Initialize();
+        }
 
-/**
- * Internal handler for cloning an object
- * @param {*} a
- * @param {*} [opt]
- * @private
- */
-Tw2BaseClass.clone = function (a, opt)
-{
-    return this.from(this.get(a, {}, {skipIds: true}), opt);
-};
+        return item;
+    }
 
-/**
- * Internal handler for setting an object's values from a plain object
- * @param {*} a
- * @param {*} [values]
- * @param {*} [opt]
- * @returns {boolean}
- * @private
- */
-Tw2BaseClass.set = function (a, values, opt = {})
-{
-    throw new ErrAbstractClassMethod();
-};
 
-/**
- * Internal handler for getting an object's value as a plain object
- * @param {*} a
- * @param {*} [out={}]
- * @param {*} [opt]
- * @returns {*} out
- * @private
- */
-Tw2BaseClass.get = function (a, out = {}, opt = {})
-{
-    throw new ErrAbstractClassMethod();
-};
+    /**
+     * Internal handler for setting an object's values from a plain object
+     * @param {*} a
+     * @param {*} [values]
+     * @param {*} [opt]
+     * @returns {boolean}
+     * @private
+     */
+    static set(a, values, opt = {})
+    {
+        throw new ErrAbstractClassMethod();
+    }
 
-/**
- *
- * @type {*}
- * @private
- */
-Tw2BaseClass.keys = null;
+    /**
+     * Internal handler for getting an object's value as a plain object
+     * @param {*} a
+     * @param {*} [out={}]
+     * @param {*} [opt]
+     * @param {Boolean} [opt.skipID]
+     * @param {Boolean} [opt.skipType]
+     * @param {Boolean} [opt.skipVerb]
+     * @returns {*} out
+     * @private
+     */
+    static get(a, out = {}, opt = {})
+    {
+        throw new ErrAbstractClassMethod();
+    }
 
-/**
- *
- * @type {*}
- */
-Tw2BaseClass.black = null;
 
-/**
- *
- * @type {null|String}
- */
-Tw2BaseClass.category = null;
+    /**
+     * Fires a callback on an object's child lists and types, and no further
+     * @param {*} obj
+     * @param {Function} callback
+     * @param {String} [path="root"]
+     * @returns {!*}
+     */
+    static perChild(obj, callback, path = "root")
+    {
+        if (!obj.constructor.keys)
+        {
+            cacheKeys(obj);
+        }
+
+        const {list, type} = obj.constructor.keys;
+
+        if (list)
+        {
+            for (let i = 0; i < list.length; i++)
+            {
+                const
+                    key = list[i],
+                    arr = obj[key];
+
+                for (let x = 0; x < arr.length; x++)
+                {
+                    const item = arr[x];
+
+                    if (isObjectObject(item))
+                    {
+                        let currentPath = `${path}/${key}/${x}`;
+                        const result = callback(item, obj, currentPath);
+                        if (result) return result;
+                    }
+                }
+            }
+        }
+
+        if (type)
+        {
+            for (let i = 0; i < type.length; i++)
+            {
+                const
+                    key = type[i],
+                    item = obj[key];
+
+                if (isObjectObject(item))
+                {
+                    let currentPath = `${path}/${key}`;
+                    const result = callback(item, obj, currentPath);
+                    if (result) return result;
+                }
+            }
+        }
+    }
+
+    static defineID(target)
+    {
+        Reflect.defineProperty(target, "_id", {
+            value: generateID(),
+            writable: false,
+            configurable: true
+        });
+    }
+
+    /**
+     *
+     * @type {*}
+     * @private
+     */
+    static keys = null;
+
+    /**
+     *
+     * @type {*}
+     */
+    static black = null;
+
+    /**
+     *
+     * @type {null|String}
+     */
+    static category = null;
+
+}
 
 /**
  * Caches the classes keys
@@ -238,81 +307,68 @@ Tw2BaseClass.category = null;
  */
 function cacheKeys(obj)
 {
-    const cache = obj.constructor.keys || {};
+    if (obj.constructor.hasOwnProperty("keys"))
+    {
+        return;
+    }
+
+    const cache = {};
 
     function add(name, key)
     {
-        if (!cache[name]) cache[name] = [];
-        if (!cache[name].includes(key)) cache[name].push(key);
+        if (!cache[name])
+        {
+            cache[name] = [];
+        }
+
+        if (!cache[name].includes(key))
+        {
+            cache[name].push(key);
+        }
     }
 
     for (const key in obj)
     {
-        if (obj.hasOwnProperty(key) && key.charAt(0) !== "_")
+        if (obj.hasOwnProperty(key))
         {
+            // Don't cache privates
+            if (key.charAt(0) === "_")
+            {
+                continue;
+            }
+
             const value = obj[key];
-            if (isPrimary(value)) add("primary", key);
-            else if (isArray(value)) add("array", key);
-            else if (isTyped(value)) add("typed", key);
-            else if (value === null || isObjectObject(value)) add("object", key);
-            else if (isPlain(value)) add("plain", key);
+            if (isPrimary(value))
+            {
+                add("primary", key);
+            }
+            else if (isArray(value))
+            {
+                // Assumes empty arrays are lists
+                // Assumes if first element is a primary value that is all it contains
+                if (value.length && isPrimary(value[0]))
+                {
+                    add("array", key);
+                }
+                else
+                {
+                    add("list", key);
+                }
+            }
+            else if (isTyped(value))
+            {
+                add("typed", key);
+            }
+            else if (isPlain(value))
+            {
+                add("plain", key);
+            }
+            else if (value === null || isObjectObject(value))
+            {
+                add("type", key);
+            }
         }
     }
 
     obj.constructor.keys = cache;
 }
-
-/**
- * Fires a callback on an object's children, and no further
- * @param {*} obj
- * @param {Function} callback
- * @param {String} [path="root"]
- * @returns {!*}
- */
-Tw2BaseClass.perChild = function (obj, callback, path="root")
-{
-    if (!obj.constructor.keys) cacheKeys(obj);
-
-    const {array, object} = obj.constructor.keys;
-
-    if (array)
-    {
-        for (let i = 0; i < array.length; i++)
-        {
-            const
-                key = array[i],
-                arr = obj[key];
-
-            for (let x = 0; x < arr.length; x++)
-            {
-                const item = arr[x];
-
-                if (isObjectObject(item))
-                {
-                    let currentPath = `${path}/${key}/${x}`;
-                    const result = callback(item, obj, currentPath);
-                    if (result) return result;
-                }
-            }
-        }
-    }
-
-    if (object)
-    {
-        for (let i = 0; i < object.length; i++)
-        {
-            const
-                key = object[i],
-                item = obj[key];
-
-            if (isObjectObject(item))
-            {
-                let currentPath = `${path}/${key}`;
-                const result = callback(item, obj, currentPath);
-                if (result) return result;
-            }
-        }
-    }
-};
-
-

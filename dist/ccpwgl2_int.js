@@ -16444,6 +16444,7 @@ __webpack_require__.r(__webpack_exports__);
  */
 
 const config = {
+  debug: true,
   device: {
     "textureQuality": 0,
     "shaderQuality": "hi",
@@ -17970,783 +17971,6 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
-/***/ "./core/curve/Tw2CurveSet.js":
-/*!***********************************!*\
-  !*** ./core/curve/Tw2CurveSet.js ***!
-  \***********************************/
-/*! exports provided: Tw2CurveSet */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2CurveSet", function() { return Tw2CurveSet; });
-/* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../global */ "./global/index.js");
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-
-/**
- * Curve set
- * TODO: Implement useSimTimeRebase
- * TODO: Implement ranges - Are these read only or do they need to relate back to an AnimationRes some how?
- * @ccp TriCurveSet
- *
- * @property {Array.<Tw2ValueBinding>} bindings                    -
- * @property {Array.<Curve|CurveExpression|CurveSequencer>} curves -
- * @property {Boolean} playOnLoad                                  -
- * @property {Array.<Tw2CurveSetRange>} ranges                     -
- * @property {Number} scale                                        -
- * @property {Boolean} useSimTimeRebase                            -
- * @property {Boolean} _isPlaying                                  -
- * @property {Number} _scaledTime                                  -
- */
-
-class Tw2CurveSet extends _global__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"] {
-  constructor() {
-    super(...arguments);
-
-    _defineProperty(this, "name", "");
-
-    _defineProperty(this, "bindings", []);
-
-    _defineProperty(this, "curves", []);
-
-    _defineProperty(this, "playOnLoad", true);
-
-    _defineProperty(this, "ranges", []);
-
-    _defineProperty(this, "scale", 1);
-
-    _defineProperty(this, "useSimTimeRebase", false);
-
-    _defineProperty(this, "scaledTime", 0);
-
-    _defineProperty(this, "_isPlaying", false);
-  }
-
-  /**
-   * Initializes the Tw2CurveSet
-   */
-  Initialize() {
-    if (this.playOnLoad) {
-      this.Play();
-    }
-  }
-  /**
-   * Plays the Tw2CurveSet
-   */
-
-
-  Play() {
-    this._isPlaying = true;
-    this.scaledTime = 0;
-  }
-  /**
-   * Plays the Tw2CurveSet from a specific time
-   * @param {Number} [time=0]
-   */
-
-
-  PlayFrom() {
-    let time = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-    this._isPlaying = true;
-    this.scaledTime = time * this.scale;
-  }
-  /**
-   * Stops the Tw2CurveSet from playing
-   */
-
-
-  Stop() {
-    this._isPlaying = false;
-  }
-  /**
-   * Internal render/update function which is called every frame
-   * @param {Number} dt - Delta Time
-   */
-
-
-  Update(dt) {
-    if (this._isPlaying) {
-      this.scaledTime += dt * this.scale;
-
-      for (let i = 0; i < this.curves.length; ++i) {
-        this.curves[i].UpdateValue(this.scaledTime);
-      }
-
-      for (let i = 0; i < this.bindings.length; ++i) {
-        this.bindings[i].CopyValue();
-      }
-    }
-  }
-  /**
-   * Gets a range by name
-   * @param {String}name
-   * @returns {?Tw2CurveSetRange}
-   */
-
-
-  GetRangeByName(name) {
-    for (let i = 0; i < this.ranges.length; i++) {
-      if (this.ranges[i].name === name) {
-        return this.ranges[i];
-      }
-    }
-
-    return null;
-  }
-  /**
-   * Gets the maximum curve duration
-   *
-   * @returns {Number}
-   */
-
-
-  GetMaxCurveDuration() {
-    let length = 0;
-
-    for (let i = 0; i < this.curves.length; ++i) {
-      if ("GetLength" in this.curves[i]) {
-        length = Math.max(length, this.curves[i].GetLength());
-      }
-    }
-
-    return length;
-  }
-  /**
-   * Black definition
-   * @param {*} r
-   * @returns {*[]}
-   */
-
-
-  static black(r) {
-    return [["bindings", r.array], ["curves", r.array], ["name", r.string], ["playOnLoad", r.boolean], ["ranges", r.array], ["scale", r.float], ["useSimTimeRebase", r.boolean]];
-  }
-
-}
-
-/***/ }),
-
-/***/ "./core/curve/Tw2CurveSetRange.js":
-/*!****************************************!*\
-  !*** ./core/curve/Tw2CurveSetRange.js ***!
-  \****************************************/
-/*! exports provided: Tw2CurveSetRange */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2CurveSetRange", function() { return Tw2CurveSetRange; });
-/* harmony import */ var _global_index__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../global/index */ "./global/index.js");
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-
-/**
- * Curve set range
- * @ccp Tr2CurveSetRange
- *
- * @property {String} name      -
- * @property {Number} endTime   -
- * @property {Boolean} looped   -
- * @property {Number} startTime -
- */
-
-class Tw2CurveSetRange extends _global_index__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"] {
-  constructor() {
-    super(...arguments);
-
-    _defineProperty(this, "name", "");
-
-    _defineProperty(this, "endTime", 0);
-
-    _defineProperty(this, "looped", false);
-
-    _defineProperty(this, "startTime", 0);
-  }
-
-  /**
-   * Black definition
-   * @param {*} r
-   * @returns {*[]}
-   */
-  static black(r) {
-    return [["endTime", r.float], ["looped", r.boolean], ["name", r.string], ["startTime", r.float]];
-  }
-  /**
-   * Identifies that the class is in staging
-   * @property {null|Number}
-   */
-
-
-}
-
-_defineProperty(Tw2CurveSetRange, "__isStaging", 4);
-
-/***/ }),
-
-/***/ "./core/curve/Tw2ValueBinding.js":
-/*!***************************************!*\
-  !*** ./core/curve/Tw2ValueBinding.js ***!
-  \***************************************/
-/*! exports provided: Tw2ValueBinding */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2ValueBinding", function() { return Tw2ValueBinding; });
-/* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../global */ "./global/index.js");
-/* harmony import */ var _parameter__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../parameter */ "./core/parameter/index.js");
-/* harmony import */ var _global_util__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../global/util */ "./global/util/index.js");
-/* harmony import */ var _Tw2Error__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Tw2Error */ "./core/Tw2Error.js");
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-
-
-
-
-/**
- * Tw2ValueBinding
- * TODO: Looks like there are less swizzles than before, might be able to simplify this class (eg if v1,v2,v3,v4 gone)
- * TODO: Handle utility functions
- * TODO: Figure out a way of telling if a source/destination is RGBA when building from a UI rather than a swizzle
- * @ccp TriValueBinding
- *
- * @property {String} name                 -
- * @property {String} destinationAttribute -
- * @property {*} destinationObject         -
- * @property {vec4} offset                 -
- * @property {Number} scale                -
- * @property {String} sourceAttribute      -
- * @property {*} sourceObject              -
- * @property {Function} _copyFunc          -
- * @property {Number} _destinationElement  -
- * @property {Boolean} _destinationIsArray -
- * @property {Boolean} _destinationIsRGBA  -
- * @property {Number} _sourceElement       -
- * @property {Boolean} _sourceIsArray      -
- * @property {Boolean} _sourceIsRGBA       -
- */
-
-class Tw2ValueBinding extends _global__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"] {
-  constructor() {
-    super(...arguments);
-
-    _defineProperty(this, "name", "");
-
-    _defineProperty(this, "destinationAttribute", "");
-
-    _defineProperty(this, "destinationObject", null);
-
-    _defineProperty(this, "offset", _global__WEBPACK_IMPORTED_MODULE_0__["vec4"].create());
-
-    _defineProperty(this, "scale", 1);
-
-    _defineProperty(this, "sourceAttribute", "");
-
-    _defineProperty(this, "sourceObject", null);
-
-    _defineProperty(this, "_copyFunc", null);
-
-    _defineProperty(this, "_destinationElement", null);
-
-    _defineProperty(this, "_destinationIsArray", null);
-
-    _defineProperty(this, "_destinationIsRGBA", null);
-
-    _defineProperty(this, "_sourceElement", null);
-
-    _defineProperty(this, "_sourceIsArray", null);
-
-    _defineProperty(this, "_sourceIsRGBA", null);
-  }
-
-  /**
-   * Initializes the binding
-   */
-  Initialize() {
-    this.UpdateValues();
-  }
-  /**
-   * Fires on value changes
-   */
-
-
-  OnValueChanged() {
-    if (this._copyFunc !== null) return;
-    if (!this.sourceObject || this.sourceAttribute === "") return;
-    if (!this.destinationObject || this.destinationAttribute === "") return; // Handle source by reference
-
-    if (this.sourceObject && "_ref" in this.sourceObject) {
-      this.sourceObject = this.FindIDFromRoot(this.sourceObject._ref);
-      if (!this.sourceObject) throw new _Tw2Error__WEBPACK_IMPORTED_MODULE_3__["ErrBindingReference"]({
-        object: "source"
-      });
-    } // Handle destination by reference
-
-
-    if (this.destinationObject && "_ref" in this.destinationObject) {
-      this.destinationObject = this.FindIDFromRoot(this.destinationObject._ref);
-      if (!this.destinationObject) throw new _Tw2Error__WEBPACK_IMPORTED_MODULE_3__["ErrBindingReference"]({
-        object: "destination"
-      });
-    }
-
-    let srcSwizzled = false,
-        destSwizzled = false,
-        srcSwizzle = this.sourceAttribute.substr(-2);
-
-    if (srcSwizzle === ".x" || srcSwizzle === ".r") {
-      srcSwizzled = true;
-      this._sourceElement = 0;
-      this.sourceAttribute = this.sourceAttribute.substr(0, this.sourceAttribute.length - 2);
-      this._sourceIsRGBA = srcSwizzle === ".r";
-    } else if (srcSwizzle === ".y" || srcSwizzle === ".g") {
-      srcSwizzled = true;
-      this._sourceElement = 1;
-      this.sourceAttribute = this.sourceAttribute.substr(0, this.sourceAttribute.length - 2);
-      this._sourceIsRGBA = srcSwizzle === ".g";
-    } else if (srcSwizzle === ".z" || srcSwizzle === ".b") {
-      srcSwizzled = true;
-      this._sourceElement = 2;
-      this.sourceAttribute = this.sourceAttribute.substr(0, this.sourceAttribute.length - 2);
-      this._sourceIsRGBA = srcSwizzle === ".b";
-    } else if (srcSwizzle === ".w" || srcSwizzle === ".a") {
-      srcSwizzled = true;
-      this._sourceElement = 3;
-      this.sourceAttribute = this.sourceAttribute.substr(0, this.sourceAttribute.length - 2);
-      this._sourceIsRGBA = srcSwizzle === ".a";
-    } else if (this.sourceObject instanceof _parameter__WEBPACK_IMPORTED_MODULE_1__["Tw2Vector4Parameter"]) {
-      if (this.sourceAttribute === "v1") {
-        srcSwizzled = true;
-        this._sourceElement = 0;
-        this.sourceAttribute = "value";
-      } else if (this.sourceAttribute === "v2") {
-        srcSwizzled = true;
-        this._sourceElement = 1;
-        this.sourceAttribute = "value";
-      } else if (this.sourceAttribute === "v3") {
-        srcSwizzled = true;
-        this._sourceElement = 2;
-        this.sourceAttribute = "value";
-      } else if (this.sourceAttribute === "v4") {
-        srcSwizzled = true;
-        this._sourceElement = 3;
-        this.sourceAttribute = "value";
-      }
-    }
-
-    let destSwizzle = this.destinationAttribute.substr(-2);
-
-    if (destSwizzle === ".x" || destSwizzle === ".r") {
-      destSwizzled = true;
-      this._destinationElement = 0;
-      this.destinationAttribute = this.destinationAttribute.substr(0, this.destinationAttribute.length - 2);
-      this._destinationIsRGBA = destSwizzle === ".r";
-    } else if (destSwizzle === ".y" || destSwizzle === ".g") {
-      destSwizzled = true;
-      this._destinationElement = 1;
-      this.destinationAttribute = this.destinationAttribute.substr(0, this.destinationAttribute.length - 2);
-      this._destinationIsRGBA = destSwizzle === ".g";
-    } else if (destSwizzle === ".z" || destSwizzle === ".b") {
-      destSwizzled = true;
-      this._destinationElement = 2;
-      this.destinationAttribute = this.destinationAttribute.substr(0, this.destinationAttribute.length - 2);
-      this._destinationIsRGBA = destSwizzle === ".b";
-    } else if (destSwizzle === ".w" || destSwizzle === ".a") {
-      destSwizzled = true;
-      this._destinationElement = 3;
-      this.destinationAttribute = this.destinationAttribute.substr(0, this.destinationAttribute.length - 2);
-      this._destinationIsRGBA = destSwizzle === ".a";
-    } else if (this.destinationObject instanceof _parameter__WEBPACK_IMPORTED_MODULE_1__["Tw2Vector4Parameter"]) {
-      if (this.destinationAttribute === "v1") {
-        destSwizzled = true;
-        this._destinationElement = 0;
-        this.destinationAttribute = "value";
-      } else if (this.destinationAttribute === "v2") {
-        destSwizzled = true;
-        this._destinationElement = 1;
-        this.destinationAttribute = "value";
-      } else if (this.destinationAttribute === "v3") {
-        destSwizzled = true;
-        this._destinationElement = 2;
-        this.destinationAttribute = "value";
-      } else if (this.destinationAttribute === "v4") {
-        destSwizzled = true;
-        this._destinationElement = 3;
-        this.destinationAttribute = "value";
-      }
-    }
-
-    const src = this.sourceObject[this.sourceAttribute],
-          dest = this.destinationObject[this.destinationAttribute]; // Targets must be defined
-
-    if (src === undefined) {
-      throw new _Tw2Error__WEBPACK_IMPORTED_MODULE_3__["ErrBindingValueUndefined"]({
-        object: "source",
-        property: this.sourceAttribute
-      });
-    }
-
-    if (dest === undefined) {
-      throw new _Tw2Error__WEBPACK_IMPORTED_MODULE_3__["ErrBindingValueUndefined"]({
-        object: "destination",
-        property: this.destinationAttribute
-      });
-    }
-
-    const srcIsArr = this._sourceIsArray = Object(_global_util__WEBPACK_IMPORTED_MODULE_2__["isArrayLike"])(src),
-          destIsArr = this._destinationIsArray = Object(_global_util__WEBPACK_IMPORTED_MODULE_2__["isArrayLike"])(dest),
-          con = Tw2ValueBinding;
-    let copyFunc;
-
-    if (srcIsArr === destIsArr && typeof src === typeof dest) {
-      if (!srcIsArr) {
-        copyFunc = con.CopyValueToValue;
-      } else if (srcSwizzled) {
-        copyFunc = destSwizzled ? con.CopyElementToElement : con.ReplicateElement;
-      } else if (src.length <= dest.length) {
-        copyFunc = con.CopyArray;
-      } else if (src.length === 16) {
-        copyFunc = con.ExtractPos;
-      }
-    } else if (srcIsArr && srcSwizzled && Object(_global_util__WEBPACK_IMPORTED_MODULE_2__["isNumber"])(dest)) {
-      copyFunc = con.CopyElementToValue;
-    } else if (destIsArr && Object(_global_util__WEBPACK_IMPORTED_MODULE_2__["isNumber"])(src)) {
-      copyFunc = destSwizzled ? con.CopyValueToElement : con.ReplicateValue;
-    } else if (Object(_global_util__WEBPACK_IMPORTED_MODULE_2__["isNumber"])(src) && Object(_global_util__WEBPACK_IMPORTED_MODULE_2__["isBoolean"])(dest)) {
-      copyFunc = con.CopyFloatToBoolean;
-    } else if (Object(_global_util__WEBPACK_IMPORTED_MODULE_2__["isBoolean"])(src) && Object(_global_util__WEBPACK_IMPORTED_MODULE_2__["isNumber"])(dest)) {
-      copyFunc = con.CopyBooleanToFloat;
-    }
-
-    if (!copyFunc) {
-      throw new _Tw2Error__WEBPACK_IMPORTED_MODULE_3__["ErrBindingType"]();
-    }
-
-    this._copyFunc = copyFunc;
-  }
-  /**
-   * CopyValue
-   * @param {*} [controller=this]
-   */
-
-
-  CopyValue() {
-    let controller = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this;
-
-    if (this._copyFunc) {
-      this._copyFunc(this);
-
-      if ("UpdateValues" in this.destinationObject) {
-        this.destinationObject.UpdateValues(controller);
-      } else if ("OnValueChanged" in this.destinationObject) {
-        this.destinationObject.OnValueChanged(controller);
-      }
-    }
-  }
-  /**
-   * Gets the destination target (attribute with swizzles)
-   * @returns {String}
-   */
-
-
-  GetDestinationTarget() {
-    if (!this._copyFunc) return this.destinationAttribute;
-    return this.constructor.GetAttribute(this.destinationObject, this.destinationAttribute, this._destinationElement, this._destinationIsRGBA);
-  }
-  /**
-   * Gets the source target (attribute with swizzles)
-   * @returns {String}
-   */
-
-
-  GetSourceTarget() {
-    if (!this._copyFunc) return this.sourceAttribute;
-    return this.constructor.GetAttribute(this.sourceObject, this.sourceAttribute, this._sourceElement, this._sourceIsRGBA);
-  }
-  /**
-   * Sets source object and attribute
-   * @param {*} obj
-   * @param {String} attr
-   * @param {Number} [element]
-   * @param {Boolean} [isRGBA]
-   */
-
-
-  SetSource(obj, attr, element, isRGBA) {
-    const _this$constructor$Get = this.constructor.GetTargets(obj, attr, element, isRGBA),
-          object = _this$constructor$Get.object,
-          attribute = _this$constructor$Get.attribute;
-
-    this.sourceObject = object;
-    this.sourceAttribute = attribute;
-    this._copyFunc = null; //this.UpdateValues();
-  }
-  /**
-   * Sets destination object and attribute
-   * @param {*} obj
-   * @param {String} attr
-   * @param {Number} [element]
-   * @param {Boolean} [isRGBA]
-   */
-
-
-  SetDestination(obj, attr, element, isRGBA) {
-    const _this$constructor$Get2 = this.constructor.GetTargets(obj, attr, element, isRGBA),
-          object = _this$constructor$Get2.object,
-          attribute = _this$constructor$Get2.attribute;
-
-    this.destinationObject = object;
-    this.destinationAttribute = attribute;
-    this._copyFunc = null; //this.UpdateValues();
-  }
-  /**
-   * Gets a value bindings attribute and swizzles for serialization
-   * @param {*} object
-   * @param {String} attribute
-   * @param {?Number} element
-   * @param {Boolean} isRGBA
-   * @returns {String}
-   */
-
-
-  static GetAttribute(object, attribute, element, isRGBA) {
-    // Looks to be deprecated
-    if (object instanceof _parameter__WEBPACK_IMPORTED_MODULE_1__["Tw2Vector4Parameter"] && attribute === "value") {
-      switch (element) {
-        case 0:
-          return "v0";
-
-        case 1:
-          return "v1";
-
-        case 2:
-          return "v2";
-
-        case 3:
-          return "v4";
-
-        default:
-          return attribute;
-      }
-    }
-
-    switch (element) {
-      case 0:
-        return attribute + isRGBA ? ".r" : ".x";
-
-      case 1:
-        return attribute + isRGBA ? ".g" : ".y";
-
-      case 2:
-        return attribute + isRGBA ? ".b" : ".z";
-
-      case 3:
-        return attribute + isRGBA ? ".a" : ".w";
-
-      default:
-        return attribute;
-    }
-  }
-  /**
-   * Gets target values
-   * @param {*} object
-   * @param {String} attribute
-   * @param {Number} [element]
-   * @param {Boolean} [isRGBA]
-   * @returns {{object: *, attribute: String}}
-   */
-
-
-  static GetTargets(object, attribute, element, isRGBA) {
-    // Try to guess if rgba
-    if (element !== undefined && isRGBA === undefined) {
-      isRGBA = attribute.toUpperCase().includes("COLOR");
-    } // Looks to be depreciated
-
-
-    if (object instanceof _parameter__WEBPACK_IMPORTED_MODULE_1__["Tw2Vector4Parameter"] && attribute === "value") {
-      switch (element) {
-        case 0:
-          attribute = "v0";
-          break;
-
-        case 1:
-          attribute = "v1";
-          break;
-
-        case 2:
-          attribute = "v2";
-          break;
-
-        case 3:
-          attribute = "v3";
-          break;
-      }
-    } else {
-      switch (element) {
-        case 0:
-          attribute += isRGBA ? ".r" : ".x";
-          break;
-
-        case 1:
-          attribute += isRGBA ? ".g" : ".y";
-          break;
-
-        case 2:
-          attribute += isRGBA ? ".b" : ".z";
-          break;
-
-        case 3:
-          attribute += isRGBA ? ".a" : ".w";
-          break;
-      }
-    }
-
-    return {
-      object,
-      attribute
-    };
-  }
-  /**
-   * CopyValueToValue
-   * @param {Tw2ValueBinding} a
-   */
-
-
-  static CopyValueToValue(a) {
-    a.destinationObject[a.destinationAttribute] = a.sourceObject[a.sourceAttribute] * a.scale + a.offset[0];
-  }
-  /**
-   * CopyArray
-   * @param {Tw2ValueBinding} a
-   */
-
-
-  static CopyArray(a) {
-    let count = Math.min(a.destinationObject[a.destinationAttribute].length, a.sourceObject[a.sourceAttribute].length);
-
-    for (let i = 0; i < count; ++i) {
-      a.destinationObject[a.destinationAttribute][i] = a.sourceObject[a.sourceAttribute][i] * a.scale + a.offset[i];
-    }
-  }
-  /**
-   * CopyElementToElement
-   * @param {Tw2ValueBinding} a
-   */
-
-
-  static CopyElementToElement(a) {
-    a.destinationObject[a.destinationAttribute][a._destinationElement] = a.sourceObject[a.sourceAttribute][a._sourceElement] * a.scale + a.offset[0];
-  }
-  /**
-   * ReplicateValue
-   * @param {Tw2ValueBinding} a
-   */
-
-
-  static ReplicateValue(a) {
-    for (let i = 0; i < a.destinationObject[a.destinationAttribute].length; ++i) {
-      a.destinationObject[a.destinationAttribute][i] = a.sourceObject[a.sourceAttribute] * a.scale + a.offset[i];
-    }
-  }
-  /**
-   * CopyArray
-   * @param {Tw2ValueBinding} a
-   */
-
-
-  static ReplicateElement(a) {
-    for (let i = 0; i < a.destinationObject[a.destinationAttribute].length; ++i) {
-      a.destinationObject[a.destinationAttribute][i] = a.sourceObject[a.sourceAttribute][a._sourceElement] * a.scale + a.offset[i];
-    }
-  }
-  /**
-   * ExtractPos
-   * @param {Tw2ValueBinding} a
-   */
-
-
-  static ExtractPos(a) {
-    for (let i = 0; i < a.destinationObject[a.destinationAttribute].length; ++i) {
-      a.destinationObject[a.destinationAttribute][i] = a.sourceObject[a.sourceAttribute][i + 12] * a.scale + a.offset[i];
-    }
-  }
-  /**
-   * CopyElementToValue
-   * @param {Tw2ValueBinding} a
-   */
-
-
-  static CopyElementToValue(a) {
-    a.destinationObject[a.destinationAttribute] = a.sourceObject[a.sourceAttribute][a._sourceElement] * a.scale + a.offset[0];
-  }
-  /**
-   * CopyValueToElement
-   * @param {Tw2ValueBinding} a
-   */
-
-
-  static CopyValueToElement(a) {
-    a.destinationObject[a.destinationAttribute][a._destinationElement] = a.sourceObject[a.sourceAttribute] * a.scale + a.offset[0];
-  }
-  /**
-   * CopyFloatToBoolean
-   * @param {Tw2ValueBinding} a
-   */
-
-
-  static CopyFloatToBoolean(a) {
-    a.destinationObject[a.destinationAttribute] = a.sourceObject[a.sourceAttribute] !== 0;
-  }
-  /**
-   * CopyFloatToBoolean
-   * @param {Tw2ValueBinding} a
-   */
-
-
-  static CopyBooleanToFloat(a) {
-    a.destinationObject[a.destinationAttribute] = a.sourceObject[a.sourceAttribute] ? 1 : 0;
-  }
-  /**
-   * Black definition
-   * @param {*} r
-   * @returns {*[]}
-   */
-
-
-  static black(r) {
-    return [["destinationObject", r.object], ["destinationAttribute", r.string], ["name", r.string], ["offset", r.vector4], ["scale", r.float], ["sourceObject", r.object], ["sourceAttribute", r.string]];
-  }
-
-}
-
-/***/ }),
-
-/***/ "./core/curve/index.js":
-/*!*****************************!*\
-  !*** ./core/curve/index.js ***!
-  \*****************************/
-/*! exports provided: Tw2CurveSet, Tw2CurveSetRange, Tw2ValueBinding */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _Tw2CurveSet__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Tw2CurveSet */ "./core/curve/Tw2CurveSet.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2CurveSet", function() { return _Tw2CurveSet__WEBPACK_IMPORTED_MODULE_0__["Tw2CurveSet"]; });
-
-/* harmony import */ var _Tw2CurveSetRange__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Tw2CurveSetRange */ "./core/curve/Tw2CurveSetRange.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2CurveSetRange", function() { return _Tw2CurveSetRange__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSetRange"]; });
-
-/* harmony import */ var _Tw2ValueBinding__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Tw2ValueBinding */ "./core/curve/Tw2ValueBinding.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ValueBinding", function() { return _Tw2ValueBinding__WEBPACK_IMPORTED_MODULE_2__["Tw2ValueBinding"]; });
-
-
-
-
-
-/***/ }),
-
 /***/ "./core/data/Tw2PerObjectData.js":
 /*!***************************************!*\
   !*** ./core/data/Tw2PerObjectData.js ***!
@@ -19161,7 +18385,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2GeometryMesh", function() { return Tw2GeometryMesh; });
 /* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../global */ "./global/index.js");
 /* harmony import */ var _vertex__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../vertex */ "./core/vertex/index.js");
+/* harmony import */ var _global_util__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../global/util */ "./global/util/index.js");
+/* harmony import */ var _Tw2GeometryMeshArea__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Tw2GeometryMeshArea */ "./core/geometry/Tw2GeometryMeshArea.js");
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+
 
 
 
@@ -19205,9 +18433,9 @@ class Tw2GeometryMesh {
 
     _defineProperty(this, "indexType", 0);
 
-    _defineProperty(this, "minBounds", _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].create());
+    _defineProperty(this, "minBounds", _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].fromValues(0, 0, 0));
 
-    _defineProperty(this, "maxBounds", _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].create());
+    _defineProperty(this, "maxBounds", _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].fromValues(0, 0, 0));
 
     _defineProperty(this, "boundsSpherePosition", _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].create());
 
@@ -19216,6 +18444,149 @@ class Tw2GeometryMesh {
     _defineProperty(this, "bones", []);
 
     _defineProperty(this, "boneBindings", []);
+
+    _defineProperty(this, "_faces", 0);
+
+    _defineProperty(this, "_vertices", 0);
+
+    _defineProperty(this, "_areas", 0);
+  }
+
+  /**
+   * Gets the object's bounding box
+   * @param {box3} out
+   * @param {mat4} [parentTransform]
+   * @returns {Boolean} True if bounds are valid
+   */
+  GetBoundingBox(out, parentTransform) {
+    _global__WEBPACK_IMPORTED_MODULE_0__["box3"].fromBounds(out, this.minBounds, this.maxBounds);
+    if (parentTransform) _global__WEBPACK_IMPORTED_MODULE_0__["box3"].transformMat4(out, out, parentTransform);
+    return true;
+  }
+  /**
+   * Gets the object's bounding sphere
+   * @param {sph3} out
+   * @param {mat4} [parentTransform]
+   * @returns {Boolean} True if bounds are valid
+   */
+
+
+  GetBoundingSphere(out, parentTransform) {
+    _global__WEBPACK_IMPORTED_MODULE_0__["sph3"].fromPositionRadius(out, this.boundsSpherePosition, this.boundsSphereRadius);
+    if (parentTransform) _global__WEBPACK_IMPORTED_MODULE_0__["sph3"].transformMat4(out, out, parentTransform);
+    return true;
+  }
+  /**
+   * Rebuilds bounds
+   * @param {Boolean} [fromVertex]
+   */
+
+
+  RebuildBounds(fromVertex) {
+    const min = this.minBounds,
+          max = this.maxBounds;
+    _global__WEBPACK_IMPORTED_MODULE_0__["box3"].bounds.empty(min, max);
+
+    for (let i = 0; i < this.areas.length; i++) {
+      const area = this.areas[i];
+      this.RebuildAreaBounds(area, this.bufferData, this.indexData, fromVertex);
+      _global__WEBPACK_IMPORTED_MODULE_0__["box3"].bounds.union(min, max, min, max, area.minBounds, area.maxBounds);
+    }
+
+    this.boundsSphereRadius = _global__WEBPACK_IMPORTED_MODULE_0__["box3"].bounds.toPositionRadius(min, max, this.boundsSpherePosition);
+  }
+  /**
+   * Rebuilds an area's bounds
+   * @param {Tw2GeometryMeshArea} area
+   * @param {*} bufferData
+   * @param {*} indexData
+   * @param {Boolean} [fromVertex]
+   */
+
+
+  RebuildAreaBounds(area, bufferData, indexData, fromVertex) {
+    if (!fromVertex || !bufferData || !indexData) return false;
+    const pDecl = this.declaration.FindUsage(0, 0);
+    if (!pDecl) return false;
+    const stride = this.declaration.stride / 4,
+          pOffset = pDecl.offset;
+    const box = Tw2GeometryMesh.GetBoundsFromVertices(_global__WEBPACK_IMPORTED_MODULE_0__["box3"].create(), area.start, area.count, stride, pOffset, bufferData, indexData);
+    _global__WEBPACK_IMPORTED_MODULE_0__["box3"].toObjectBounds(box, area);
+    _global__WEBPACK_IMPORTED_MODULE_0__["box3"].toObjectPositionRadius(box, area);
+    return true;
+  }
+  /**
+   * Gets a face's vertex indices
+   * @param {vec3} out
+   * @param {Number} index
+   * @param {*} indexData
+   * @returns {vec3}
+   */
+
+
+  static GetFaceVertexIndices(out, index, indexData) {
+    if (index >= indexData.length / 3) {
+      throw new Error("Invalid index: " + index);
+    }
+
+    for (let i = 0; i < 3; i++) {
+      out[i] = indexData[index * 3 + i];
+    }
+
+    return out;
+  }
+  /**
+   * Gets a vertices's position
+   * @param {vec3} out
+   * @param {Number} index
+   * @param {Number} stride
+   * @param {Number} offset
+   * @param {*} bufferData
+   * @returns {vec3}
+   */
+
+
+  static GetVertexPosition(out, index, stride, offset, bufferData) {
+    if (!Object(_global_util__WEBPACK_IMPORTED_MODULE_2__["isNumber"])(index) || index > bufferData.length / stride) {
+      throw new Error("Invalid vertex index: " + index);
+    }
+
+    const ix = index * stride;
+    return _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].set(out, bufferData[ix + offset], bufferData[ix + offset + 1], bufferData[ix + offset + 2]);
+  }
+  /**
+   * Updates an area's bounds
+   * @param {box3} out
+   * @param {Number} start
+   * @param {Number} count
+   * @param {Number} stride
+   * @param {Number} pOffset
+   * @param {*} bufferData
+   * @param {*} indexData
+   */
+
+
+  static GetBoundsFromVertices(out, start, count, stride, pOffset, bufferData, indexData) {
+    count = count / 3;
+    start = start / 2 / 3;
+    const vertexIndices = [],
+          indices = _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].create(),
+          position = _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].create();
+    _global__WEBPACK_IMPORTED_MODULE_0__["box3"].empty(out);
+
+    for (let i = 0; i < count; i++) {
+      this.GetFaceVertexIndices(indices, i + start, indexData);
+
+      for (let x = 0; x < 3; x++) {
+        if (!vertexIndices.includes(indices[x])) {
+          vertexIndices.push(indices[x]);
+          this.GetVertexPosition(position, indices[x], stride, pOffset, bufferData);
+          _global__WEBPACK_IMPORTED_MODULE_0__["box3"].addPoint(out, out, position);
+        }
+      }
+    }
+
+    return out;
   }
 
 }
@@ -19256,13 +18627,38 @@ class Tw2GeometryMeshArea {
 
     _defineProperty(this, "count", 0);
 
-    _defineProperty(this, "minBounds", _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].create());
+    _defineProperty(this, "minBounds", _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].fromValues(0, 0, 0));
 
-    _defineProperty(this, "maxBounds", _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].create());
+    _defineProperty(this, "maxBounds", _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].fromValues(0, 0, 0));
 
     _defineProperty(this, "boundsSpherePosition", _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].create());
 
     _defineProperty(this, "boundsSphereRadius", 0);
+  }
+
+  /**
+   * Gets the object's bounding box
+   * @param {box3} out
+   * @param {mat4} [parentTransform]
+   * @returns {Boolean} True if bounds are valid
+   */
+  GetBoundingBox(out, parentTransform) {
+    _global__WEBPACK_IMPORTED_MODULE_0__["box3"].fromBounds(out, this.minBounds, this.maxBounds);
+    if (parentTransform) _global__WEBPACK_IMPORTED_MODULE_0__["box3"].transformMat4(out, out, parentTransform);
+    return true;
+  }
+  /**
+   * Gets the object's bounding sphere
+   * @param {sph3} out
+   * @param {mat4} [parentTransform]
+   * @returns {Boolean} True if bounds are valid
+   */
+
+
+  GetBoundingSphere(out, parentTransform) {
+    _global__WEBPACK_IMPORTED_MODULE_0__["sph3"].fromPositionRadius(out, this.boundsSpherePosition, this.boundsSphereRadius);
+    if (parentTransform) _global__WEBPACK_IMPORTED_MODULE_0__["sph3"].transformMat4(out, out, parentTransform);
+    return true;
   }
 
 }
@@ -19502,7 +18898,7 @@ __webpack_require__.r(__webpack_exports__);
 /*!***********************!*\
   !*** ./core/index.js ***!
   \***********************/
-/*! exports provided: Tw2TextureRes, Tr2DistanceTracker, Tr2RuntimeInstanceData, TriObserverLocal, Tw2Error, ErrStoreKeyReserved, ErrStoreValueInvalid, ErrStoreValueMissing, ErrStoreTypeInvalid, ErrStoreKeyProtected, ErrHTTPRequest, ErrHTTPRequestSend, ErrHTTPInstance, ErrHTTPStatus, ErrHTTPReadyState, ErrBinaryFormat, ErrBinaryReaderReadError, ErrBinaryObjectTypeNotFound, ErrGeometryMeshMissingParticleElement, ErrGeometryMeshElementComponentsMissing, ErrGeometryMeshAreaMissing, ErrGeometryMeshBoneNameInvalid, ErrGeometryMeshEffectBinding, ErrGeometryFileType, ErrResourcePrefixUnregistered, ErrResourcePrefixUndefined, ErrResourceExtensionUnregistered, ErrResourceExtensionUndefined, ErrResourceFormat, ErrShaderVersion, ErrShaderHeaderSize, ErrShaderPermutationValue, ErrShaderCompile, ErrShaderLink, ErrDeclarationValueType, ErrSingletonInstantiation, ErrAbstractClassMethod, ErrFeatureNotImplemented, ErrIndexBounds, ErrBindingValueUndefined, ErrBindingType, ErrBindingReference, Tw2Frustum, Tw2RenderTarget, Tw2BatchAccumulator, Tw2ForwardingRenderBatch, Tw2GeometryBatch, Tw2GeometryLineBatch, Tw2RenderBatch, Tw2InstancedMeshBatch, Tw2CurveSet, Tw2CurveSetRange, Tw2ValueBinding, Tw2PerObjectData, Tw2RawData, Tw2BlendShapeData, Tw2GeometryAnimation, Tw2GeometryBone, Tw2GeometryCurve, Tw2GeometryMesh, Tw2GeometryMeshArea, Tw2GeometryMeshBinding, Tw2GeometryModel, Tw2GeometrySkeleton, Tw2GeometryTrackGroup, Tw2GeometryTransformTrack, Tr2PointLight, Tr2ShLightingManager, Tr2MeshLod, Tr2Effect, Tw2Effect, Tw2InstancedMesh, Tw2Mesh, Tw2MeshArea, Tw2MeshLineArea, Tw2Animation, Tw2AnimationController, Tw2Bone, Tw2Model, Tw2Track, Tw2TrackGroup, Tw2Parameter, Tw2FloatParameter, Tw2Matrix4Parameter, Tw2MatrixParameter, Tw2TransformParameter, Tw2VariableParameter, Tw2Vector2Parameter, Tw2Vector3Parameter, Tw2Vector4Parameter, Tw2TextureParameter, Tw2PostEffect, Tw2PostEffectManager, Tw2PostEffectStep, Tr2PostProcess, Tw2BinaryReader, Tw2BlackReader, Tw2ObjectReader, Tw2EffectRes, Tw2GeometryRes, Tw2LoadingObject, Tw2LodResource, Tw2Resource, Tw2VideoRes, Tw2SamplerState, Tw2SamplerOverride, Tw2Float, TriMatrix, Tw2VertexDeclaration, Tw2VertexElement */
+/*! exports provided: Tw2TextureRes, Tr2DistanceTracker, Tr2RuntimeInstanceData, TriObserverLocal, Tw2Error, ErrStoreKeyReserved, ErrStoreValueInvalid, ErrStoreValueMissing, ErrStoreTypeInvalid, ErrStoreKeyProtected, ErrHTTPRequest, ErrHTTPRequestSend, ErrHTTPInstance, ErrHTTPStatus, ErrHTTPReadyState, ErrBinaryFormat, ErrBinaryReaderReadError, ErrBinaryObjectTypeNotFound, ErrGeometryMeshMissingParticleElement, ErrGeometryMeshElementComponentsMissing, ErrGeometryMeshAreaMissing, ErrGeometryMeshBoneNameInvalid, ErrGeometryMeshEffectBinding, ErrGeometryFileType, ErrResourcePrefixUnregistered, ErrResourcePrefixUndefined, ErrResourceExtensionUnregistered, ErrResourceExtensionUndefined, ErrResourceFormat, ErrShaderVersion, ErrShaderHeaderSize, ErrShaderPermutationValue, ErrShaderCompile, ErrShaderLink, ErrDeclarationValueType, ErrSingletonInstantiation, ErrAbstractClassMethod, ErrFeatureNotImplemented, ErrIndexBounds, ErrBindingValueUndefined, ErrBindingType, ErrBindingReference, Tw2Frustum, Tw2RenderTarget, Tw2BatchAccumulator, Tw2ForwardingRenderBatch, Tw2GeometryBatch, Tw2GeometryLineBatch, Tw2RenderBatch, Tw2InstancedMeshBatch, Tw2PerObjectData, Tw2RawData, Tw2BlendShapeData, Tw2GeometryAnimation, Tw2GeometryBone, Tw2GeometryCurve, Tw2GeometryMesh, Tw2GeometryMeshArea, Tw2GeometryMeshBinding, Tw2GeometryModel, Tw2GeometrySkeleton, Tw2GeometryTrackGroup, Tw2GeometryTransformTrack, Tr2PointLight, Tr2ShLightingManager, Tr2MeshLod, Tr2Effect, Tw2Effect, Tw2InstancedMesh, Tw2Mesh, Tw2MeshArea, Tw2MeshLineArea, Tw2Animation, Tw2AnimationController, Tw2Bone, Tw2Model, Tw2Track, Tw2TrackGroup, Tw2Parameter, Tw2FloatParameter, Tw2Matrix4Parameter, Tw2MatrixParameter, Tw2TransformParameter, Tw2VariableParameter, Tw2Vector2Parameter, Tw2Vector3Parameter, Tw2Vector4Parameter, Tw2TextureParameter, Tw2PostEffect, Tw2PostEffectManager, Tw2PostEffectStep, Tr2PostProcess, Tw2BinaryReader, Tw2BlackReader, Tw2ObjectReader, Tw2EffectRes, Tw2GeometryRes, Tw2LoadingObject, Tw2LodResource, Tw2Resource, Tw2Shader, Tw2VideoRes, Tw2SamplerState, Tw2SamplerOverride, Tw2Float, TriMatrix, Tw2VertexDeclaration, Tw2VertexElement */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -19520,233 +18916,227 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2InstancedMeshBatch", function() { return _batch__WEBPACK_IMPORTED_MODULE_0__["Tw2InstancedMeshBatch"]; });
 
-/* harmony import */ var _curve__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./curve */ "./core/curve/index.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2CurveSet", function() { return _curve__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSet"]; });
+/* harmony import */ var _data__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./data */ "./core/data/index.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2PerObjectData", function() { return _data__WEBPACK_IMPORTED_MODULE_1__["Tw2PerObjectData"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2CurveSetRange", function() { return _curve__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSetRange"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2RawData", function() { return _data__WEBPACK_IMPORTED_MODULE_1__["Tw2RawData"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ValueBinding", function() { return _curve__WEBPACK_IMPORTED_MODULE_1__["Tw2ValueBinding"]; });
+/* harmony import */ var _geometry__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./geometry */ "./core/geometry/index.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2BlendShapeData", function() { return _geometry__WEBPACK_IMPORTED_MODULE_2__["Tw2BlendShapeData"]; });
 
-/* harmony import */ var _data__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./data */ "./core/data/index.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2PerObjectData", function() { return _data__WEBPACK_IMPORTED_MODULE_2__["Tw2PerObjectData"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2GeometryAnimation", function() { return _geometry__WEBPACK_IMPORTED_MODULE_2__["Tw2GeometryAnimation"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2RawData", function() { return _data__WEBPACK_IMPORTED_MODULE_2__["Tw2RawData"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2GeometryBone", function() { return _geometry__WEBPACK_IMPORTED_MODULE_2__["Tw2GeometryBone"]; });
 
-/* harmony import */ var _geometry__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./geometry */ "./core/geometry/index.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2BlendShapeData", function() { return _geometry__WEBPACK_IMPORTED_MODULE_3__["Tw2BlendShapeData"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2GeometryCurve", function() { return _geometry__WEBPACK_IMPORTED_MODULE_2__["Tw2GeometryCurve"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2GeometryAnimation", function() { return _geometry__WEBPACK_IMPORTED_MODULE_3__["Tw2GeometryAnimation"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2GeometryMesh", function() { return _geometry__WEBPACK_IMPORTED_MODULE_2__["Tw2GeometryMesh"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2GeometryBone", function() { return _geometry__WEBPACK_IMPORTED_MODULE_3__["Tw2GeometryBone"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2GeometryMeshArea", function() { return _geometry__WEBPACK_IMPORTED_MODULE_2__["Tw2GeometryMeshArea"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2GeometryCurve", function() { return _geometry__WEBPACK_IMPORTED_MODULE_3__["Tw2GeometryCurve"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2GeometryMeshBinding", function() { return _geometry__WEBPACK_IMPORTED_MODULE_2__["Tw2GeometryMeshBinding"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2GeometryMesh", function() { return _geometry__WEBPACK_IMPORTED_MODULE_3__["Tw2GeometryMesh"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2GeometryModel", function() { return _geometry__WEBPACK_IMPORTED_MODULE_2__["Tw2GeometryModel"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2GeometryMeshArea", function() { return _geometry__WEBPACK_IMPORTED_MODULE_3__["Tw2GeometryMeshArea"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2GeometrySkeleton", function() { return _geometry__WEBPACK_IMPORTED_MODULE_2__["Tw2GeometrySkeleton"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2GeometryMeshBinding", function() { return _geometry__WEBPACK_IMPORTED_MODULE_3__["Tw2GeometryMeshBinding"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2GeometryTrackGroup", function() { return _geometry__WEBPACK_IMPORTED_MODULE_2__["Tw2GeometryTrackGroup"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2GeometryModel", function() { return _geometry__WEBPACK_IMPORTED_MODULE_3__["Tw2GeometryModel"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2GeometryTransformTrack", function() { return _geometry__WEBPACK_IMPORTED_MODULE_2__["Tw2GeometryTransformTrack"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2GeometrySkeleton", function() { return _geometry__WEBPACK_IMPORTED_MODULE_3__["Tw2GeometrySkeleton"]; });
+/* harmony import */ var _lighting__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./lighting */ "./core/lighting/index.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2PointLight", function() { return _lighting__WEBPACK_IMPORTED_MODULE_3__["Tr2PointLight"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2GeometryTrackGroup", function() { return _geometry__WEBPACK_IMPORTED_MODULE_3__["Tw2GeometryTrackGroup"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2ShLightingManager", function() { return _lighting__WEBPACK_IMPORTED_MODULE_3__["Tr2ShLightingManager"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2GeometryTransformTrack", function() { return _geometry__WEBPACK_IMPORTED_MODULE_3__["Tw2GeometryTransformTrack"]; });
+/* harmony import */ var _mesh__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./mesh */ "./core/mesh/index.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2MeshLod", function() { return _mesh__WEBPACK_IMPORTED_MODULE_4__["Tr2MeshLod"]; });
 
-/* harmony import */ var _lighting__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./lighting */ "./core/lighting/index.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2PointLight", function() { return _lighting__WEBPACK_IMPORTED_MODULE_4__["Tr2PointLight"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2Effect", function() { return _mesh__WEBPACK_IMPORTED_MODULE_4__["Tr2Effect"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2ShLightingManager", function() { return _lighting__WEBPACK_IMPORTED_MODULE_4__["Tr2ShLightingManager"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Effect", function() { return _mesh__WEBPACK_IMPORTED_MODULE_4__["Tw2Effect"]; });
 
-/* harmony import */ var _mesh__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./mesh */ "./core/mesh/index.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2MeshLod", function() { return _mesh__WEBPACK_IMPORTED_MODULE_5__["Tr2MeshLod"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2InstancedMesh", function() { return _mesh__WEBPACK_IMPORTED_MODULE_4__["Tw2InstancedMesh"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2Effect", function() { return _mesh__WEBPACK_IMPORTED_MODULE_5__["Tr2Effect"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Mesh", function() { return _mesh__WEBPACK_IMPORTED_MODULE_4__["Tw2Mesh"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Effect", function() { return _mesh__WEBPACK_IMPORTED_MODULE_5__["Tw2Effect"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2MeshArea", function() { return _mesh__WEBPACK_IMPORTED_MODULE_4__["Tw2MeshArea"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2InstancedMesh", function() { return _mesh__WEBPACK_IMPORTED_MODULE_5__["Tw2InstancedMesh"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2MeshLineArea", function() { return _mesh__WEBPACK_IMPORTED_MODULE_4__["Tw2MeshLineArea"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Mesh", function() { return _mesh__WEBPACK_IMPORTED_MODULE_5__["Tw2Mesh"]; });
+/* harmony import */ var _model__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./model */ "./core/model/index.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Animation", function() { return _model__WEBPACK_IMPORTED_MODULE_5__["Tw2Animation"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2MeshArea", function() { return _mesh__WEBPACK_IMPORTED_MODULE_5__["Tw2MeshArea"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2AnimationController", function() { return _model__WEBPACK_IMPORTED_MODULE_5__["Tw2AnimationController"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2MeshLineArea", function() { return _mesh__WEBPACK_IMPORTED_MODULE_5__["Tw2MeshLineArea"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Bone", function() { return _model__WEBPACK_IMPORTED_MODULE_5__["Tw2Bone"]; });
 
-/* harmony import */ var _model__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./model */ "./core/model/index.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Animation", function() { return _model__WEBPACK_IMPORTED_MODULE_6__["Tw2Animation"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Model", function() { return _model__WEBPACK_IMPORTED_MODULE_5__["Tw2Model"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2AnimationController", function() { return _model__WEBPACK_IMPORTED_MODULE_6__["Tw2AnimationController"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Track", function() { return _model__WEBPACK_IMPORTED_MODULE_5__["Tw2Track"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Bone", function() { return _model__WEBPACK_IMPORTED_MODULE_6__["Tw2Bone"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2TrackGroup", function() { return _model__WEBPACK_IMPORTED_MODULE_5__["Tw2TrackGroup"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Model", function() { return _model__WEBPACK_IMPORTED_MODULE_6__["Tw2Model"]; });
+/* harmony import */ var _parameter__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./parameter */ "./core/parameter/index.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Parameter", function() { return _parameter__WEBPACK_IMPORTED_MODULE_6__["Tw2Parameter"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Track", function() { return _model__WEBPACK_IMPORTED_MODULE_6__["Tw2Track"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2FloatParameter", function() { return _parameter__WEBPACK_IMPORTED_MODULE_6__["Tw2FloatParameter"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2TrackGroup", function() { return _model__WEBPACK_IMPORTED_MODULE_6__["Tw2TrackGroup"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Matrix4Parameter", function() { return _parameter__WEBPACK_IMPORTED_MODULE_6__["Tw2Matrix4Parameter"]; });
 
-/* harmony import */ var _parameter__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./parameter */ "./core/parameter/index.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Parameter", function() { return _parameter__WEBPACK_IMPORTED_MODULE_7__["Tw2Parameter"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2MatrixParameter", function() { return _parameter__WEBPACK_IMPORTED_MODULE_6__["Tw2MatrixParameter"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2FloatParameter", function() { return _parameter__WEBPACK_IMPORTED_MODULE_7__["Tw2FloatParameter"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2TransformParameter", function() { return _parameter__WEBPACK_IMPORTED_MODULE_6__["Tw2TransformParameter"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Matrix4Parameter", function() { return _parameter__WEBPACK_IMPORTED_MODULE_7__["Tw2Matrix4Parameter"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2VariableParameter", function() { return _parameter__WEBPACK_IMPORTED_MODULE_6__["Tw2VariableParameter"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2MatrixParameter", function() { return _parameter__WEBPACK_IMPORTED_MODULE_7__["Tw2MatrixParameter"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Vector2Parameter", function() { return _parameter__WEBPACK_IMPORTED_MODULE_6__["Tw2Vector2Parameter"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2TransformParameter", function() { return _parameter__WEBPACK_IMPORTED_MODULE_7__["Tw2TransformParameter"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Vector3Parameter", function() { return _parameter__WEBPACK_IMPORTED_MODULE_6__["Tw2Vector3Parameter"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2VariableParameter", function() { return _parameter__WEBPACK_IMPORTED_MODULE_7__["Tw2VariableParameter"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Vector4Parameter", function() { return _parameter__WEBPACK_IMPORTED_MODULE_6__["Tw2Vector4Parameter"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Vector2Parameter", function() { return _parameter__WEBPACK_IMPORTED_MODULE_7__["Tw2Vector2Parameter"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2TextureParameter", function() { return _parameter__WEBPACK_IMPORTED_MODULE_6__["Tw2TextureParameter"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Vector3Parameter", function() { return _parameter__WEBPACK_IMPORTED_MODULE_7__["Tw2Vector3Parameter"]; });
+/* harmony import */ var _post__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./post */ "./core/post/index.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2PostEffect", function() { return _post__WEBPACK_IMPORTED_MODULE_7__["Tw2PostEffect"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Vector4Parameter", function() { return _parameter__WEBPACK_IMPORTED_MODULE_7__["Tw2Vector4Parameter"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2PostEffectManager", function() { return _post__WEBPACK_IMPORTED_MODULE_7__["Tw2PostEffectManager"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2TextureParameter", function() { return _parameter__WEBPACK_IMPORTED_MODULE_7__["Tw2TextureParameter"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2PostEffectStep", function() { return _post__WEBPACK_IMPORTED_MODULE_7__["Tw2PostEffectStep"]; });
 
-/* harmony import */ var _post__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./post */ "./core/post/index.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2PostEffect", function() { return _post__WEBPACK_IMPORTED_MODULE_8__["Tw2PostEffect"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2PostProcess", function() { return _post__WEBPACK_IMPORTED_MODULE_7__["Tr2PostProcess"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2PostEffectManager", function() { return _post__WEBPACK_IMPORTED_MODULE_8__["Tw2PostEffectManager"]; });
+/* harmony import */ var _reader__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./reader */ "./core/reader/index.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2BinaryReader", function() { return _reader__WEBPACK_IMPORTED_MODULE_8__["Tw2BinaryReader"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2PostEffectStep", function() { return _post__WEBPACK_IMPORTED_MODULE_8__["Tw2PostEffectStep"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2BlackReader", function() { return _reader__WEBPACK_IMPORTED_MODULE_8__["Tw2BlackReader"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2PostProcess", function() { return _post__WEBPACK_IMPORTED_MODULE_8__["Tr2PostProcess"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ObjectReader", function() { return _reader__WEBPACK_IMPORTED_MODULE_8__["Tw2ObjectReader"]; });
 
-/* harmony import */ var _reader__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./reader */ "./core/reader/index.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2BinaryReader", function() { return _reader__WEBPACK_IMPORTED_MODULE_9__["Tw2BinaryReader"]; });
+/* harmony import */ var _resource__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./resource */ "./core/resource/index.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2TextureRes", function() { return _resource__WEBPACK_IMPORTED_MODULE_9__["Tw2TextureRes"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2BlackReader", function() { return _reader__WEBPACK_IMPORTED_MODULE_9__["Tw2BlackReader"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2EffectRes", function() { return _resource__WEBPACK_IMPORTED_MODULE_9__["Tw2EffectRes"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ObjectReader", function() { return _reader__WEBPACK_IMPORTED_MODULE_9__["Tw2ObjectReader"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2GeometryRes", function() { return _resource__WEBPACK_IMPORTED_MODULE_9__["Tw2GeometryRes"]; });
 
-/* harmony import */ var _resource__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./resource */ "./core/resource/index.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2TextureRes", function() { return _resource__WEBPACK_IMPORTED_MODULE_10__["Tw2TextureRes"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2LoadingObject", function() { return _resource__WEBPACK_IMPORTED_MODULE_9__["Tw2LoadingObject"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2EffectRes", function() { return _resource__WEBPACK_IMPORTED_MODULE_10__["Tw2EffectRes"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2LodResource", function() { return _resource__WEBPACK_IMPORTED_MODULE_9__["Tw2LodResource"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2GeometryRes", function() { return _resource__WEBPACK_IMPORTED_MODULE_10__["Tw2GeometryRes"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Resource", function() { return _resource__WEBPACK_IMPORTED_MODULE_9__["Tw2Resource"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2LoadingObject", function() { return _resource__WEBPACK_IMPORTED_MODULE_10__["Tw2LoadingObject"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Shader", function() { return _resource__WEBPACK_IMPORTED_MODULE_9__["Tw2Shader"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2LodResource", function() { return _resource__WEBPACK_IMPORTED_MODULE_10__["Tw2LodResource"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2VideoRes", function() { return _resource__WEBPACK_IMPORTED_MODULE_9__["Tw2VideoRes"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Resource", function() { return _resource__WEBPACK_IMPORTED_MODULE_10__["Tw2Resource"]; });
+/* harmony import */ var _sampler__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./sampler */ "./core/sampler/index.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2SamplerState", function() { return _sampler__WEBPACK_IMPORTED_MODULE_10__["Tw2SamplerState"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2VideoRes", function() { return _resource__WEBPACK_IMPORTED_MODULE_10__["Tw2VideoRes"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2SamplerOverride", function() { return _sampler__WEBPACK_IMPORTED_MODULE_10__["Tw2SamplerOverride"]; });
 
-/* harmony import */ var _sampler__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./sampler */ "./core/sampler/index.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2SamplerState", function() { return _sampler__WEBPACK_IMPORTED_MODULE_11__["Tw2SamplerState"]; });
+/* harmony import */ var _value__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./value */ "./core/value/index.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Float", function() { return _value__WEBPACK_IMPORTED_MODULE_11__["Tw2Float"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2SamplerOverride", function() { return _sampler__WEBPACK_IMPORTED_MODULE_11__["Tw2SamplerOverride"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "TriMatrix", function() { return _value__WEBPACK_IMPORTED_MODULE_11__["TriMatrix"]; });
 
-/* harmony import */ var _value__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./value */ "./core/value/index.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Float", function() { return _value__WEBPACK_IMPORTED_MODULE_12__["Tw2Float"]; });
+/* harmony import */ var _vertex__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./vertex */ "./core/vertex/index.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2VertexDeclaration", function() { return _vertex__WEBPACK_IMPORTED_MODULE_12__["Tw2VertexDeclaration"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "TriMatrix", function() { return _value__WEBPACK_IMPORTED_MODULE_12__["TriMatrix"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2VertexElement", function() { return _vertex__WEBPACK_IMPORTED_MODULE_12__["Tw2VertexElement"]; });
 
-/* harmony import */ var _vertex__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./vertex */ "./core/vertex/index.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2VertexDeclaration", function() { return _vertex__WEBPACK_IMPORTED_MODULE_13__["Tw2VertexDeclaration"]; });
+/* harmony import */ var _Tr2DistanceTracker__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./Tr2DistanceTracker */ "./core/Tr2DistanceTracker.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2DistanceTracker", function() { return _Tr2DistanceTracker__WEBPACK_IMPORTED_MODULE_13__["Tr2DistanceTracker"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2VertexElement", function() { return _vertex__WEBPACK_IMPORTED_MODULE_13__["Tw2VertexElement"]; });
+/* harmony import */ var _Tr2RuntimeInstanceData__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./Tr2RuntimeInstanceData */ "./core/Tr2RuntimeInstanceData.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2RuntimeInstanceData", function() { return _Tr2RuntimeInstanceData__WEBPACK_IMPORTED_MODULE_14__["Tr2RuntimeInstanceData"]; });
 
-/* harmony import */ var _Tr2DistanceTracker__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./Tr2DistanceTracker */ "./core/Tr2DistanceTracker.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2DistanceTracker", function() { return _Tr2DistanceTracker__WEBPACK_IMPORTED_MODULE_14__["Tr2DistanceTracker"]; });
+/* harmony import */ var _TriObserverLocal__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./TriObserverLocal */ "./core/TriObserverLocal.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "TriObserverLocal", function() { return _TriObserverLocal__WEBPACK_IMPORTED_MODULE_15__["TriObserverLocal"]; });
 
-/* harmony import */ var _Tr2RuntimeInstanceData__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./Tr2RuntimeInstanceData */ "./core/Tr2RuntimeInstanceData.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2RuntimeInstanceData", function() { return _Tr2RuntimeInstanceData__WEBPACK_IMPORTED_MODULE_15__["Tr2RuntimeInstanceData"]; });
+/* harmony import */ var _Tw2Error__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./Tw2Error */ "./core/Tw2Error.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Error", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_16__["Tw2Error"]; });
 
-/* harmony import */ var _TriObserverLocal__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./TriObserverLocal */ "./core/TriObserverLocal.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "TriObserverLocal", function() { return _TriObserverLocal__WEBPACK_IMPORTED_MODULE_16__["TriObserverLocal"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrStoreKeyReserved", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_16__["ErrStoreKeyReserved"]; });
 
-/* harmony import */ var _Tw2Error__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./Tw2Error */ "./core/Tw2Error.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Error", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_17__["Tw2Error"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrStoreValueInvalid", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_16__["ErrStoreValueInvalid"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrStoreKeyReserved", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_17__["ErrStoreKeyReserved"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrStoreValueMissing", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_16__["ErrStoreValueMissing"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrStoreValueInvalid", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_17__["ErrStoreValueInvalid"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrStoreTypeInvalid", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_16__["ErrStoreTypeInvalid"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrStoreValueMissing", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_17__["ErrStoreValueMissing"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrStoreKeyProtected", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_16__["ErrStoreKeyProtected"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrStoreTypeInvalid", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_17__["ErrStoreTypeInvalid"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrHTTPRequest", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_16__["ErrHTTPRequest"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrStoreKeyProtected", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_17__["ErrStoreKeyProtected"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrHTTPRequestSend", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_16__["ErrHTTPRequestSend"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrHTTPRequest", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_17__["ErrHTTPRequest"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrHTTPInstance", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_16__["ErrHTTPInstance"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrHTTPRequestSend", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_17__["ErrHTTPRequestSend"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrHTTPStatus", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_16__["ErrHTTPStatus"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrHTTPInstance", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_17__["ErrHTTPInstance"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrHTTPReadyState", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_16__["ErrHTTPReadyState"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrHTTPStatus", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_17__["ErrHTTPStatus"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrBinaryFormat", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_16__["ErrBinaryFormat"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrHTTPReadyState", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_17__["ErrHTTPReadyState"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrBinaryReaderReadError", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_16__["ErrBinaryReaderReadError"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrBinaryFormat", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_17__["ErrBinaryFormat"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrBinaryObjectTypeNotFound", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_16__["ErrBinaryObjectTypeNotFound"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrBinaryReaderReadError", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_17__["ErrBinaryReaderReadError"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrGeometryMeshMissingParticleElement", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_16__["ErrGeometryMeshMissingParticleElement"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrBinaryObjectTypeNotFound", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_17__["ErrBinaryObjectTypeNotFound"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrGeometryMeshElementComponentsMissing", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_16__["ErrGeometryMeshElementComponentsMissing"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrGeometryMeshMissingParticleElement", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_17__["ErrGeometryMeshMissingParticleElement"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrGeometryMeshAreaMissing", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_16__["ErrGeometryMeshAreaMissing"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrGeometryMeshElementComponentsMissing", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_17__["ErrGeometryMeshElementComponentsMissing"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrGeometryMeshBoneNameInvalid", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_16__["ErrGeometryMeshBoneNameInvalid"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrGeometryMeshAreaMissing", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_17__["ErrGeometryMeshAreaMissing"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrGeometryMeshEffectBinding", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_16__["ErrGeometryMeshEffectBinding"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrGeometryMeshBoneNameInvalid", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_17__["ErrGeometryMeshBoneNameInvalid"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrGeometryFileType", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_16__["ErrGeometryFileType"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrGeometryMeshEffectBinding", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_17__["ErrGeometryMeshEffectBinding"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrResourcePrefixUnregistered", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_16__["ErrResourcePrefixUnregistered"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrGeometryFileType", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_17__["ErrGeometryFileType"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrResourcePrefixUndefined", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_16__["ErrResourcePrefixUndefined"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrResourcePrefixUnregistered", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_17__["ErrResourcePrefixUnregistered"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrResourceExtensionUnregistered", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_16__["ErrResourceExtensionUnregistered"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrResourcePrefixUndefined", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_17__["ErrResourcePrefixUndefined"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrResourceExtensionUndefined", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_16__["ErrResourceExtensionUndefined"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrResourceExtensionUnregistered", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_17__["ErrResourceExtensionUnregistered"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrResourceFormat", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_16__["ErrResourceFormat"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrResourceExtensionUndefined", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_17__["ErrResourceExtensionUndefined"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrShaderVersion", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_16__["ErrShaderVersion"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrResourceFormat", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_17__["ErrResourceFormat"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrShaderHeaderSize", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_16__["ErrShaderHeaderSize"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrShaderVersion", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_17__["ErrShaderVersion"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrShaderPermutationValue", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_16__["ErrShaderPermutationValue"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrShaderHeaderSize", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_17__["ErrShaderHeaderSize"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrShaderCompile", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_16__["ErrShaderCompile"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrShaderPermutationValue", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_17__["ErrShaderPermutationValue"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrShaderLink", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_16__["ErrShaderLink"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrShaderCompile", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_17__["ErrShaderCompile"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrDeclarationValueType", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_16__["ErrDeclarationValueType"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrShaderLink", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_17__["ErrShaderLink"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrSingletonInstantiation", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_16__["ErrSingletonInstantiation"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrDeclarationValueType", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_17__["ErrDeclarationValueType"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrAbstractClassMethod", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_16__["ErrAbstractClassMethod"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrSingletonInstantiation", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_17__["ErrSingletonInstantiation"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrFeatureNotImplemented", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_16__["ErrFeatureNotImplemented"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrAbstractClassMethod", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_17__["ErrAbstractClassMethod"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrIndexBounds", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_16__["ErrIndexBounds"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrFeatureNotImplemented", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_17__["ErrFeatureNotImplemented"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrBindingValueUndefined", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_16__["ErrBindingValueUndefined"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrIndexBounds", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_17__["ErrIndexBounds"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrBindingType", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_16__["ErrBindingType"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrBindingValueUndefined", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_17__["ErrBindingValueUndefined"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrBindingReference", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_16__["ErrBindingReference"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrBindingType", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_17__["ErrBindingType"]; });
+/* harmony import */ var _Tw2Frustum__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./Tw2Frustum */ "./core/Tw2Frustum.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Frustum", function() { return _Tw2Frustum__WEBPACK_IMPORTED_MODULE_17__["Tw2Frustum"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "ErrBindingReference", function() { return _Tw2Error__WEBPACK_IMPORTED_MODULE_17__["ErrBindingReference"]; });
-
-/* harmony import */ var _Tw2Frustum__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./Tw2Frustum */ "./core/Tw2Frustum.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Frustum", function() { return _Tw2Frustum__WEBPACK_IMPORTED_MODULE_18__["Tw2Frustum"]; });
-
-/* harmony import */ var _Tw2RenderTarget__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./Tw2RenderTarget */ "./core/Tw2RenderTarget.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2RenderTarget", function() { return _Tw2RenderTarget__WEBPACK_IMPORTED_MODULE_19__["Tw2RenderTarget"]; });
-
+/* harmony import */ var _Tw2RenderTarget__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./Tw2RenderTarget */ "./core/Tw2RenderTarget.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2RenderTarget", function() { return _Tw2RenderTarget__WEBPACK_IMPORTED_MODULE_18__["Tw2RenderTarget"]; });
 
 
 
@@ -20523,7 +19913,7 @@ class Tw2Effect //extends Tw2BaseClass
               for (let n = 0; n < stageRes.samplers.length; ++n) {
                 if (stageRes.samplers[n].registerIndex === p.slot) {
                   if (stageRes.samplers[n].name in this.samplerOverrides) {
-                    p.sampler = this.samplerOverrides[stageRes.samplers[n].name].GetSampler(stageRes.samplers[n]);
+                    p.sampler = this.samplerOverrides[stageRes.samplers[n].name].GetSampler(_global__WEBPACK_IMPORTED_MODULE_0__["device"], stageRes.samplers[n]);
                   } else {
                     p.sampler = stageRes.samplers[n];
                   }
@@ -20818,7 +20208,7 @@ class Tw2Effect //extends Tw2BaseClass
    */
 
 
-  AutoParameter() {
+  PopulateParameters() {
     this.autoParameter = true;
     return this.BindParameters();
   }
@@ -21784,6 +21174,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 /**
  * Tw2AnimationController
+ * TODO: Handle bounds in the update function
  *
  * @property {Array.<Tw2GeometryRes>} geometryResources
  * @property {Array.<Tw2Model>} models
@@ -21793,16 +21184,18 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
  * @property {Boolean} update
  * @property _geometryResource
  * @property {Array} pendingCommands
- * @property {Function} [onLoaded] an optional callback fired when any commands are cleared
+ * @property {Function} [onPendingCleared] an optional callback fired when any commands are cleared
  * @class
  */
 
-class Tw2AnimationController {
+class Tw2AnimationController extends _global__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"] {
   /**
    * Constructor
    * @param {Tw2GeometryRes} [geometryResource]
    */
   constructor(geometryResource) {
+    super();
+
     _defineProperty(this, "geometryResources", []);
 
     _defineProperty(this, "models", []);
@@ -21819,9 +21212,47 @@ class Tw2AnimationController {
 
     _defineProperty(this, "onPendingCleared", null);
 
-    _defineProperty(this, "_geometryResource", null);
+    _defineProperty(this, "_isPlaying", false);
 
-    if (geometryResource) this.SetGeometryResource(geometryResource);
+    _defineProperty(this, "_boundsDirty", false);
+
+    if (geometryResource) {
+      this.SetGeometryResource(geometryResource);
+    }
+  }
+  /**
+   * Checks if the animation is good
+   * @returns {boolean}
+   */
+
+
+  IsGood() {
+    let isGood = this.geometryResources.length > 0; // Cycle through geometry to keep alive
+
+    for (let i = 0; i < this.geometryResources.length; i++) {
+      if (!this.geometryResources[i] || !this.geometryResources[i].IsGood()) {
+        isGood = false;
+      }
+    }
+
+    if (!isGood || !this.animations.length) return false;
+
+    for (let i = 0; i < this.animations.length; i++) {
+      if (!this.animations[i].animationRes) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+  /**
+   * Checks if any animations are playing
+   * @returns {boolean}
+   */
+
+
+  IsPlaying() {
+    return this._isPlaying;
   }
   /**
    * Gets a loaded Tw2Animation by it's name
@@ -22280,6 +21711,9 @@ class Tw2AnimationController {
 
 
   Update(dt) {
+    let wasPlaying = this._isPlaying;
+    this._isPlaying = false;
+
     if (!this.models || !this.update) {
       return;
     }
@@ -22298,12 +21732,13 @@ class Tw2AnimationController {
       const animation = this.animations[i];
 
       if (animation.isPlaying) {
+        this._isPlaying = true;
         const res = animation.animationRes;
         animation.time += dt * animation.timeScale;
 
         if (animation.time > res.duration) {
           if (animation.callback) {
-            animation.callback(this, animation);
+            animation.callback(this, animation, false);
           }
 
           if (animation.cycle) {
@@ -22376,6 +21811,10 @@ class Tw2AnimationController {
           }
         }
       }
+    }
+
+    if (this._isPlaying || this._isPlaying !== wasPlaying) {
+      this._boundsDirty = true;
     }
   }
   /**
@@ -25586,49 +25025,34 @@ function onString(path) {
       // Will need to provide all quality versions of these files in the cdn even if they
       // don't exist as ccpwgl will have no idea if they exist or not, and so we'd get
       // errors when changing texture qualities in the ccpwgl_int.device
+      path = path.replace("_lowdetail", ""); // Shouldn't exist
 
-      /*
-      logger.log({
-          name: "Black reader",
-          type: "debug",
-          message: `Renaming cdn quality format to ccpwgl quality format: ${path}`
-      });
-      */
-      path = path.replace("_lowdetail.".concat(ext)); // Shouldn't exist
-
-      path = path.replace("_mediumdetail.".concat(ext)); // Shouldn't exist
+      path = path.replace("_mediumdetail", ""); // Shouldn't exist
 
       path = path.replace(ext, "0.".concat(ext));
       break;
 
     case "gr2":
-    case "fx":
-    case "sm_hi":
-    case "sm_lo":
-    case "sm_depth":
       // TODO: Add support for these files
-
-      /*
-      logger.log({
-          name: "Black reader",
-          type: "debug",
-          message: `Removing unsupported file: ${path}`
-      });
-      */
-      path = "";
+      // Temporarily use ccpwgl resources (this won't always work but will do for now)
+      path = path.replace(ext, "wbg").replace("cdn:", "res:");
       break;
 
     case "red":
-      // Dunno why ccp still calls them .red
+      // TODO: Handle red files
+      // There may still be legit .red files some of which we won't be able to read
+      // (Some are in .black format so we'll just rename for now...)
+      path = path.replace(ext, "black");
+      break;
 
-      /*
-      logger.log({
-          name: "Black reader",
-          type: "debug",
-          message: `Renaming '.red' file to '.black': ${path}`
-      });
-      */
-      path = path.replace("red", "black");
+    case "sm_hi":
+    case "sm_lo":
+      path = path.replace(ext, "fx");
+      break;
+
+    case "sm_depth":
+      // TODO: Add support for depth shaders
+      path = "";
       break;
   }
 
@@ -26586,7 +26010,7 @@ class Tw2EffectRes extends _Tw2Resource__WEBPACK_IMPORTED_MODULE_1__["Tw2Resourc
 
     const version = reader.ReadUInt32();
 
-    if (version < 2 || version > 7) {
+    if (version < 2 || version > 8) {
       this.OnError(new _Tw2Error__WEBPACK_IMPORTED_MODULE_3__["ErrShaderVersion"]({
         path: this.path,
         version
@@ -26776,9 +26200,9 @@ class Tw2GeometryRes extends _Tw2Resource__WEBPACK_IMPORTED_MODULE_3__["Tw2Resou
 
     _defineProperty(this, "meshes", []);
 
-    _defineProperty(this, "minBounds", _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].create());
+    _defineProperty(this, "minBounds", _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].fromValues(0, 0, 0));
 
-    _defineProperty(this, "maxBounds", _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].create());
+    _defineProperty(this, "maxBounds", _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].fromValues(0, 0, 0));
 
     _defineProperty(this, "boundsSpherePosition", _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].create());
 
@@ -26788,14 +26212,59 @@ class Tw2GeometryRes extends _Tw2Resource__WEBPACK_IMPORTED_MODULE_3__["Tw2Resou
 
     _defineProperty(this, "animations", []);
 
-    _defineProperty(this, "systemMirror", false);
+    _defineProperty(this, "systemMirror", _global__WEBPACK_IMPORTED_MODULE_0__["resMan"].systemMirror);
   }
 
+  /**
+   * Gets the object's bounding box
+   * @param {box3} out
+   * @param {mat4} [parentTransform]
+   * @returns {Boolean} True if bounds are valid
+   */
+  GetBoundingBox(out, parentTransform) {
+    _global__WEBPACK_IMPORTED_MODULE_0__["box3"].fromBounds(out, this.minBounds, this.maxBounds);
+    if (parentTransform) _global__WEBPACK_IMPORTED_MODULE_0__["box3"].transformMat4(out, out, parentTransform);
+    return true;
+  }
+  /**
+   * Gets the object's bounding sphere
+   * @param {sph3} out
+   * @param {mat4} [parentTransform]
+   * @returns {Boolean} True if bounds are valid
+   */
+
+
+  GetBoundingSphere(out, parentTransform) {
+    _global__WEBPACK_IMPORTED_MODULE_0__["sph3"].fromPositionRadius(out, this.boundsSpherePosition, this.boundsSphereRadius);
+    if (parentTransform) _global__WEBPACK_IMPORTED_MODULE_0__["sph3"].transformMat4(out, out, parentTransform);
+    return true;
+  }
+  /**
+   * Rebuilds bounds
+   * @returns {Boolean} [fromVertex]
+   */
+
+
+  RebuildBounds(fromVertex) {
+    const min = this.minBounds,
+          max = this.maxBounds;
+    _global__WEBPACK_IMPORTED_MODULE_0__["box3"].bounds.empty(min, max);
+
+    for (let i = 0; i < this.meshes.length; i++) {
+      const mesh = this.meshes[i];
+      mesh.RebuildBounds(fromVertex);
+      _global__WEBPACK_IMPORTED_MODULE_0__["box3"].bounds.union(min, max, min, max, mesh.minBounds, mesh.maxBounds);
+    }
+
+    this.boundsSphereRadius = _global__WEBPACK_IMPORTED_MODULE_0__["box3"].bounds.toPositionRadius(min, max, this.boundsSpherePosition);
+  }
   /**
    * GetInstanceBuffer
    * @param {Number} meshIndex
    * @returns {*}
    */
+
+
   GetInstanceBuffer(meshIndex) {
     return meshIndex < this.meshes.length ? this.meshes[meshIndex].buffer : undefined;
   }
@@ -26871,12 +26340,20 @@ class Tw2GeometryRes extends _Tw2Resource__WEBPACK_IMPORTED_MODULE_3__["Tw2Resou
       const areaCount = reader.ReadUInt8();
 
       for (let i = 0; i < areaCount; ++i) {
-        mesh.areas[i] = new _geometry__WEBPACK_IMPORTED_MODULE_5__["Tw2GeometryMeshArea"]();
-        mesh.areas[i].name = reader.ReadString();
-        mesh.areas[i].start = reader.ReadUInt32() * indexes.BYTES_PER_ELEMENT;
-        mesh.areas[i].count = reader.ReadUInt32() * 3;
-        mesh.areas[i].minBounds = _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].fromValues(reader.ReadFloat32(), reader.ReadFloat32(), reader.ReadFloat32());
-        mesh.areas[i].maxBounds = _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].fromValues(reader.ReadFloat32(), reader.ReadFloat32(), reader.ReadFloat32());
+        const area = new _geometry__WEBPACK_IMPORTED_MODULE_5__["Tw2GeometryMeshArea"]();
+        mesh.areas.push(area);
+        area.name = reader.ReadString();
+        area.start = reader.ReadUInt32() * indexes.BYTES_PER_ELEMENT;
+        area.count = reader.ReadUInt32() * 3;
+        _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].set(area.minBounds, reader.ReadFloat32(), reader.ReadFloat32(), reader.ReadFloat32());
+        _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].set(area.maxBounds, reader.ReadFloat32(), reader.ReadFloat32(), reader.ReadFloat32());
+        area.boundsSphereRadius = _global__WEBPACK_IMPORTED_MODULE_0__["box3"].bounds.toPositionRadius(area.minBounds, area.maxBounds, area.boundsSpherePosition); // Recalculate bounds if missing
+
+        if (_global__WEBPACK_IMPORTED_MODULE_0__["box3"].bounds.isEmpty(area.minBounds, area.maxBounds)) {
+          if (!mesh.RebuildAreaBounds(area, buffer, indexes, true)) {
+            console.log("Could not generate bounds for area: " + area.name || false);
+          }
+        }
       }
 
       const boneBindingCount = reader.ReadUInt8();
@@ -26904,9 +26381,30 @@ class Tw2GeometryRes extends _Tw2Resource__WEBPACK_IMPORTED_MODULE_3__["Tw2Resou
         }
       }
 
-      this.meshes[meshIx] = mesh;
-    }
+      mesh._areas = areaCount;
+      mesh._faces = indexes.length / 3;
+      mesh._vertices = buffer.length / (mesh.declaration.stride / 4);
+      /*
+        // Reduce memory footprint of vertices
+        const stride = mesh.declaration.stride / 4;
+      const vertCount = buffer.length / stride;
+      const position = mesh.declaration.FindUsage(0, 0);
+        mesh._vertices = new Float32Array(vertCount * 3);
+      for (let i = 0; i < mesh._vertices.length; i+=3)
+      {
+          const index = i * stride + position.offset;
+          for (let x = 0; x < 3; x ++)
+          {
+              mesh._vertices[i + x] = buffer[index + x];
+          }
+      }
+        */
 
+      this.meshes[meshIx] = mesh;
+    } // Rebuilds all bounds
+
+
+    this.RebuildBounds();
     const modelCount = reader.ReadUInt8();
 
     for (let modelIx = 0; modelIx < modelCount; ++modelIx) {
@@ -27103,7 +26601,7 @@ class Tw2GeometryRes extends _Tw2Resource__WEBPACK_IMPORTED_MODULE_3__["Tw2Resou
         if (i + start < mesh.areas.length) {
           let area = mesh.areas[i + start],
               areaStart = area.start,
-              acount = area.count;
+              areaCount = area.count;
 
           while (i + 1 < count) {
             area = mesh.areas[i + 1 + start];
@@ -27116,12 +26614,12 @@ class Tw2GeometryRes extends _Tw2Resource__WEBPACK_IMPORTED_MODULE_3__["Tw2Resou
               return false;
             }
 
-            if (area.start !== areaStart + acount * 2) break;
-            acount += area.count;
+            if (area.start !== areaStart + areaCount * 2) break;
+            areaCount += area.count;
             ++i;
           }
 
-          gl.drawElementsInstanced(gl.TRIANGLES, acount, mesh.indexType, areaStart, instanceCount);
+          gl.drawElementsInstanced(gl.TRIANGLES, areaCount, mesh.indexType, areaStart, instanceCount);
         }
       }
 
@@ -27171,7 +26669,7 @@ class Tw2GeometryRes extends _Tw2Resource__WEBPACK_IMPORTED_MODULE_3__["Tw2Resou
         if (i + start < mesh.areas.length) {
           let area = mesh.areas[i + start],
               areaStart = area.start,
-              acount = area.count;
+              areaCount = area.count;
 
           while (i + 1 < count) {
             area = mesh.areas[i + 1 + start];
@@ -27184,12 +26682,12 @@ class Tw2GeometryRes extends _Tw2Resource__WEBPACK_IMPORTED_MODULE_3__["Tw2Resou
               return false;
             }
 
-            if (area.start !== areaStart + acount * 2) break;
-            acount += area.count;
+            if (area.start !== areaStart + areaCount * 2) break;
+            areaCount += area.count;
             ++i;
           }
 
-          gl.drawElements(gl.TRIANGLES, acount, mesh.indexType, areaStart);
+          gl.drawElements(gl.TRIANGLES, areaCount, mesh.indexType, areaStart);
         }
       }
     }
@@ -27237,7 +26735,7 @@ class Tw2GeometryRes extends _Tw2Resource__WEBPACK_IMPORTED_MODULE_3__["Tw2Resou
         if (i + start < mesh.areas.length) {
           let area = mesh.areas[i + start],
               areaStart = area.start,
-              acount = area.count;
+              areaCount = area.count;
 
           while (i + 1 < count) {
             area = mesh.areas[i + 1 + start];
@@ -27250,12 +26748,12 @@ class Tw2GeometryRes extends _Tw2Resource__WEBPACK_IMPORTED_MODULE_3__["Tw2Resou
               return false;
             }
 
-            if (area.start !== areaStart + acount * 2) break;
-            acount += area.count;
+            if (area.start !== areaStart + areaCount * 2) break;
+            areaCount += area.count;
             ++i;
           }
 
-          gl.drawElements(gl.LINES, acount, mesh.indexType, areaStart);
+          gl.drawElements(gl.LINES, areaCount, mesh.indexType, areaStart);
         }
       }
     }
@@ -28154,7 +27652,7 @@ class Tw2Resource {
       switch (this._state) {
         case Tw2Resource.State.ERROR:
           funcName = Tw2Resource.Callback.ERROR;
-          argument = _global__WEBPACK_IMPORTED_MODULE_0__["resMan"].GetLastError(this.path);
+          argument = _global__WEBPACK_IMPORTED_MODULE_0__["resMan"].motherLode.GetLastError(this.path);
           break;
 
         case Tw2Resource.State.REQUESTED:
@@ -28274,7 +27772,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _vertex__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../vertex */ "./core/vertex/index.js");
 /* harmony import */ var _sampler__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../sampler */ "./core/sampler/index.js");
 /* harmony import */ var _Tw2Error__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Tw2Error */ "./core/Tw2Error.js");
+/* harmony import */ var _shaderOverrides_json__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./shaderOverrides.json */ "./core/resource/shaderOverrides.json");
+var _shaderOverrides_json__WEBPACK_IMPORTED_MODULE_4___namespace = /*#__PURE__*/__webpack_require__.t(/*! ./shaderOverrides.json */ "./core/resource/shaderOverrides.json", 1);
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 
 
 
@@ -28383,13 +27884,26 @@ class Tw2Shader {
           } else {
             shaderSize = reader.ReadUInt32();
             let so = reader.ReadUInt32();
-            shaderCode = stringTable.substr(so, shaderSize);
+            shaderCode = Tw2Shader.InspectShaderCode(stringTable.substr(so, shaderSize), path);
             shadowShaderSize = reader.ReadUInt32();
             so = reader.ReadUInt32();
-            shadowShaderCode = stringTable.substr(so, shadowShaderSize);
+            shadowShaderCode = Tw2Shader.InspectShaderCode(stringTable.substr(so, shadowShaderSize), path);
+
+            if (Tw2Shader.DEBUG_ENABLED) {
+              stage.shaderCode = shaderCode;
+              stage.shadowShaderCode = shadowShaderCode;
+            }
           }
 
-          stage.shader = Tw2Shader.CompileShader(stageType, "", shaderCode, path);
+          try {
+            stage.shader = Tw2Shader.CompileShader(stageType, "", shaderCode, path);
+          } catch (err) {
+            console.group();
+            console.error(err.message);
+            console.dir(stage);
+            console.groupEnd();
+            throw err;
+          }
 
           if (validShadowShader) {
             if (shadowShaderSize === 0) {
@@ -28465,89 +27979,84 @@ class Tw2Shader {
           const samplerCount = reader.ReadUInt8();
 
           for (let samplerIx = 0; samplerIx < samplerCount; ++samplerIx) {
-            const registerIndex = reader.ReadUInt8(),
-                  samplerName = version >= 4 ? ReadString() : "";
-            reader.ReadUInt8(); // comparison
+            const s = new _sampler__WEBPACK_IMPORTED_MODULE_2__["Tw2SamplerState"]();
+            s.registerIndex = reader.ReadUInt8();
+            s.name = version >= 4 ? ReadString() : "";
+            s._comparison = reader.ReadUInt8(); // not used
 
-            const minFilter = reader.ReadUInt8(),
-                  magFilter = reader.ReadUInt8(),
-                  mipFilter = reader.ReadUInt8(),
-                  addressU = reader.ReadUInt8(),
-                  addressV = reader.ReadUInt8(),
-                  addressW = reader.ReadUInt8();
-            reader.ReadFloat32(); // mipLODBias
+            s.minFilter = reader.ReadUInt8();
+            s.magFilter = reader.ReadUInt8();
+            s.mipFilter = reader.ReadUInt8();
+            s.addressU = reader.ReadUInt8();
+            s.addressV = reader.ReadUInt8();
+            s.addressW = reader.ReadUInt8();
+            s.mipLODBias = reader.ReadFloat32(); // not used
 
-            const maxAnisotropy = reader.ReadUInt8();
-            reader.ReadUInt8(); //comparisonFunc
+            s._maxAnisotropy = reader.ReadUInt8();
+            s._comparisonFunc = reader.ReadUInt8(); // not used
 
-            const borderColor = _global__WEBPACK_IMPORTED_MODULE_0__["quat"].create();
-            borderColor[0] = reader.ReadFloat32();
-            borderColor[1] = reader.ReadFloat32();
-            borderColor[2] = reader.ReadFloat32();
-            borderColor[3] = reader.ReadFloat32();
-            reader.ReadFloat32(); //minLOD
+            s._borderColor = _global__WEBPACK_IMPORTED_MODULE_0__["quat"].fromValues(reader.ReadFloat32(), reader.ReadFloat32(), reader.ReadFloat32(), reader.ReadFloat32());
+            s._minLOD = reader.ReadFloat32(); // not used
 
-            reader.ReadFloat32(); //maxLOD
+            s._maxLOD = reader.ReadFloat32(); // not used
 
             if (version < 4) reader.ReadUInt8();
-            const sampler = new _sampler__WEBPACK_IMPORTED_MODULE_2__["Tw2SamplerState"]();
-            sampler.registerIndex = registerIndex;
-            sampler.name = samplerName;
 
-            if (minFilter === 1) {
-              switch (mipFilter) {
+            if (s.minFilter === 1) {
+              switch (s.mipFilter) {
                 case 0:
-                  sampler.minFilter = gl.NEAREST;
+                  s.minFilter = gl.NEAREST;
                   break;
 
                 case 1:
-                  sampler.minFilter = gl.NEAREST_MIPMAP_NEAREST;
+                  s.minFilter = gl.NEAREST_MIPMAP_NEAREST;
                   break;
 
                 default:
-                  sampler.minFilter = gl.NEAREST_MIPMAP_LINEAR;
+                  s.minFilter = gl.NEAREST_MIPMAP_LINEAR;
               }
 
-              sampler.minFilterNoMips = gl.NEAREST;
+              s.minFilterNoMips = gl.NEAREST;
             } else {
-              switch (mipFilter) {
+              switch (s.mipFilter) {
                 case 0:
-                  sampler.minFilter = gl.LINEAR;
+                  s.minFilter = gl.LINEAR;
                   break;
 
                 case 1:
-                  sampler.minFilter = gl.LINEAR_MIPMAP_NEAREST;
+                  s.minFilter = gl.LINEAR_MIPMAP_NEAREST;
                   break;
 
                 default:
-                  sampler.minFilter = gl.LINEAR_MIPMAP_LINEAR;
+                  s.minFilter = gl.LINEAR_MIPMAP_LINEAR;
               }
 
-              sampler.minFilterNoMips = gl.LINEAR;
+              s.minFilterNoMips = gl.LINEAR;
             }
 
-            sampler.magFilter = magFilter === 1 ? gl.NEAREST : gl.LINEAR;
-            sampler.addressU = wrapModes[addressU];
-            sampler.addressV = wrapModes[addressV];
-            sampler.addressW = wrapModes[addressW];
+            s.magFilter = s.magFilter === 1 ? gl.NEAREST : gl.LINEAR;
+            s.addressU = wrapModes[s.addressU];
+            s.addressV = wrapModes[s.addressV];
+            s.addressW = wrapModes[s.addressW];
 
-            if (minFilter === 3 || magFilter === 3 || mipFilter === 3) {
-              sampler.anisotropy = Math.max(maxAnisotropy, 1);
+            if (s.minFilter === 3 || s.magFilter === 3 || s.mipFilter === 3) {
+              s.anisotropy = Math.max(s.maxAnisotropy, 1);
             }
 
             for (let n = 0; n < stage.textures.length; ++n) {
-              if (stage.textures[n].registerIndex === sampler.registerIndex) {
-                sampler.samplerType = stage.textures[n].type === 4 ? gl.TEXTURE_CUBE_MAP : gl.TEXTURE_2D;
-                sampler.isVolume = stage.textures[n].type === 3;
+              if (stage.textures[n].registerIndex === s.registerIndex) {
+                s.samplerType = stage.textures[n].type === 4 ? gl.TEXTURE_CUBE_MAP : gl.TEXTURE_2D;
+                s.isVolume = stage.textures[n].type === 3;
                 break;
               }
             }
 
-            sampler.ComputeHash();
-            stage.samplers.push(sampler);
+            s.ComputeHash();
+            stage.samplers.push(s);
           }
 
           if (version >= 3) reader.ReadUInt8();
+          if (version > 7) reader.ReadUInt8();
           pass.stages[stageType] = stage;
         }
 
@@ -28817,6 +28326,28 @@ class Tw2Shader {
     return program;
   }
   /**
+   * Inspects shader code for a path and fixes any known errors
+   * TODO: Fix source files
+   * @param {String} code
+   * @param {String} path
+   * @returns {String}
+   */
+
+
+  static InspectShaderCode(code, path) {
+    const fileName = path.substring(path.lastIndexOf("/") + 1, path.lastIndexOf(".")).toLowerCase(),
+          overrides = _shaderOverrides_json__WEBPACK_IMPORTED_MODULE_4__[fileName];
+    if (!overrides) return code;
+
+    for (const key in overrides) {
+      if (overrides.hasOwnProperty(key)) {
+        code = code.replace(key, overrides[key]);
+      }
+    }
+
+    return code;
+  }
+  /**
    * Constant names that are ignored
    * @type {String[]}
    */
@@ -28825,6 +28356,8 @@ class Tw2Shader {
 }
 
 _defineProperty(Tw2Shader, "ConstantIgnore", ["PerFrameVS", "PerObjectVS", "PerFramePS", "PerObjectPS"]);
+
+_defineProperty(Tw2Shader, "DEBUG_ENABLED", false);
 
 /***/ }),
 
@@ -29161,7 +28694,7 @@ class Tw2TextureRes extends _Tw2Resource__WEBPACK_IMPORTED_MODULE_0__["Tw2Resour
     gl.bindTexture(targetType, this.texture);
 
     if (sampler.hash !== this._currentSampler || this._updateSampler) {
-      sampler.Apply(this.hasMipMaps);
+      sampler.Apply(d, this.hasMipMaps);
       this._currentSampler = sampler.hash;
       this._updateSampler = false;
     }
@@ -29520,7 +29053,7 @@ class Tw2VideoRes extends _Tw2Resource__WEBPACK_IMPORTED_MODULE_1__["Tw2Resource
     gl.bindTexture(targetType, this.texture);
 
     if (sampler.hash !== this._currentSampler) {
-      sampler.Apply(false);
+      sampler.Apply(d, false);
       this._currentSampler = sampler.hash;
     }
   }
@@ -29533,7 +29066,7 @@ class Tw2VideoRes extends _Tw2Resource__WEBPACK_IMPORTED_MODULE_1__["Tw2Resource
 /*!********************************!*\
   !*** ./core/resource/index.js ***!
   \********************************/
-/*! exports provided: Tw2TextureRes, Tw2EffectRes, Tw2GeometryRes, Tw2LoadingObject, Tw2LodResource, Tw2Resource, Tw2VideoRes */
+/*! exports provided: Tw2TextureRes, Tw2EffectRes, Tw2GeometryRes, Tw2LoadingObject, Tw2LodResource, Tw2Resource, Tw2Shader, Tw2VideoRes */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -29553,19 +29086,34 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Tw2Resource__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Tw2Resource */ "./core/resource/Tw2Resource.js");
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Resource", function() { return _Tw2Resource__WEBPACK_IMPORTED_MODULE_4__["Tw2Resource"]; });
 
-/* harmony import */ var _Tw2TextureRes__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Tw2TextureRes */ "./core/resource/Tw2TextureRes.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2TextureRes", function() { return _Tw2TextureRes__WEBPACK_IMPORTED_MODULE_5__["Tw2TextureRes"]; });
+/* harmony import */ var _Tw2Shader__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Tw2Shader */ "./core/resource/Tw2Shader.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Shader", function() { return _Tw2Shader__WEBPACK_IMPORTED_MODULE_5__["Tw2Shader"]; });
 
-/* harmony import */ var _Tw2VideoRes__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Tw2VideoRes */ "./core/resource/Tw2VideoRes.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2VideoRes", function() { return _Tw2VideoRes__WEBPACK_IMPORTED_MODULE_6__["Tw2VideoRes"]; });
+/* harmony import */ var _Tw2TextureRes__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Tw2TextureRes */ "./core/resource/Tw2TextureRes.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2TextureRes", function() { return _Tw2TextureRes__WEBPACK_IMPORTED_MODULE_6__["Tw2TextureRes"]; });
 
-
-
-
-
+/* harmony import */ var _Tw2VideoRes__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Tw2VideoRes */ "./core/resource/Tw2VideoRes.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2VideoRes", function() { return _Tw2VideoRes__WEBPACK_IMPORTED_MODULE_7__["Tw2VideoRes"]; });
 
 
 
+
+
+
+
+
+
+
+/***/ }),
+
+/***/ "./core/resource/shaderOverrides.json":
+/*!********************************************!*\
+  !*** ./core/resource/shaderOverrides.json ***!
+  \********************************************/
+/*! exports provided: blinkinglightspool, boostervolumetric, fxarmorimpactv5, default */
+/***/ (function(module) {
+
+module.exports = {"blinkinglightspool":{"r0.xy=r0.xx*c[0+a0.x].xy;":"if(a0.x==0){r0.xy=r0.xx*c[0].xy;}else if(a0.x==1){r0.xy=r0.xx*c[1].xy;}else if(a0.x==2){r0.xy=r0.xx*c[2].xy;}else if(a0.x==3){r0.xy=r0.xx*c[3].xy;}else if(a0.x==4){r0.xy=r0.xx*c[4].xy;}","texcoord=r3.zzww*c[0+a0.x].zwzz;":"if(a0.x==0){texcoord=r3.zzww*c[0].zwzz;}else if(a0.x==1){texcoord=r3.zzww*c[1].zwzz;}else if(a0.x==2){texcoord=r3.zzww*c[2].zwzz;}else if(a0.x==3){texcoord=r3.zzww*c[3].zwzz;}else if(a0.x==4){texcoord=r3.zzww*c[4].zwzz;}"},"boostervolumetric":{"for(int i=0;i<i0.x;++i){":"for(int i=0;i<12;++i){"},"fxarmorimpactv5":{"for(int i=0;i<i0.x;++i){":"for(int i=0;i<255;++i){"}};
 
 /***/ }),
 
@@ -29579,10 +29127,8 @@ __webpack_require__.r(__webpack_exports__);
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2SamplerOverride", function() { return Tw2SamplerOverride; });
-/* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../global */ "./global/index.js");
-/* harmony import */ var _Tw2SamplerState__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Tw2SamplerState */ "./core/sampler/Tw2SamplerState.js");
+/* harmony import */ var _Tw2SamplerState__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Tw2SamplerState */ "./core/sampler/Tw2SamplerState.js");
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
 
 
 /**
@@ -29625,20 +29171,21 @@ class Tw2SamplerOverride {
 
   /**
    * Gets the sampler
+   * @param {Tw2Device} device
    * @param {Tw2SamplerState} originalSampler
    * @returns {Tw2SamplerState}
    */
-  GetSampler(originalSampler) {
+  GetSampler(device, originalSampler) {
     if (this._sampler) {
       return this._sampler;
     }
 
-    this._sampler = new _Tw2SamplerState__WEBPACK_IMPORTED_MODULE_1__["Tw2SamplerState"]();
+    this._sampler = new _Tw2SamplerState__WEBPACK_IMPORTED_MODULE_0__["Tw2SamplerState"]();
     const sampler = this._sampler;
     sampler.registerIndex = originalSampler.registerIndex;
     sampler.name = originalSampler.name;
-    const wrapModes = _global__WEBPACK_IMPORTED_MODULE_0__["device"].wrapModes,
-          gl = _global__WEBPACK_IMPORTED_MODULE_0__["device"].gl;
+    const wrapModes = device.wrapModes,
+          gl = device.gl;
 
     if (this.filter === 1) {
       switch (this.mipFilter) {
@@ -29718,10 +29265,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
  * @property {Number} addressV
  * @property {Number} addressW
  * @property {Number} anisotropy
- * @property samplerType
+ * @property {Number} samplerType
  * @property {Boolean} isVolume
  * @property {Number} hash
- * @class
  */
 
 class Tw2SamplerState {
@@ -29751,6 +29297,18 @@ class Tw2SamplerState {
     _defineProperty(this, "isVolume", false);
 
     _defineProperty(this, "hash", 0);
+
+    _defineProperty(this, "_borderColor", null);
+
+    _defineProperty(this, "_comparison", null);
+
+    _defineProperty(this, "_comparisonFunc", null);
+
+    _defineProperty(this, "_mipLODBias", null);
+
+    _defineProperty(this, "_minLOD", null);
+
+    _defineProperty(this, "_maxLOD", null);
   }
 
   /**
@@ -29789,13 +29347,14 @@ class Tw2SamplerState {
   }
   /**
    * Apply
+   * @param {Tw2Device} device
    * @param {Boolean} hasMipMaps
    */
 
 
-  Apply(hasMipMaps) {
+  Apply(device, hasMipMaps) {
     const targetType = this.samplerType,
-          d = _global__WEBPACK_IMPORTED_MODULE_0__["device"],
+          d = device,
           gl = d.gl;
     gl.texParameteri(targetType, gl.TEXTURE_WRAP_S, hasMipMaps ? this.addressU : gl.CLAMP_TO_EDGE);
     gl.texParameteri(targetType, gl.TEXTURE_WRAP_T, hasMipMaps ? this.addressV : gl.CLAMP_TO_EDGE);
@@ -30388,6 +29947,763 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./curve/Tw2CurveSet.js":
+/*!******************************!*\
+  !*** ./curve/Tw2CurveSet.js ***!
+  \******************************/
+/*! exports provided: Tw2CurveSet */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2CurveSet", function() { return Tw2CurveSet; });
+/* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../global */ "./global/index.js");
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+
+/**
+ * Curve set
+ * TODO: Implement useSimTimeRebase
+ * TODO: Implement ranges - Are these read only or do they need to relate back to an AnimationRes some how?
+ * @ccp TriCurveSet
+ *
+ * @property {Array.<Tw2ValueBinding>} bindings                             -
+ * @property {Array.<Tw2Curve|Tw2CurveExpression|Tw2CurveSequencer>} curves -
+ * @property {Boolean} playOnLoad                                           -
+ * @property {Array.<Tw2CurveSetRange>} ranges                              -
+ * @property {Number} scale                                                 -
+ * @property {Boolean} useSimTimeRebase                                     -
+ * @property {Boolean} _isPlaying                                           -
+ * @property {Number} _scaledTime                                           -
+ */
+
+class Tw2CurveSet extends _global__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"] {
+  constructor() {
+    super(...arguments);
+
+    _defineProperty(this, "name", "");
+
+    _defineProperty(this, "bindings", []);
+
+    _defineProperty(this, "curves", []);
+
+    _defineProperty(this, "playOnLoad", true);
+
+    _defineProperty(this, "ranges", []);
+
+    _defineProperty(this, "scale", 1);
+
+    _defineProperty(this, "useSimTimeRebase", false);
+
+    _defineProperty(this, "scaledTime", 0);
+
+    _defineProperty(this, "_isPlaying", false);
+  }
+
+  /**
+   * Initializes the Tw2CurveSet
+   */
+  Initialize() {
+    if (this.playOnLoad) {
+      this.Play();
+    }
+  }
+  /**
+   * Plays the Tw2CurveSet
+   */
+
+
+  Play() {
+    this._isPlaying = true;
+    this.scaledTime = 0;
+  }
+  /**
+   * Plays the Tw2CurveSet from a specific time
+   * @param {Number} [time=0]
+   */
+
+
+  PlayFrom() {
+    let time = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+    this._isPlaying = true;
+    this.scaledTime = time * this.scale;
+  }
+  /**
+   * Stops the Tw2CurveSet from playing
+   */
+
+
+  Stop() {
+    this._isPlaying = false;
+  }
+  /**
+   * Internal render/update function which is called every frame
+   * @param {Number} dt - Delta Time
+   */
+
+
+  Update(dt) {
+    if (this._isPlaying) {
+      this.scaledTime += dt * this.scale;
+
+      for (let i = 0; i < this.curves.length; ++i) {
+        this.curves[i].UpdateValue(this.scaledTime);
+      }
+
+      for (let i = 0; i < this.bindings.length; ++i) {
+        this.bindings[i].CopyValue();
+      }
+    }
+  }
+  /**
+   * Gets a range by name
+   * @param {String}name
+   * @returns {?Tw2CurveSetRange}
+   */
+
+
+  GetRangeByName(name) {
+    for (let i = 0; i < this.ranges.length; i++) {
+      if (this.ranges[i].name === name) {
+        return this.ranges[i];
+      }
+    }
+
+    return null;
+  }
+  /**
+   * Gets the maximum curve duration
+   *
+   * @returns {Number}
+   */
+
+
+  GetMaxCurveDuration() {
+    let length = 0;
+
+    for (let i = 0; i < this.curves.length; ++i) {
+      if ("GetLength" in this.curves[i]) {
+        length = Math.max(length, this.curves[i].GetLength());
+      }
+    }
+
+    return length;
+  }
+  /**
+   * Black definition
+   * @param {*} r
+   * @returns {*[]}
+   */
+
+
+  static black(r) {
+    return [["bindings", r.array], ["curves", r.array], ["name", r.string], ["playOnLoad", r.boolean], ["ranges", r.array], ["scale", r.float], ["useSimTimeRebase", r.boolean]];
+  }
+
+}
+
+/***/ }),
+
+/***/ "./curve/Tw2CurveSetRange.js":
+/*!***********************************!*\
+  !*** ./curve/Tw2CurveSetRange.js ***!
+  \***********************************/
+/*! exports provided: Tw2CurveSetRange */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2CurveSetRange", function() { return Tw2CurveSetRange; });
+/* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../global */ "./global/index.js");
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+
+/**
+ * Curve set range
+ * @ccp Tr2CurveSetRange
+ *
+ * @property {String} name      -
+ * @property {Number} endTime   -
+ * @property {Boolean} looped   -
+ * @property {Number} startTime -
+ */
+
+class Tw2CurveSetRange extends _global__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"] {
+  constructor() {
+    super(...arguments);
+
+    _defineProperty(this, "name", "");
+
+    _defineProperty(this, "endTime", 0);
+
+    _defineProperty(this, "looped", false);
+
+    _defineProperty(this, "startTime", 0);
+  }
+
+  /**
+   * Black definition
+   * @param {*} r
+   * @returns {*[]}
+   */
+  static black(r) {
+    return [["endTime", r.float], ["looped", r.boolean], ["name", r.string], ["startTime", r.float]];
+  }
+  /**
+   * Identifies that the class is in staging
+   * @property {null|Number}
+   */
+
+
+}
+
+_defineProperty(Tw2CurveSetRange, "__isStaging", 4);
+
+/***/ }),
+
+/***/ "./curve/Tw2ValueBinding.js":
+/*!**********************************!*\
+  !*** ./curve/Tw2ValueBinding.js ***!
+  \**********************************/
+/*! exports provided: Tw2ValueBinding */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2ValueBinding", function() { return Tw2ValueBinding; });
+/* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../global */ "./global/index.js");
+/* harmony import */ var _core_parameter__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../core/parameter */ "./core/parameter/index.js");
+/* harmony import */ var _global_util__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../global/util */ "./global/util/index.js");
+/* harmony import */ var _core_Tw2Error__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../core/Tw2Error */ "./core/Tw2Error.js");
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+
+
+
+
+/**
+ * Tw2ValueBinding
+ * TODO: Looks like there are less swizzles than before, might be able to simplify this class (eg if v1,v2,v3,v4 gone)
+ * TODO: Handle utility functions
+ * TODO: Figure out a way of telling if a source/destination is RGBA when building from a UI rather than a swizzle
+ * @ccp TriValueBinding
+ *
+ * @property {String} name                 -
+ * @property {String} destinationAttribute -
+ * @property {*} destinationObject         -
+ * @property {vec4} offset                 -
+ * @property {Number} scale                -
+ * @property {String} sourceAttribute      -
+ * @property {*} sourceObject              -
+ * @property {Function} _copyFunc          -
+ * @property {Number} _destinationElement  -
+ * @property {Boolean} _destinationIsArray -
+ * @property {Boolean} _destinationIsRGBA  -
+ * @property {Number} _sourceElement       -
+ * @property {Boolean} _sourceIsArray      -
+ * @property {Boolean} _sourceIsRGBA       -
+ */
+
+class Tw2ValueBinding extends _global__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"] {
+  constructor() {
+    super(...arguments);
+
+    _defineProperty(this, "name", "");
+
+    _defineProperty(this, "destinationAttribute", "");
+
+    _defineProperty(this, "destinationObject", null);
+
+    _defineProperty(this, "offset", _global__WEBPACK_IMPORTED_MODULE_0__["vec4"].create());
+
+    _defineProperty(this, "scale", 1);
+
+    _defineProperty(this, "sourceAttribute", "");
+
+    _defineProperty(this, "sourceObject", null);
+
+    _defineProperty(this, "_copyFunc", null);
+
+    _defineProperty(this, "_destinationElement", null);
+
+    _defineProperty(this, "_destinationIsArray", null);
+
+    _defineProperty(this, "_destinationIsRGBA", null);
+
+    _defineProperty(this, "_sourceElement", null);
+
+    _defineProperty(this, "_sourceIsArray", null);
+
+    _defineProperty(this, "_sourceIsRGBA", null);
+  }
+
+  /**
+   * Initializes the binding
+   */
+  Initialize() {
+    this.UpdateValues();
+  }
+  /**
+   * Fires on value changes
+   */
+
+
+  OnValueChanged() {
+    if (this._copyFunc !== null) return;
+    if (!this.sourceObject || this.sourceAttribute === "") return;
+    if (!this.destinationObject || this.destinationAttribute === "") return; // Handle source by reference
+
+    if (this.sourceObject && "_ref" in this.sourceObject) {
+      this.sourceObject = this.FindIDFromRoot(this.sourceObject._ref);
+      if (!this.sourceObject) throw new _core_Tw2Error__WEBPACK_IMPORTED_MODULE_3__["ErrBindingReference"]({
+        object: "source"
+      });
+    } // Handle destination by reference
+
+
+    if (this.destinationObject && "_ref" in this.destinationObject) {
+      this.destinationObject = this.FindIDFromRoot(this.destinationObject._ref);
+      if (!this.destinationObject) throw new _core_Tw2Error__WEBPACK_IMPORTED_MODULE_3__["ErrBindingReference"]({
+        object: "destination"
+      });
+    }
+
+    let srcSwizzled = false,
+        destSwizzled = false,
+        srcSwizzle = this.sourceAttribute.substr(-2);
+
+    if (srcSwizzle === ".x" || srcSwizzle === ".r") {
+      srcSwizzled = true;
+      this._sourceElement = 0;
+      this.sourceAttribute = this.sourceAttribute.substr(0, this.sourceAttribute.length - 2);
+      this._sourceIsRGBA = srcSwizzle === ".r";
+    } else if (srcSwizzle === ".y" || srcSwizzle === ".g") {
+      srcSwizzled = true;
+      this._sourceElement = 1;
+      this.sourceAttribute = this.sourceAttribute.substr(0, this.sourceAttribute.length - 2);
+      this._sourceIsRGBA = srcSwizzle === ".g";
+    } else if (srcSwizzle === ".z" || srcSwizzle === ".b") {
+      srcSwizzled = true;
+      this._sourceElement = 2;
+      this.sourceAttribute = this.sourceAttribute.substr(0, this.sourceAttribute.length - 2);
+      this._sourceIsRGBA = srcSwizzle === ".b";
+    } else if (srcSwizzle === ".w" || srcSwizzle === ".a") {
+      srcSwizzled = true;
+      this._sourceElement = 3;
+      this.sourceAttribute = this.sourceAttribute.substr(0, this.sourceAttribute.length - 2);
+      this._sourceIsRGBA = srcSwizzle === ".a";
+    } else if (this.sourceObject instanceof _core_parameter__WEBPACK_IMPORTED_MODULE_1__["Tw2Vector4Parameter"]) {
+      if (this.sourceAttribute === "v1") {
+        srcSwizzled = true;
+        this._sourceElement = 0;
+        this.sourceAttribute = "value";
+      } else if (this.sourceAttribute === "v2") {
+        srcSwizzled = true;
+        this._sourceElement = 1;
+        this.sourceAttribute = "value";
+      } else if (this.sourceAttribute === "v3") {
+        srcSwizzled = true;
+        this._sourceElement = 2;
+        this.sourceAttribute = "value";
+      } else if (this.sourceAttribute === "v4") {
+        srcSwizzled = true;
+        this._sourceElement = 3;
+        this.sourceAttribute = "value";
+      }
+    }
+
+    let destSwizzle = this.destinationAttribute.substr(-2);
+
+    if (destSwizzle === ".x" || destSwizzle === ".r") {
+      destSwizzled = true;
+      this._destinationElement = 0;
+      this.destinationAttribute = this.destinationAttribute.substr(0, this.destinationAttribute.length - 2);
+      this._destinationIsRGBA = destSwizzle === ".r";
+    } else if (destSwizzle === ".y" || destSwizzle === ".g") {
+      destSwizzled = true;
+      this._destinationElement = 1;
+      this.destinationAttribute = this.destinationAttribute.substr(0, this.destinationAttribute.length - 2);
+      this._destinationIsRGBA = destSwizzle === ".g";
+    } else if (destSwizzle === ".z" || destSwizzle === ".b") {
+      destSwizzled = true;
+      this._destinationElement = 2;
+      this.destinationAttribute = this.destinationAttribute.substr(0, this.destinationAttribute.length - 2);
+      this._destinationIsRGBA = destSwizzle === ".b";
+    } else if (destSwizzle === ".w" || destSwizzle === ".a") {
+      destSwizzled = true;
+      this._destinationElement = 3;
+      this.destinationAttribute = this.destinationAttribute.substr(0, this.destinationAttribute.length - 2);
+      this._destinationIsRGBA = destSwizzle === ".a";
+    } else if (this.destinationObject instanceof _core_parameter__WEBPACK_IMPORTED_MODULE_1__["Tw2Vector4Parameter"]) {
+      if (this.destinationAttribute === "v1") {
+        destSwizzled = true;
+        this._destinationElement = 0;
+        this.destinationAttribute = "value";
+      } else if (this.destinationAttribute === "v2") {
+        destSwizzled = true;
+        this._destinationElement = 1;
+        this.destinationAttribute = "value";
+      } else if (this.destinationAttribute === "v3") {
+        destSwizzled = true;
+        this._destinationElement = 2;
+        this.destinationAttribute = "value";
+      } else if (this.destinationAttribute === "v4") {
+        destSwizzled = true;
+        this._destinationElement = 3;
+        this.destinationAttribute = "value";
+      }
+    }
+
+    const src = this.sourceObject[this.sourceAttribute],
+          dest = this.destinationObject[this.destinationAttribute]; // Targets must be defined
+
+    if (src === undefined) {
+      throw new _core_Tw2Error__WEBPACK_IMPORTED_MODULE_3__["ErrBindingValueUndefined"]({
+        object: "source",
+        property: this.sourceAttribute
+      });
+    }
+
+    if (dest === undefined) {
+      throw new _core_Tw2Error__WEBPACK_IMPORTED_MODULE_3__["ErrBindingValueUndefined"]({
+        object: "destination",
+        property: this.destinationAttribute
+      });
+    }
+
+    const srcIsArr = this._sourceIsArray = Object(_global_util__WEBPACK_IMPORTED_MODULE_2__["isArrayLike"])(src),
+          destIsArr = this._destinationIsArray = Object(_global_util__WEBPACK_IMPORTED_MODULE_2__["isArrayLike"])(dest),
+          con = Tw2ValueBinding;
+    let copyFunc;
+
+    if (srcIsArr === destIsArr && typeof src === typeof dest) {
+      if (!srcIsArr) {
+        copyFunc = con.CopyValueToValue;
+      } else if (srcSwizzled) {
+        copyFunc = destSwizzled ? con.CopyElementToElement : con.ReplicateElement;
+      } else if (src.length <= dest.length) {
+        copyFunc = con.CopyArray;
+      } else if (src.length === 16) {
+        copyFunc = con.ExtractPos;
+      }
+    } else if (srcIsArr && srcSwizzled && Object(_global_util__WEBPACK_IMPORTED_MODULE_2__["isNumber"])(dest)) {
+      copyFunc = con.CopyElementToValue;
+    } else if (destIsArr && Object(_global_util__WEBPACK_IMPORTED_MODULE_2__["isNumber"])(src)) {
+      copyFunc = destSwizzled ? con.CopyValueToElement : con.ReplicateValue;
+    } else if (Object(_global_util__WEBPACK_IMPORTED_MODULE_2__["isNumber"])(src) && Object(_global_util__WEBPACK_IMPORTED_MODULE_2__["isBoolean"])(dest)) {
+      copyFunc = con.CopyFloatToBoolean;
+    } else if (Object(_global_util__WEBPACK_IMPORTED_MODULE_2__["isBoolean"])(src) && Object(_global_util__WEBPACK_IMPORTED_MODULE_2__["isNumber"])(dest)) {
+      copyFunc = con.CopyBooleanToFloat;
+    }
+
+    if (!copyFunc) {
+      throw new _core_Tw2Error__WEBPACK_IMPORTED_MODULE_3__["ErrBindingType"]();
+    }
+
+    this._copyFunc = copyFunc;
+  }
+  /**
+   * CopyValue
+   * @param {*} [controller=this]
+   */
+
+
+  CopyValue() {
+    let controller = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this;
+
+    if (this._copyFunc) {
+      this._copyFunc(this);
+
+      if ("UpdateValues" in this.destinationObject) {
+        this.destinationObject.UpdateValues({
+          controller
+        });
+      } else if ("OnValueChanged" in this.destinationObject) {
+        this.destinationObject.OnValueChanged({
+          controller
+        });
+      }
+    }
+  }
+  /**
+   * Gets the destination target (attribute with swizzles)
+   * @returns {String}
+   */
+
+
+  GetDestinationTarget() {
+    if (!this._copyFunc) return this.destinationAttribute;
+    return this.constructor.GetAttribute(this.destinationObject, this.destinationAttribute, this._destinationElement, this._destinationIsRGBA);
+  }
+  /**
+   * Gets the source target (attribute with swizzles)
+   * @returns {String}
+   */
+
+
+  GetSourceTarget() {
+    if (!this._copyFunc) return this.sourceAttribute;
+    return this.constructor.GetAttribute(this.sourceObject, this.sourceAttribute, this._sourceElement, this._sourceIsRGBA);
+  }
+  /**
+   * Sets source object and attribute
+   * @param {*} obj
+   * @param {String} attr
+   * @param {Number} [element]
+   * @param {Boolean} [isRGBA]
+   */
+
+
+  SetSource(obj, attr, element, isRGBA) {
+    const _this$constructor$Get = this.constructor.GetTargets(obj, attr, element, isRGBA),
+          object = _this$constructor$Get.object,
+          attribute = _this$constructor$Get.attribute;
+
+    this.sourceObject = object;
+    this.sourceAttribute = attribute;
+    this._copyFunc = null; //this.UpdateValues();
+  }
+  /**
+   * Sets destination object and attribute
+   * @param {*} obj
+   * @param {String} attr
+   * @param {Number} [element]
+   * @param {Boolean} [isRGBA]
+   */
+
+
+  SetDestination(obj, attr, element, isRGBA) {
+    const _this$constructor$Get2 = this.constructor.GetTargets(obj, attr, element, isRGBA),
+          object = _this$constructor$Get2.object,
+          attribute = _this$constructor$Get2.attribute;
+
+    this.destinationObject = object;
+    this.destinationAttribute = attribute;
+    this._copyFunc = null; //this.UpdateValues();
+  }
+  /**
+   * Gets a value bindings attribute and swizzles for serialization
+   * @param {*} object
+   * @param {String} attribute
+   * @param {?Number} element
+   * @param {Boolean} isRGBA
+   * @returns {String}
+   */
+
+
+  static GetAttribute(object, attribute, element, isRGBA) {
+    // Looks to be deprecated
+    if (object instanceof _core_parameter__WEBPACK_IMPORTED_MODULE_1__["Tw2Vector4Parameter"] && attribute === "value") {
+      switch (element) {
+        case 0:
+          return "v0";
+
+        case 1:
+          return "v1";
+
+        case 2:
+          return "v2";
+
+        case 3:
+          return "v4";
+
+        default:
+          return attribute;
+      }
+    }
+
+    switch (element) {
+      case 0:
+        return attribute + isRGBA ? ".r" : ".x";
+
+      case 1:
+        return attribute + isRGBA ? ".g" : ".y";
+
+      case 2:
+        return attribute + isRGBA ? ".b" : ".z";
+
+      case 3:
+        return attribute + isRGBA ? ".a" : ".w";
+
+      default:
+        return attribute;
+    }
+  }
+  /**
+   * Gets target values
+   * @param {*} object
+   * @param {String} attribute
+   * @param {Number} [element]
+   * @param {Boolean} [isRGBA]
+   * @returns {{object: *, attribute: String}}
+   */
+
+
+  static GetTargets(object, attribute, element, isRGBA) {
+    // Try to guess if rgba
+    if (element !== undefined && isRGBA === undefined) {
+      isRGBA = attribute.toUpperCase().includes("COLOR");
+    } // Looks to be depreciated
+
+
+    if (object instanceof _core_parameter__WEBPACK_IMPORTED_MODULE_1__["Tw2Vector4Parameter"] && attribute === "value") {
+      switch (element) {
+        case 0:
+          attribute = "v0";
+          break;
+
+        case 1:
+          attribute = "v1";
+          break;
+
+        case 2:
+          attribute = "v2";
+          break;
+
+        case 3:
+          attribute = "v3";
+          break;
+      }
+    } else {
+      switch (element) {
+        case 0:
+          attribute += isRGBA ? ".r" : ".x";
+          break;
+
+        case 1:
+          attribute += isRGBA ? ".g" : ".y";
+          break;
+
+        case 2:
+          attribute += isRGBA ? ".b" : ".z";
+          break;
+
+        case 3:
+          attribute += isRGBA ? ".a" : ".w";
+          break;
+      }
+    }
+
+    return {
+      object,
+      attribute
+    };
+  }
+  /**
+   * CopyValueToValue
+   * @param {Tw2ValueBinding} a
+   */
+
+
+  static CopyValueToValue(a) {
+    a.destinationObject[a.destinationAttribute] = a.sourceObject[a.sourceAttribute] * a.scale + a.offset[0];
+  }
+  /**
+   * CopyArray
+   * @param {Tw2ValueBinding} a
+   */
+
+
+  static CopyArray(a) {
+    let count = Math.min(a.destinationObject[a.destinationAttribute].length, a.sourceObject[a.sourceAttribute].length);
+
+    for (let i = 0; i < count; ++i) {
+      a.destinationObject[a.destinationAttribute][i] = a.sourceObject[a.sourceAttribute][i] * a.scale + a.offset[i];
+    }
+  }
+  /**
+   * CopyElementToElement
+   * @param {Tw2ValueBinding} a
+   */
+
+
+  static CopyElementToElement(a) {
+    a.destinationObject[a.destinationAttribute][a._destinationElement] = a.sourceObject[a.sourceAttribute][a._sourceElement] * a.scale + a.offset[0];
+  }
+  /**
+   * ReplicateValue
+   * @param {Tw2ValueBinding} a
+   */
+
+
+  static ReplicateValue(a) {
+    for (let i = 0; i < a.destinationObject[a.destinationAttribute].length; ++i) {
+      a.destinationObject[a.destinationAttribute][i] = a.sourceObject[a.sourceAttribute] * a.scale + a.offset[i];
+    }
+  }
+  /**
+   * CopyArray
+   * @param {Tw2ValueBinding} a
+   */
+
+
+  static ReplicateElement(a) {
+    for (let i = 0; i < a.destinationObject[a.destinationAttribute].length; ++i) {
+      a.destinationObject[a.destinationAttribute][i] = a.sourceObject[a.sourceAttribute][a._sourceElement] * a.scale + a.offset[i];
+    }
+  }
+  /**
+   * ExtractPos
+   * @param {Tw2ValueBinding} a
+   */
+
+
+  static ExtractPos(a) {
+    for (let i = 0; i < a.destinationObject[a.destinationAttribute].length; ++i) {
+      a.destinationObject[a.destinationAttribute][i] = a.sourceObject[a.sourceAttribute][i + 12] * a.scale + a.offset[i];
+    }
+  }
+  /**
+   * CopyElementToValue
+   * @param {Tw2ValueBinding} a
+   */
+
+
+  static CopyElementToValue(a) {
+    a.destinationObject[a.destinationAttribute] = a.sourceObject[a.sourceAttribute][a._sourceElement] * a.scale + a.offset[0];
+  }
+  /**
+   * CopyValueToElement
+   * @param {Tw2ValueBinding} a
+   */
+
+
+  static CopyValueToElement(a) {
+    a.destinationObject[a.destinationAttribute][a._destinationElement] = a.sourceObject[a.sourceAttribute] * a.scale + a.offset[0];
+  }
+  /**
+   * CopyFloatToBoolean
+   * @param {Tw2ValueBinding} a
+   */
+
+
+  static CopyFloatToBoolean(a) {
+    a.destinationObject[a.destinationAttribute] = a.sourceObject[a.sourceAttribute] !== 0;
+  }
+  /**
+   * CopyFloatToBoolean
+   * @param {Tw2ValueBinding} a
+   */
+
+
+  static CopyBooleanToFloat(a) {
+    a.destinationObject[a.destinationAttribute] = a.sourceObject[a.sourceAttribute] ? 1 : 0;
+  }
+  /**
+   * Black definition
+   * @param {*} r
+   * @returns {*[]}
+   */
+
+
+  static black(r) {
+    return [["destinationObject", r.object], ["destinationAttribute", r.string], ["name", r.string], ["offset", r.vector4], ["scale", r.float], ["sourceObject", r.object], ["sourceAttribute", r.string]];
+  }
+
+}
+
+/***/ }),
+
 /***/ "./curve/adapter/Tr2RotationAdapter.js":
 /*!*********************************************!*\
   !*** ./curve/adapter/Tr2RotationAdapter.js ***!
@@ -30398,24 +30714,23 @@ __webpack_require__.r(__webpack_exports__);
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tr2RotationAdapter", function() { return Tr2RotationAdapter; });
-/* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../global */ "./global/index.js");
+/* harmony import */ var _Tw2CurveAdapter__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Tw2CurveAdapter */ "./curve/adapter/Tw2CurveAdapter.js");
+/* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../global */ "./global/index.js");
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 
 
 /**
  * Tr2RotationAdapter
  *
- * @property {Curve|CurveExpression} curve -
- * @property {vec4} value                  -
+ * @property {vec4} value -
  */
 
-class Tr2RotationAdapter extends _global__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"] {
+class Tr2RotationAdapter extends _Tw2CurveAdapter__WEBPACK_IMPORTED_MODULE_0__["Tw2CurveAdapter"] {
   constructor() {
     super(...arguments);
 
-    _defineProperty(this, "curve", null);
-
-    _defineProperty(this, "value", _global__WEBPACK_IMPORTED_MODULE_0__["vec4"].create());
+    _defineProperty(this, "value", _global__WEBPACK_IMPORTED_MODULE_1__["vec4"].create());
   }
 
   /**
@@ -30449,21 +30764,20 @@ _defineProperty(Tr2RotationAdapter, "__isStaging", 4);
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tr2TranslationAdapter", function() { return Tr2TranslationAdapter; });
 /* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../global */ "./global/index.js");
+/* harmony import */ var _Tw2CurveAdapter__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Tw2CurveAdapter */ "./curve/adapter/Tw2CurveAdapter.js");
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 
 
 /**
  * Tr2TranslationAdapter
  *
- * @property {Curve|CurveExpression} curve -
- * @property {vec4} value
+ * @property {vec3} value -
  */
 
-class Tr2TranslationAdapter extends _global__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"] {
+class Tr2TranslationAdapter extends _Tw2CurveAdapter__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveAdapter"] {
   constructor() {
     super(...arguments);
-
-    _defineProperty(this, "curve", null);
 
     _defineProperty(this, "value", _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].create());
   }
@@ -30488,11 +30802,35 @@ _defineProperty(Tr2TranslationAdapter, "__isStaging", 4);
 
 /***/ }),
 
+/***/ "./curve/adapter/Tw2CurveAdapter.js":
+/*!******************************************!*\
+  !*** ./curve/adapter/Tw2CurveAdapter.js ***!
+  \******************************************/
+/*! exports provided: Tw2CurveAdapter */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2CurveAdapter", function() { return Tw2CurveAdapter; });
+/* harmony import */ var _global_class__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../global/class */ "./global/class/index.js");
+
+function Tw2CurveAdapter() {
+  _global_class__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"].defineID(this);
+  this.name = "";
+  this.curve = null;
+  this.value = null;
+}
+Tw2CurveAdapter.prototype = Object.assign(Object.create(_global_class__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"].prototype), {
+  constructor: Tw2CurveAdapter
+});
+
+/***/ }),
+
 /***/ "./curve/adapter/index.js":
 /*!********************************!*\
   !*** ./curve/adapter/index.js ***!
   \********************************/
-/*! exports provided: Tr2RotationAdapter, Tr2TranslationAdapter */
+/*! exports provided: Tr2RotationAdapter, Tr2TranslationAdapter, Tw2CurveAdapter */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -30502,6 +30840,10 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony import */ var _Tr2TranslationAdapter__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Tr2TranslationAdapter */ "./curve/adapter/Tr2TranslationAdapter.js");
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2TranslationAdapter", function() { return _Tr2TranslationAdapter__WEBPACK_IMPORTED_MODULE_1__["Tr2TranslationAdapter"]; });
+
+/* harmony import */ var _Tw2CurveAdapter__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Tw2CurveAdapter */ "./curve/adapter/Tw2CurveAdapter.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2CurveAdapter", function() { return _Tw2CurveAdapter__WEBPACK_IMPORTED_MODULE_2__["Tw2CurveAdapter"]; });
+
 
 
 
@@ -30519,7 +30861,7 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "AudEventKey", function() { return AudEventKey; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "AudEventCurve", function() { return AudEventCurve; });
-/* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../global */ "./global/index.js");
+/* harmony import */ var _Tw2Curve__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Tw2Curve */ "./curve/curve/Tw2Curve.js");
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 
@@ -30531,7 +30873,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
  * @property {Number} value -
  */
 
-class AudEventKey extends _global__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"] {
+class AudEventKey extends _Tw2Curve__WEBPACK_IMPORTED_MODULE_0__["Tw2CurveKey"] {
   constructor() {
     super(...arguments);
 
@@ -30546,11 +30888,11 @@ class AudEventKey extends _global__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"] {
  * TODO: Implement
  *
  * @property {Number} extrapolation               -
- * @property {Array.<CurveKey>} keys              -
+ * @property {Array.<AudEventKey>} keys           -
  * @property {TriObserverLocal} sourceTriObserver -
  */
 
-class AudEventCurve extends _global__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"] {
+class AudEventCurve extends _Tw2Curve__WEBPACK_IMPORTED_MODULE_0__["Tw2Curve"] {
   constructor() {
     super(...arguments);
 
@@ -30562,6 +30904,8 @@ class AudEventCurve extends _global__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"]
   }
 
 }
+
+_defineProperty(AudEventCurve, "__isStaging", 4);
 
 /***/ }),
 
@@ -30575,7 +30919,7 @@ class AudEventCurve extends _global__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"]
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tr2BoneMatrixCurve", function() { return Tr2BoneMatrixCurve; });
-/* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../global */ "./global/index.js");
+/* harmony import */ var _Tw2Curve__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Tw2Curve */ "./curve/curve/Tw2Curve.js");
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 
@@ -30586,13 +30930,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
  * @property {String} name
  */
 
-class Tr2BoneMatrixCurve extends _global__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"] {
-  constructor() {
-    super(...arguments);
-
-    _defineProperty(this, "name", "");
-  }
-
+class Tr2BoneMatrixCurve extends _Tw2Curve__WEBPACK_IMPORTED_MODULE_0__["Tw2Curve"] {
   /**
    * Black definition
    * @param {*} r
@@ -30613,57 +30951,6 @@ _defineProperty(Tr2BoneMatrixCurve, "__isStaging", 4);
 
 /***/ }),
 
-/***/ "./curve/curve/Tr2CurveConstant.js":
-/*!*****************************************!*\
-  !*** ./curve/curve/Tr2CurveConstant.js ***!
-  \*****************************************/
-/*! exports provided: Tr2CurveConstant */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tr2CurveConstant", function() { return Tr2CurveConstant; });
-/* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../global */ "./global/index.js");
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-
-/**
- * Tr2CurveConstant
- * @ccp Tr2CurveConstant
- *
- * @property {String} name -
- * @property {vec4} value  -
- */
-
-class Tr2CurveConstant extends _global__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"] {
-  constructor() {
-    super(...arguments);
-
-    _defineProperty(this, "name", "");
-
-    _defineProperty(this, "value", _global__WEBPACK_IMPORTED_MODULE_0__["vec4"].create());
-  }
-
-  /**
-   * Black definition
-   * @param {*} r
-   * @returns {*[]}
-   */
-  static black(r) {
-    return [["name", r.string], ["value", r.vector4]];
-  }
-  /**
-   * Identifies that the class is in staging
-   * @property {null|Number}
-   */
-
-
-}
-
-_defineProperty(Tr2CurveConstant, "__isStaging", 4);
-
-/***/ }),
-
 /***/ "./curve/curve/Tr2CurveScalar.js":
 /*!***************************************!*\
   !*** ./curve/curve/Tr2CurveScalar.js ***!
@@ -30675,17 +30962,25 @@ _defineProperty(Tr2CurveConstant, "__isStaging", 4);
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2CurveScalarKey", function() { return Tw2CurveScalarKey; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tr2CurveScalar", function() { return Tr2CurveScalar; });
-/* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../global */ "./global/index.js");
+/* harmony import */ var _Tw2Curve__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Tw2Curve */ "./curve/curve/Tw2Curve.js");
+/* harmony import */ var _core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../core */ "./core/index.js");
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 
+
 /**
- * Tw2ScalarKey2
+ * Tw2CurveScalarKey
  * @ccp N/A
  *
+ * @param {Number} endTangent
+ * @param {Number} extrapolation
+ * @param {Number} index
+ * @param {Number} interpolation
+ * @param {Number} startTangent
+ * @param {Number} value
  */
 
-class Tw2CurveScalarKey extends _global__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"] {
+class Tw2CurveScalarKey extends _Tw2Curve__WEBPACK_IMPORTED_MODULE_0__["Tw2CurveKey"] {
   constructor() {
     super(...arguments);
 
@@ -30698,8 +30993,6 @@ class Tw2CurveScalarKey extends _global__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseCla
     _defineProperty(this, "interpolation", 1);
 
     _defineProperty(this, "startTangent", 0.0);
-
-    _defineProperty(this, "time", 0.0);
 
     _defineProperty(this, "value", 0.0);
   }
@@ -30720,15 +31013,16 @@ class Tw2CurveScalarKey extends _global__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseCla
     item.extrapolation = r.ReadU8();
     return item;
   }
-  /**
-   * Identifies that the class is in staging
-   * @property {null|Number}
-   */
-
 
 }
 /**
  * Tr2CurveScalar
+ * TODO: implement extrapolationAfter
+ * TODO: implement extrapolationBefore
+ * TODO: implement timeOffset
+ * TODO: implement timeScale
+ * TODO: Get Extrapolation types from CCP
+ * TODO: Get Interpolation types from CCP
  * @ccp Tr2CurveScalar
  *
  * @property {String} name                -
@@ -30739,13 +31033,9 @@ class Tw2CurveScalarKey extends _global__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseCla
  * @property {Number} timeScale           -
  */
 
-_defineProperty(Tw2CurveScalarKey, "__isStaging", 4);
-
-class Tr2CurveScalar extends _global__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"] {
+class Tr2CurveScalar extends _Tw2Curve__WEBPACK_IMPORTED_MODULE_0__["Tw2Curve"] {
   constructor() {
     super(...arguments);
-
-    _defineProperty(this, "name", "");
 
     _defineProperty(this, "extrapolationAfter", 0);
 
@@ -30756,7 +31046,43 @@ class Tr2CurveScalar extends _global__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"
     _defineProperty(this, "timeOffset", 0);
 
     _defineProperty(this, "timeScale", 0);
+
+    _defineProperty(this, "_length", 0);
   }
+
+  /**
+   * Sorts the curve
+   */
+  Sort() {
+    this._length = _Tw2Curve__WEBPACK_IMPORTED_MODULE_0__["Tw2Curve"].Sort3(this.keys);
+  }
+  /**
+   * Gets the curve's length
+   * @returns {number}
+   */
+
+
+  GetLength() {
+    // TODO: Does timeOffset and timeScale need to be considered here?
+    return this._length;
+  }
+  /**
+   * Gets a value at a given time
+   * @param {Number} time
+   */
+
+
+  GetValueAt(time) {
+    // TODO: Implement GetValueAt
+    throw new _core__WEBPACK_IMPORTED_MODULE_1__["ErrFeatureNotImplemented"]({
+      feature: "GetValueAt"
+    });
+  }
+  /**
+   * The curve's dimension
+   * @type {?number}
+   */
+
 
   /**
    * Black definition
@@ -30774,398 +31100,38 @@ class Tr2CurveScalar extends _global__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"
 
 }
 
+_defineProperty(Tr2CurveScalar, "inputDimension", 1);
+
+_defineProperty(Tr2CurveScalar, "outputDimension", 1);
+
+_defineProperty(Tr2CurveScalar, "valueProperty", "value");
+
+_defineProperty(Tr2CurveScalar, "curveType", _Tw2Curve__WEBPACK_IMPORTED_MODULE_0__["Tw2Curve"].Type.CURVE3);
+
+_defineProperty(Tr2CurveScalar, "Key", Tw2CurveScalarKey);
+
+_defineProperty(Tr2CurveScalar, "Interpolation", {});
+
+_defineProperty(Tr2CurveScalar, "Extrapolation", {});
+
 _defineProperty(Tr2CurveScalar, "__isStaging", 4);
 
 /***/ }),
 
-/***/ "./curve/curve/TriEventCurve.js":
-/*!**************************************!*\
-  !*** ./curve/curve/TriEventCurve.js ***!
-  \**************************************/
-/*! exports provided: TriEventKey, TriEventCurve */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TriEventKey", function() { return TriEventKey; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TriEventCurve", function() { return TriEventCurve; });
-/* harmony import */ var _global_index__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../global/index */ "./global/index.js");
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-
-/**
- * TriEventKey
- * @implements CurveKey
- *
- * @property {Number} time  -
- * @property {Number} value -
- */
-
-class TriEventKey extends _global_index__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"] {
-  constructor() {
-    super(...arguments);
-
-    _defineProperty(this, "time", 0);
-
-    _defineProperty(this, "value", 0);
-  }
-
-  /**
-   * Black definition
-   * @param {*} r
-   * @returns {*[]}
-   */
-  static black(r) {
-    return [["time", r.float], ["value", r.ushort]];
-  }
-
-}
-/**
- * TriEventCurve
- *
- * @property {String} name           -
- * @property {Number} extrapolation  -
- * @property {Array.<CurveKey>} keys -
- * @property {Number} value          -
- */
-
-class TriEventCurve extends _global_index__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"] {
-  constructor() {
-    super(...arguments);
-
-    _defineProperty(this, "name", "");
-
-    _defineProperty(this, "extrapolation", 0);
-
-    _defineProperty(this, "keys", []);
-
-    _defineProperty(this, "value", 0);
-  }
-
-  /**
-   * Black definition
-   * @param {*} r
-   * @returns {*[]}
-   */
-  static black(r) {
-    return [["extrapolation", r.uint], ["name", r.string], ["keys", r.array], ["value", r.ushort]];
-  }
-  /**
-   * Identifies that the class is in staging
-   * @property {null|Number}
-   */
-
-
-}
-
-_defineProperty(TriEventCurve, "__isStaging", 4);
-
-/***/ }),
-
-/***/ "./curve/curve/TriPerlinCurve.js":
-/*!***************************************!*\
-  !*** ./curve/curve/TriPerlinCurve.js ***!
-  \***************************************/
-/*! exports provided: TriPerlinCurve */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TriPerlinCurve", function() { return TriPerlinCurve; });
-/* harmony import */ var _global_index__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../global/index */ "./global/index.js");
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-
-/**
- * TriPerlinCurve
- *
- * @property {String} name   -
- * @property {Number} N      -
- * @property {Number} alpha  -
- * @property {Number} beta   -
- * @property {Number} offset -
- * @property {Number} scale  -
- * @property {Number} speed  -
- * @property {Number} value  -
- */
-
-class TriPerlinCurve extends _global_index__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"] {
-  constructor() {
-    super(...arguments);
-
-    _defineProperty(this, "name", "");
-
-    _defineProperty(this, "N", 0);
-
-    _defineProperty(this, "alpha", 0);
-
-    _defineProperty(this, "beta", 0);
-
-    _defineProperty(this, "offset", 0);
-
-    _defineProperty(this, "scale", 0);
-
-    _defineProperty(this, "speed", 0);
-
-    _defineProperty(this, "value", 0);
-  }
-
-  /**
-   * Black definition
-   * @param {*} r
-   * @returns {*[]}
-   */
-  static black(r) {
-    return [["alpha", r.float], ["beta", r.float], ["N", r.uint], ["name", r.string], ["offset", r.float], ["scale", r.float], ["speed", r.float], ["value", r.float]];
-  }
-  /**
-   * Identifies that the class is in staging
-   * @property {null|Number}
-   */
-
-
-}
-
-_defineProperty(TriPerlinCurve, "__isStaging", 4);
-
-/***/ }),
-
-/***/ "./curve/curve/index.js":
-/*!******************************!*\
-  !*** ./curve/curve/index.js ***!
-  \******************************/
-/*! exports provided: AudEventKey, AudEventCurve, Tr2BoneMatrixCurve, Tr2CurveConstant, Tw2CurveScalarKey, Tr2CurveScalar, TriEventKey, TriEventCurve, TriPerlinCurve */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _AudEventCurve__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./AudEventCurve */ "./curve/curve/AudEventCurve.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "AudEventKey", function() { return _AudEventCurve__WEBPACK_IMPORTED_MODULE_0__["AudEventKey"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "AudEventCurve", function() { return _AudEventCurve__WEBPACK_IMPORTED_MODULE_0__["AudEventCurve"]; });
-
-/* harmony import */ var _Tr2BoneMatrixCurve__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Tr2BoneMatrixCurve */ "./curve/curve/Tr2BoneMatrixCurve.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2BoneMatrixCurve", function() { return _Tr2BoneMatrixCurve__WEBPACK_IMPORTED_MODULE_1__["Tr2BoneMatrixCurve"]; });
-
-/* harmony import */ var _Tr2CurveConstant__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Tr2CurveConstant */ "./curve/curve/Tr2CurveConstant.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2CurveConstant", function() { return _Tr2CurveConstant__WEBPACK_IMPORTED_MODULE_2__["Tr2CurveConstant"]; });
-
-/* harmony import */ var _Tr2CurveScalar__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Tr2CurveScalar */ "./curve/curve/Tr2CurveScalar.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2CurveScalarKey", function() { return _Tr2CurveScalar__WEBPACK_IMPORTED_MODULE_3__["Tw2CurveScalarKey"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2CurveScalar", function() { return _Tr2CurveScalar__WEBPACK_IMPORTED_MODULE_3__["Tr2CurveScalar"]; });
-
-/* harmony import */ var _TriEventCurve__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./TriEventCurve */ "./curve/curve/TriEventCurve.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "TriEventKey", function() { return _TriEventCurve__WEBPACK_IMPORTED_MODULE_4__["TriEventKey"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "TriEventCurve", function() { return _TriEventCurve__WEBPACK_IMPORTED_MODULE_4__["TriEventCurve"]; });
-
-/* harmony import */ var _TriPerlinCurve__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./TriPerlinCurve */ "./curve/curve/TriPerlinCurve.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "TriPerlinCurve", function() { return _TriPerlinCurve__WEBPACK_IMPORTED_MODULE_5__["TriPerlinCurve"]; });
-
-
-
-
-
-
-
-
-/***/ }),
-
-/***/ "./curve/expression/Tr2CurveEulerRotationExpression.js":
-/*!*************************************************************!*\
-  !*** ./curve/expression/Tr2CurveEulerRotationExpression.js ***!
-  \*************************************************************/
-/*! exports provided: Tr2CurveEulerRotationExpression */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tr2CurveEulerRotationExpression", function() { return Tr2CurveEulerRotationExpression; });
-/* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../global */ "./global/index.js");
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-
-/**
- * Tr2CurveEulerRotationExpression
- *
- * @property {String} name                          -
- * @property {String} expressionPitch               -
- * @property {String} expressionRoll                -
- * @property {String} expressionYaw                 -
- * @property {Array.<Curve|CurveExpression>} inputs -
- */
-
-class Tr2CurveEulerRotationExpression extends _global__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"] {
-  constructor() {
-    super(...arguments);
-
-    _defineProperty(this, "name", "");
-
-    _defineProperty(this, "expressionPitch", "");
-
-    _defineProperty(this, "expressionRoll", "");
-
-    _defineProperty(this, "expressionYaw", "");
-
-    _defineProperty(this, "inputs", []);
-  }
-
-  /**
-   * Black definition
-   * @param {*} r
-   * @returns {*[]}
-   */
-  static black(r) {
-    return [["inputs", r.array], ["name", r.string], ["expressionYaw", r.string], ["expressionPitch", r.string], ["expressionRoll", r.string]];
-  }
-  /**
-   * Identifies that the class is in staging
-   * @property {null|Number}
-   */
-
-
-}
-
-_defineProperty(Tr2CurveEulerRotationExpression, "__isStaging", 4);
-
-/***/ }),
-
-/***/ "./curve/expression/Tr2CurveScalarExpression.js":
-/*!******************************************************!*\
-  !*** ./curve/expression/Tr2CurveScalarExpression.js ***!
-  \******************************************************/
-/*! exports provided: Tr2CurveScalarExpression */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tr2CurveScalarExpression", function() { return Tr2CurveScalarExpression; });
-/* harmony import */ var _global_index__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../global/index */ "./global/index.js");
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-
-/**
- * Tr2CurveScalarExpression
- * TODO: Implement
- *
- * @property {String} expression    -
- * @property {Number} input1        -
- * @property {Number} input2        -
- * @property {Number} input3        -
- * @property {Array.<Curve>} inputs -
- */
-
-class Tr2CurveScalarExpression extends _global_index__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"] {
-  constructor() {
-    super(...arguments);
-
-    _defineProperty(this, "name", "");
-
-    _defineProperty(this, "expression", "");
-
-    _defineProperty(this, "inputs", []);
-
-    _defineProperty(this, "input1", -1);
-
-    _defineProperty(this, "input2", -1);
-
-    _defineProperty(this, "input3", -1);
-  }
-
-  // What should be the default value?
-
-  /**
-   * Black definition
-   * @param {*} r
-   * @returns {*[]}
-   */
-  static black(r) {
-    return [["inputs", r.array], ["name", r.string], ["expression", r.string], ["input1", r.float], ["input2", r.float], ["input3", r.float]];
-  }
-  /**
-   * Identifies that the class is in staging
-   * @property {null|Number}
-   */
-
-
-}
-
-_defineProperty(Tr2CurveScalarExpression, "__isStaging", 4);
-
-/***/ }),
-
-/***/ "./curve/expression/Tr2CurveVector3Expression.js":
-/*!*******************************************************!*\
-  !*** ./curve/expression/Tr2CurveVector3Expression.js ***!
-  \*******************************************************/
-/*! exports provided: Tr2CurveVector3Expression */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tr2CurveVector3Expression", function() { return Tr2CurveVector3Expression; });
-/* harmony import */ var _global_index__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../global/index */ "./global/index.js");
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-
-/**
- * Tr2CurveVector3Expression
- * TODO: Implement
- *
- * @property {String} name                          -
- * @property {String} expressionX                   -
- * @property {String} expressionY                   -
- * @property {String} expressionZ                   -
- * @property {Array.<Curve|CurveExpression>} inputs -
- */
-
-class Tr2CurveVector3Expression extends _global_index__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"] {
-  constructor() {
-    super(...arguments);
-
-    _defineProperty(this, "name", "");
-
-    _defineProperty(this, "expressionX", "");
-
-    _defineProperty(this, "expressionY", "");
-
-    _defineProperty(this, "expressionZ", "");
-
-    _defineProperty(this, "inputs", []);
-  }
-
-  /**
-   * Black definition
-   * @param {*} r
-   * @returns {*[]}
-   */
-  static black(r) {
-    return [["inputs", r.array], ["name", r.string], ["expressionX", r.string], ["expressionY", r.string], ["expressionZ", r.string]];
-  }
-  /**
-   * Identifies that the class is in staging
-   * @property {null|Number}
-   */
-
-
-}
-
-_defineProperty(Tr2CurveVector3Expression, "__isStaging", 4);
-
-/***/ }),
-
-/***/ "./curve/expression/Tr2ScalarExprKey.js":
+/***/ "./curve/curve/Tr2ScalarExprKeyCurve.js":
 /*!**********************************************!*\
-  !*** ./curve/expression/Tr2ScalarExprKey.js ***!
+  !*** ./curve/curve/Tr2ScalarExprKeyCurve.js ***!
   \**********************************************/
-/*! exports provided: Tr2ScalarExprKey */
+/*! exports provided: Tr2ScalarExprKey, Tr2ScalarExprKeyCurve */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tr2ScalarExprKey", function() { return Tr2ScalarExprKey; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tr2ScalarExprKeyCurve", function() { return Tr2ScalarExprKeyCurve; });
+/* harmony import */ var _Tw2Curve__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Tw2Curve */ "./curve/curve/Tw2Curve.js");
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 
 /**
  * Tr2ScalarExprKey
@@ -31182,8 +31148,11 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
  * @property {String} timeExpression
  * @property {Number} value
  */
-class Tr2ScalarExprKey {
+
+class Tr2ScalarExprKey extends _Tw2Curve__WEBPACK_IMPORTED_MODULE_0__["Tw2CurveKey"] {
   constructor() {
+    super(...arguments);
+
     _defineProperty(this, "input1", -1);
 
     _defineProperty(this, "input2", -1);
@@ -31218,23 +31187,6 @@ class Tr2ScalarExprKey {
 
 
 }
-
-_defineProperty(Tr2ScalarExprKey, "__isStaging", 4);
-
-/***/ }),
-
-/***/ "./curve/expression/Tr2ScalarExprKeyCurve.js":
-/*!***************************************************!*\
-  !*** ./curve/expression/Tr2ScalarExprKeyCurve.js ***!
-  \***************************************************/
-/*! exports provided: Tr2ScalarExprKeyCurve */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tr2ScalarExprKeyCurve", function() { return Tr2ScalarExprKeyCurve; });
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
 /**
  * Tr2ScalarExprKeyCurve
  * @ccp Tr2ScalarExprKeyCurve
@@ -31243,9 +31195,12 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
  * @property {Number} interpolation         -
  * @property {Array<Tr2ScalarExprKey>} keys -
  */
-class Tr2ScalarExprKeyCurve {
+
+_defineProperty(Tr2ScalarExprKey, "__isStaging", 4);
+
+class Tr2ScalarExprKeyCurve extends _Tw2Curve__WEBPACK_IMPORTED_MODULE_0__["Tw2Curve"] {
   constructor() {
-    _defineProperty(this, "name", "");
+    super(...arguments);
 
     _defineProperty(this, "interpolation", 0);
 
@@ -31272,175 +31227,628 @@ _defineProperty(Tr2ScalarExprKeyCurve, "__isStaging", 4);
 
 /***/ }),
 
-/***/ "./curve/expression/index.js":
-/*!***********************************!*\
-  !*** ./curve/expression/index.js ***!
-  \***********************************/
-/*! exports provided: Tr2CurveEulerRotationExpression, Tr2CurveScalarExpression, Tr2CurveVector3Expression, Tr2ScalarExprKey, Tr2ScalarExprKeyCurve */
+/***/ "./curve/curve/Tw2Curve.js":
+/*!*********************************!*\
+  !*** ./curve/curve/Tw2Curve.js ***!
+  \*********************************/
+/*! exports provided: Tw2CurveKey, Tw2Curve */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _Tr2CurveEulerRotationExpression__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Tr2CurveEulerRotationExpression */ "./curve/expression/Tr2CurveEulerRotationExpression.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2CurveEulerRotationExpression", function() { return _Tr2CurveEulerRotationExpression__WEBPACK_IMPORTED_MODULE_0__["Tr2CurveEulerRotationExpression"]; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2CurveKey", function() { return Tw2CurveKey; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2Curve", function() { return Tw2Curve; });
+/* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../global */ "./global/index.js");
+/* eslint no-unused-vars:0 */
 
-/* harmony import */ var _Tr2CurveScalarExpression__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Tr2CurveScalarExpression */ "./curve/expression/Tr2CurveScalarExpression.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2CurveScalarExpression", function() { return _Tr2CurveScalarExpression__WEBPACK_IMPORTED_MODULE_1__["Tr2CurveScalarExpression"]; });
+/**
+ * Tw2CurveKey base class
+ *
+ * @property {number|String} _id
+ * @property {String} name
+ * @property {number} time
+ */
 
-/* harmony import */ var _Tr2CurveVector3Expression__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Tr2CurveVector3Expression */ "./curve/expression/Tr2CurveVector3Expression.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2CurveVector3Expression", function() { return _Tr2CurveVector3Expression__WEBPACK_IMPORTED_MODULE_2__["Tr2CurveVector3Expression"]; });
+function Tw2CurveKey() {
+  _global__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"].defineID(this);
+  this.name = "";
+  this.time = 0;
+}
+Tw2CurveKey.prototype = Object.assign(Object.create(_global__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"].prototype), {
+  constructor: Tw2CurveKey
+});
+/**
+ * Tw2Curve base class
+ *
+ * @property {number|String} _id
+ * @property {String} name
+ */
 
-/* harmony import */ var _Tr2ScalarExprKey__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Tr2ScalarExprKey */ "./curve/expression/Tr2ScalarExprKey.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2ScalarExprKey", function() { return _Tr2ScalarExprKey__WEBPACK_IMPORTED_MODULE_3__["Tr2ScalarExprKey"]; });
+function Tw2Curve() {
+  _global__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"].defineID(this);
+  this.name = "";
+}
+Tw2Curve.prototype = Object.assign(Object.create(_global__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"].prototype), {
+  constructor: Tw2Curve,
 
-/* harmony import */ var _Tr2ScalarExprKeyCurve__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Tr2ScalarExprKeyCurve */ "./curve/expression/Tr2ScalarExprKeyCurve.js");
+  /**
+   * Initializes the Curve
+   */
+  Initialize() {
+    this.Sort();
+  },
+
+  /**
+   * Sorts the curve
+   */
+  Sort() {},
+
+  /**
+   * Gets the curve's length
+   * @returns {number}
+   */
+  GetLength() {
+    return 0;
+  },
+
+  /**
+   * Updates the current value at the given time
+   * @param {number} time
+   */
+  UpdateValue(time) {}
+
+});
+/**
+ * Compares curve keys
+ * @param {Tw2CurveKey} a
+ * @param {Tw2CurveKey} b
+ * @returns {number}
+ */
+
+Tw2Curve.Compare = function (a, b) {
+  if (a.time < b.time) return -1;
+  if (a.time > b.time) return 1;
+  return 0;
+};
+/**
+ * Sorts legacy curve keys
+ * @param {*} curve
+ * @param {Array.<Tw2CurveKey>} [keys=curve.keys] - Optional keys override
+ */
+
+
+Tw2Curve.Sort = function (curve) {
+  let keys = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : curve.keys;
+
+  if (keys && keys.length) {
+    keys.sort(Tw2Curve.Compare);
+    curve.length = keys[keys.length - 1].time;
+  }
+};
+/**
+ * Sorts curve keys
+ * @param {*} curve
+ */
+
+
+Tw2Curve.Sort2 = function (curve) {
+  if (curve.keys && curve.keys.length) {
+    curve.keys.sort(Tw2Curve.Compare);
+    const back = curve.keys[curve.keys.length - 1];
+
+    if (back.time > curve.length) {
+      const preLength = curve.length,
+            endValue = curve.endValue,
+            endTangent = curve.endTangent;
+      curve.length = back.time;
+      curve.endValue = back.value;
+      curve.endTangent = back.leftTangent;
+
+      if (preLength > 0) {
+        back.time = preLength;
+        back.value = endValue;
+        back.leftTangent = endTangent;
+      }
+    }
+  }
+};
+/**
+ *
+ * @param keys
+ * @returns {number}
+ */
+
+
+Tw2Curve.Sort3 = function (keys) {
+  keys.sort((a, b) => {
+    if (a.index < b.index) return -1;
+    if (a.index > b.index) return 1;
+    return 0;
+  });
+  let length = 0;
+
+  for (let i = 0; i < keys.length; i++) {
+    keys[i].index = i;
+
+    if (i === keys.length - 1) {
+      length = keys[i].time;
+    }
+  }
+
+  return length;
+};
+/**
+ * The curve's key dimension
+ * @type {?number}
+ */
+
+
+Tw2Curve.inputDimension = null;
+/**
+ * The curve's dimension
+ * @type {?number}
+ */
+
+Tw2Curve.outputDimension = null;
+/**
+ * The curve's current value property
+ * @type {?String}
+ */
+
+Tw2Curve.valueProperty = null;
+/**
+ * The curve's type
+ * @type {?number}
+ */
+
+Tw2Curve.curveType = null;
+/**
+ * The curve's Key constructor
+ * @type {?Tw2CurveKey}
+ */
+
+Tw2Curve.Key = null;
+/**
+ * Interpolation types
+ * @type {?{ string: number}}
+ */
+
+Tw2Curve.Interpolation = null;
+/**
+ * Extrapolation types
+ * @type {?{ string: number}}
+ */
+
+Tw2Curve.Extrapolation = null;
+/**
+ * Curve types
+ * @type {{CURVE: number, CURVE2: number, CURVE3: number, CURVE_MAYA: number, SEQUENCER: number, SEQUENCER2: number}}
+ */
+
+Tw2Curve.Type = {
+  CURVE: 1,
+  CURVE2: 2,
+  CURVE3: 3,
+  CURVE_MAYA: 4,
+  CURVE_NO_KEYS: 5,
+  SEQUENCER: 100,
+  SEQUENCER2: 101
+};
+/**
+ * Global and scratch variables
+ * @type {*}
+ */
+
+Tw2Curve.global = {
+  vec3_0: _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].create(),
+  vec4_0: _global__WEBPACK_IMPORTED_MODULE_0__["vec4"].create(),
+  quat_0: _global__WEBPACK_IMPORTED_MODULE_0__["quat"].create(),
+  quat_1: _global__WEBPACK_IMPORTED_MODULE_0__["quat"].create()
+};
+
+/***/ }),
+
+/***/ "./curve/curve/Tw2CurveConstant.js":
+/*!*****************************************!*\
+  !*** ./curve/curve/Tw2CurveConstant.js ***!
+  \*****************************************/
+/*! exports provided: Tw2CurveConstant */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2CurveConstant", function() { return Tw2CurveConstant; });
+/* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../global */ "./global/index.js");
+/* harmony import */ var _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Tw2Curve */ "./curve/curve/Tw2Curve.js");
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+
+
+/**
+ * Constant curve
+ * TODO: Is this a curve or a key?
+ * @ccp Tr2CurveConstant
+ *
+ * @property {vec4} value  -
+ */
+
+class Tw2CurveConstant extends _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__["Tw2Curve"] {
+  constructor() {
+    super(...arguments);
+
+    _defineProperty(this, "value", _global__WEBPACK_IMPORTED_MODULE_0__["vec4"].create());
+  }
+
+  /**
+   * Updates the current value at the given time
+   * @param {number} [time]
+   * @param {vec4} value
+   */
+  UpdateValue(time, value) {
+    _global__WEBPACK_IMPORTED_MODULE_0__["vec4"].copy(value, this.value);
+  }
+  /**
+   * The curve's dimension
+   * @type {?number}
+   */
+
+
+  /**
+   * Black definition
+   * @param {*} r
+   * @returns {*[]}
+   */
+  static black(r) {
+    return [["name", r.string], ["value", r.vector4]];
+  }
+  /**
+   * Identifies that the class is in staging
+   * @property {null|Number}
+   */
+
+
+}
+
+_defineProperty(Tw2CurveConstant, "inputDimension", 4);
+
+_defineProperty(Tw2CurveConstant, "outputDimension", 4);
+
+_defineProperty(Tw2CurveConstant, "valueProperty", "value");
+
+_defineProperty(Tw2CurveConstant, "curveType", _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__["Tw2Curve"].Type.CURVE_NO_KEYS);
+
+_defineProperty(Tw2CurveConstant, "__isStaging", 4);
+
+/***/ }),
+
+/***/ "./curve/curve/Tw2EventCurve.js":
+/*!**************************************!*\
+  !*** ./curve/curve/Tw2EventCurve.js ***!
+  \**************************************/
+/*! exports provided: Tw2EventKey, Tw2EventCurve */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2EventKey", function() { return Tw2EventKey; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2EventCurve", function() { return Tw2EventCurve; });
+/* harmony import */ var _Tw2Curve__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Tw2Curve */ "./curve/curve/Tw2Curve.js");
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+
+/**
+ * Event curve key
+ * @ccp TriEventKey
+ *
+ * @property {Number} value -
+ */
+
+class Tw2EventKey extends _Tw2Curve__WEBPACK_IMPORTED_MODULE_0__["Tw2CurveKey"] {
+  constructor() {
+    super(...arguments);
+
+    _defineProperty(this, "value", 0);
+  }
+
+  /**
+   * Black definition
+   * @param {*} r
+   * @returns {*[]}
+   */
+  static black(r) {
+    return [["time", r.float], ["value", r.ushort]];
+  }
+
+}
+/**
+ * Event curve
+ * @ccp TriEventCurve
+ *
+ * @property {Number} extrapolation     -
+ * @property {Array.<Tw2EventKey>} keys -
+ * @property {Number} value             -
+ */
+
+class Tw2EventCurve extends _Tw2Curve__WEBPACK_IMPORTED_MODULE_0__["Tw2Curve"] {
+  constructor() {
+    super(...arguments);
+
+    _defineProperty(this, "extrapolation", 0);
+
+    _defineProperty(this, "keys", []);
+
+    _defineProperty(this, "value", 0);
+
+    _defineProperty(this, "_time", 0);
+
+    _defineProperty(this, "_currentKey", 0);
+
+    _defineProperty(this, "_length", 0);
+  }
+
+  /**
+   * Sorts the curve's keys
+   */
+  Sort() {
+    if (this.keys.length) {
+      this.keys.sort(_Tw2Curve__WEBPACK_IMPORTED_MODULE_0__["Tw2Curve"].Compare);
+      this._length = this.keys[this.keys.length - 1].time;
+    }
+  }
+  /**
+   * Gets the curve's length
+   * @returns {number}
+   */
+
+
+  GetLength() {
+    return this._length;
+  }
+  /**
+   * Gets a value at the given time
+   * @param {number} time
+   */
+
+
+  UpdateValue(time) {
+    if (this._length <= 0) {
+      return this.value;
+    }
+
+    let before = this._time;
+    this._time = time;
+
+    if (this._time < before) {
+      this._currentKey = 0;
+    }
+
+    if (this.extrapolation === Tw2EventCurve.Extrapolation.CYCLE) {
+      let now = this._time % this._length;
+      if (now < before) this._currentKey = 0;
+      this._time = now;
+    }
+
+    while (this._currentKey < this.keys.length && this._time >= this.keys[this._currentKey].time) {
+      this.value = this.keys[this._currentKey].value;
+      ++this._currentKey;
+    }
+  }
+  /**
+   * The curve's key dimension
+   * @type {number}
+   */
+
+
+  /**
+   * Black definition
+   * @param {*} r
+   * @returns {*[]}
+   */
+  static black(r) {
+    return [["extrapolation", r.uint], ["name", r.string], ["keys", r.array], ["value", r.ushort]];
+  }
+
+}
+
+_defineProperty(Tw2EventCurve, "dimension", 1);
+
+_defineProperty(Tw2EventCurve, "outputDimension", 1);
+
+_defineProperty(Tw2EventCurve, "valueProperty", "value");
+
+_defineProperty(Tw2EventCurve, "curveType", _Tw2Curve__WEBPACK_IMPORTED_MODULE_0__["Tw2Curve"].Type.CURVE);
+
+_defineProperty(Tw2EventCurve, "Key", Tw2EventKey);
+
+_defineProperty(Tw2EventCurve, "Extrapolation", {
+  NONE: 0,
+  CYCLE: 3
+});
+
+/***/ }),
+
+/***/ "./curve/curve/Tw2PerlinCurve.js":
+/*!***************************************!*\
+  !*** ./curve/curve/Tw2PerlinCurve.js ***!
+  \***************************************/
+/*! exports provided: Tw2PerlinCurve */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2PerlinCurve", function() { return Tw2PerlinCurve; });
+/* harmony import */ var _Tw2Curve__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Tw2Curve */ "./curve/curve/Tw2Curve.js");
+/* harmony import */ var _global_math__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../global/math */ "./global/math/index.js");
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+
+
+/**
+ * Perlin curve
+ * @ccp TriPerlinCurve
+ *
+ * @property {Number} N      -
+ * @property {Number} alpha  -
+ * @property {Number} beta   -
+ * @property {Number} offset -
+ * @property {Number} scale  -
+ * @property {Number} speed  -
+ * @property {Number} value  -
+ */
+
+class Tw2PerlinCurve extends _Tw2Curve__WEBPACK_IMPORTED_MODULE_0__["Tw2Curve"] {
+  constructor() {
+    super(...arguments);
+
+    _defineProperty(this, "N", 0);
+
+    _defineProperty(this, "alpha", 0);
+
+    _defineProperty(this, "beta", 0);
+
+    _defineProperty(this, "offset", 0);
+
+    _defineProperty(this, "scale", 0);
+
+    _defineProperty(this, "speed", 0);
+
+    _defineProperty(this, "value", 0);
+  }
+
+  /**
+   * Updates the current value at the given time
+   * @param {number} time
+   */
+  UpdateValue(time) {
+    this.value = this.GetValueAt(time);
+  }
+  /**
+   * Gets a value at a specific time
+   * @param {number} time
+   * @returns {number}
+   */
+
+
+  GetValueAt(time) {
+    time -= this.offset;
+    return (_global_math__WEBPACK_IMPORTED_MODULE_1__["noise"].perlin1D(time * this.speed, this.alpha, this.beta, this.N) + 1) / 2 * this.scale + this.offset;
+  }
+  /**
+   * The curve's dimension
+   * @type {number}
+   */
+
+
+  /**
+   * Black definition
+   * @param {*} r
+   * @returns {*[]}
+   */
+  static black(r) {
+    return [["alpha", r.float], ["beta", r.float], ["N", r.uint], ["name", r.string], ["offset", r.float], ["scale", r.float], ["speed", r.float], ["value", r.float]];
+  }
+
+}
+
+_defineProperty(Tw2PerlinCurve, "outputDimension", 1);
+
+_defineProperty(Tw2PerlinCurve, "valueProperty", "value");
+
+_defineProperty(Tw2PerlinCurve, "curveType", _Tw2Curve__WEBPACK_IMPORTED_MODULE_0__["Tw2Curve"].Type.CURVE_NO_KEYS);
+
+/***/ }),
+
+/***/ "./curve/curve/index.js":
+/*!******************************!*\
+  !*** ./curve/curve/index.js ***!
+  \******************************/
+/*! exports provided: AudEventKey, AudEventCurve, Tr2BoneMatrixCurve, Tw2CurveConstant, Tw2CurveScalarKey, Tr2CurveScalar, Tr2ScalarExprKey, Tr2ScalarExprKeyCurve, Tw2EventKey, Tw2EventCurve, Tw2PerlinCurve, Tw2CurveKey, Tw2Curve, Tw2ColorKey, Tw2ColorCurve, Tw2ColorKey2, Tw2ColorCurve2, Tw2QuaternionKey2, Tw2QuaternionCurve, Tw2RandomConstantCurve, Tw2Torque, Tw2RigidOrientation, Tw2QuaternionKey, Tw2RotationCurve, Tw2ScalarKey, Tw2ScalarCurve, Tw2ScalarKey2, Tw2ScalarCurve2, Tw2SineCurve, Tw2Vector2Key, Tw2Vector2Curve, Tw2Vector3Key, Tw2Vector3Curve, Tw2VectorKey, Tw2VectorCurve */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _AudEventCurve__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./AudEventCurve */ "./curve/curve/AudEventCurve.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "AudEventKey", function() { return _AudEventCurve__WEBPACK_IMPORTED_MODULE_0__["AudEventKey"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "AudEventCurve", function() { return _AudEventCurve__WEBPACK_IMPORTED_MODULE_0__["AudEventCurve"]; });
+
+/* harmony import */ var _Tr2BoneMatrixCurve__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Tr2BoneMatrixCurve */ "./curve/curve/Tr2BoneMatrixCurve.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2BoneMatrixCurve", function() { return _Tr2BoneMatrixCurve__WEBPACK_IMPORTED_MODULE_1__["Tr2BoneMatrixCurve"]; });
+
+/* harmony import */ var _Tw2CurveConstant__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Tw2CurveConstant */ "./curve/curve/Tw2CurveConstant.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2CurveConstant", function() { return _Tw2CurveConstant__WEBPACK_IMPORTED_MODULE_2__["Tw2CurveConstant"]; });
+
+/* harmony import */ var _Tr2CurveScalar__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Tr2CurveScalar */ "./curve/curve/Tr2CurveScalar.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2CurveScalarKey", function() { return _Tr2CurveScalar__WEBPACK_IMPORTED_MODULE_3__["Tw2CurveScalarKey"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2CurveScalar", function() { return _Tr2CurveScalar__WEBPACK_IMPORTED_MODULE_3__["Tr2CurveScalar"]; });
+
+/* harmony import */ var _Tr2ScalarExprKeyCurve__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Tr2ScalarExprKeyCurve */ "./curve/curve/Tr2ScalarExprKeyCurve.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2ScalarExprKey", function() { return _Tr2ScalarExprKeyCurve__WEBPACK_IMPORTED_MODULE_4__["Tr2ScalarExprKey"]; });
+
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2ScalarExprKeyCurve", function() { return _Tr2ScalarExprKeyCurve__WEBPACK_IMPORTED_MODULE_4__["Tr2ScalarExprKeyCurve"]; });
 
+/* harmony import */ var _Tw2EventCurve__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Tw2EventCurve */ "./curve/curve/Tw2EventCurve.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2EventKey", function() { return _Tw2EventCurve__WEBPACK_IMPORTED_MODULE_5__["Tw2EventKey"]; });
 
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2EventCurve", function() { return _Tw2EventCurve__WEBPACK_IMPORTED_MODULE_5__["Tw2EventCurve"]; });
 
+/* harmony import */ var _Tw2PerlinCurve__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Tw2PerlinCurve */ "./curve/curve/Tw2PerlinCurve.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2PerlinCurve", function() { return _Tw2PerlinCurve__WEBPACK_IMPORTED_MODULE_6__["Tw2PerlinCurve"]; });
 
+/* harmony import */ var _Tw2Curve__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Tw2Curve */ "./curve/curve/Tw2Curve.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2CurveKey", function() { return _Tw2Curve__WEBPACK_IMPORTED_MODULE_7__["Tw2CurveKey"]; });
 
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Curve", function() { return _Tw2Curve__WEBPACK_IMPORTED_MODULE_7__["Tw2Curve"]; });
 
+/* harmony import */ var _legacy__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./legacy */ "./curve/curve/legacy/index.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ColorKey", function() { return _legacy__WEBPACK_IMPORTED_MODULE_8__["Tw2ColorKey"]; });
 
-/***/ }),
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ColorCurve", function() { return _legacy__WEBPACK_IMPORTED_MODULE_8__["Tw2ColorCurve"]; });
 
-/***/ "./curve/index.js":
-/*!************************!*\
-  !*** ./curve/index.js ***!
-  \************************/
-/*! exports provided: Tr2RotationAdapter, Tr2TranslationAdapter, AudEventKey, AudEventCurve, Tr2BoneMatrixCurve, Tr2CurveConstant, Tw2CurveScalarKey, Tr2CurveScalar, TriEventKey, TriEventCurve, TriPerlinCurve, Tr2CurveEulerRotationExpression, Tr2CurveScalarExpression, Tr2CurveVector3Expression, Tr2ScalarExprKey, Tr2ScalarExprKeyCurve, TriColorSequencer, Tr2CurveColor, Tr2CurveEulerRotation, Tr2CurveVector3, Tw2CurveKey, Tw2Curve, Tw2ColorKey, Tw2ColorCurve, Tw2ColorKey2, Tw2ColorCurve2, Tw2EventKey, Tw2EventCurve, Tw2PerlinCurve, Tw2QuaternionKey2, Tw2QuaternionCurve, Tw2RandomConstantCurve, Tw2Torque, Tw2RigidOrientation, Tw2QuaternionKey, Tw2RotationCurve, Tw2ScalarKey, Tw2ScalarCurve, Tw2ScalarKey2, Tw2ScalarCurve2, Tw2SineCurve, Tw2Vector2Key, Tw2Vector2Curve, Tw2Vector3Key, Tw2Vector3Curve, Tw2VectorKey, Tw2VectorCurve, Tw2ColorSequencer, Tw2EulerRotation, Tw2QuaternionSequencer, Tw2RGBAScalarSequencer, Tw2ScalarSequencer, Tw2VectorSequencer, Tw2XYZScalarSequencer, Tw2YPRSequencer, Tw2WbgTrack, Tw2WbgTransformTrack, Tw2TransformTrack, Tw2MayaEulerRotationCurve, Tw2MayaScalarCurve, Tw2MayaVector3Curve, Tw2MayaAnimationEngine */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ColorKey2", function() { return _legacy__WEBPACK_IMPORTED_MODULE_8__["Tw2ColorKey2"]; });
 
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _adapter__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./adapter */ "./curve/adapter/index.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2RotationAdapter", function() { return _adapter__WEBPACK_IMPORTED_MODULE_0__["Tr2RotationAdapter"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ColorCurve2", function() { return _legacy__WEBPACK_IMPORTED_MODULE_8__["Tw2ColorCurve2"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2TranslationAdapter", function() { return _adapter__WEBPACK_IMPORTED_MODULE_0__["Tr2TranslationAdapter"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2QuaternionKey2", function() { return _legacy__WEBPACK_IMPORTED_MODULE_8__["Tw2QuaternionKey2"]; });
 
-/* harmony import */ var _curve__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./curve */ "./curve/curve/index.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "AudEventKey", function() { return _curve__WEBPACK_IMPORTED_MODULE_1__["AudEventKey"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2QuaternionCurve", function() { return _legacy__WEBPACK_IMPORTED_MODULE_8__["Tw2QuaternionCurve"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "AudEventCurve", function() { return _curve__WEBPACK_IMPORTED_MODULE_1__["AudEventCurve"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2RandomConstantCurve", function() { return _legacy__WEBPACK_IMPORTED_MODULE_8__["Tw2RandomConstantCurve"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2BoneMatrixCurve", function() { return _curve__WEBPACK_IMPORTED_MODULE_1__["Tr2BoneMatrixCurve"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Torque", function() { return _legacy__WEBPACK_IMPORTED_MODULE_8__["Tw2Torque"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2CurveConstant", function() { return _curve__WEBPACK_IMPORTED_MODULE_1__["Tr2CurveConstant"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2RigidOrientation", function() { return _legacy__WEBPACK_IMPORTED_MODULE_8__["Tw2RigidOrientation"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2CurveScalarKey", function() { return _curve__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveScalarKey"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2QuaternionKey", function() { return _legacy__WEBPACK_IMPORTED_MODULE_8__["Tw2QuaternionKey"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2CurveScalar", function() { return _curve__WEBPACK_IMPORTED_MODULE_1__["Tr2CurveScalar"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2RotationCurve", function() { return _legacy__WEBPACK_IMPORTED_MODULE_8__["Tw2RotationCurve"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "TriEventKey", function() { return _curve__WEBPACK_IMPORTED_MODULE_1__["TriEventKey"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ScalarKey", function() { return _legacy__WEBPACK_IMPORTED_MODULE_8__["Tw2ScalarKey"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "TriEventCurve", function() { return _curve__WEBPACK_IMPORTED_MODULE_1__["TriEventCurve"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ScalarCurve", function() { return _legacy__WEBPACK_IMPORTED_MODULE_8__["Tw2ScalarCurve"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "TriPerlinCurve", function() { return _curve__WEBPACK_IMPORTED_MODULE_1__["TriPerlinCurve"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ScalarKey2", function() { return _legacy__WEBPACK_IMPORTED_MODULE_8__["Tw2ScalarKey2"]; });
 
-/* harmony import */ var _expression__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./expression */ "./curve/expression/index.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2CurveEulerRotationExpression", function() { return _expression__WEBPACK_IMPORTED_MODULE_2__["Tr2CurveEulerRotationExpression"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ScalarCurve2", function() { return _legacy__WEBPACK_IMPORTED_MODULE_8__["Tw2ScalarCurve2"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2CurveScalarExpression", function() { return _expression__WEBPACK_IMPORTED_MODULE_2__["Tr2CurveScalarExpression"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2SineCurve", function() { return _legacy__WEBPACK_IMPORTED_MODULE_8__["Tw2SineCurve"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2CurveVector3Expression", function() { return _expression__WEBPACK_IMPORTED_MODULE_2__["Tr2CurveVector3Expression"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Vector2Key", function() { return _legacy__WEBPACK_IMPORTED_MODULE_8__["Tw2Vector2Key"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2ScalarExprKey", function() { return _expression__WEBPACK_IMPORTED_MODULE_2__["Tr2ScalarExprKey"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Vector2Curve", function() { return _legacy__WEBPACK_IMPORTED_MODULE_8__["Tw2Vector2Curve"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2ScalarExprKeyCurve", function() { return _expression__WEBPACK_IMPORTED_MODULE_2__["Tr2ScalarExprKeyCurve"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Vector3Key", function() { return _legacy__WEBPACK_IMPORTED_MODULE_8__["Tw2Vector3Key"]; });
 
-/* harmony import */ var _legacy__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./legacy */ "./curve/legacy/index.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2CurveKey", function() { return _legacy__WEBPACK_IMPORTED_MODULE_3__["Tw2CurveKey"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Vector3Curve", function() { return _legacy__WEBPACK_IMPORTED_MODULE_8__["Tw2Vector3Curve"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Curve", function() { return _legacy__WEBPACK_IMPORTED_MODULE_3__["Tw2Curve"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2VectorKey", function() { return _legacy__WEBPACK_IMPORTED_MODULE_8__["Tw2VectorKey"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ColorKey", function() { return _legacy__WEBPACK_IMPORTED_MODULE_3__["Tw2ColorKey"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2VectorCurve", function() { return _legacy__WEBPACK_IMPORTED_MODULE_8__["Tw2VectorCurve"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ColorCurve", function() { return _legacy__WEBPACK_IMPORTED_MODULE_3__["Tw2ColorCurve"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ColorKey2", function() { return _legacy__WEBPACK_IMPORTED_MODULE_3__["Tw2ColorKey2"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ColorCurve2", function() { return _legacy__WEBPACK_IMPORTED_MODULE_3__["Tw2ColorCurve2"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2EventKey", function() { return _legacy__WEBPACK_IMPORTED_MODULE_3__["Tw2EventKey"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2EventCurve", function() { return _legacy__WEBPACK_IMPORTED_MODULE_3__["Tw2EventCurve"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2PerlinCurve", function() { return _legacy__WEBPACK_IMPORTED_MODULE_3__["Tw2PerlinCurve"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2QuaternionKey2", function() { return _legacy__WEBPACK_IMPORTED_MODULE_3__["Tw2QuaternionKey2"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2QuaternionCurve", function() { return _legacy__WEBPACK_IMPORTED_MODULE_3__["Tw2QuaternionCurve"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2RandomConstantCurve", function() { return _legacy__WEBPACK_IMPORTED_MODULE_3__["Tw2RandomConstantCurve"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Torque", function() { return _legacy__WEBPACK_IMPORTED_MODULE_3__["Tw2Torque"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2RigidOrientation", function() { return _legacy__WEBPACK_IMPORTED_MODULE_3__["Tw2RigidOrientation"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2QuaternionKey", function() { return _legacy__WEBPACK_IMPORTED_MODULE_3__["Tw2QuaternionKey"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2RotationCurve", function() { return _legacy__WEBPACK_IMPORTED_MODULE_3__["Tw2RotationCurve"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ScalarKey", function() { return _legacy__WEBPACK_IMPORTED_MODULE_3__["Tw2ScalarKey"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ScalarCurve", function() { return _legacy__WEBPACK_IMPORTED_MODULE_3__["Tw2ScalarCurve"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ScalarKey2", function() { return _legacy__WEBPACK_IMPORTED_MODULE_3__["Tw2ScalarKey2"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ScalarCurve2", function() { return _legacy__WEBPACK_IMPORTED_MODULE_3__["Tw2ScalarCurve2"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2SineCurve", function() { return _legacy__WEBPACK_IMPORTED_MODULE_3__["Tw2SineCurve"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Vector2Key", function() { return _legacy__WEBPACK_IMPORTED_MODULE_3__["Tw2Vector2Key"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Vector2Curve", function() { return _legacy__WEBPACK_IMPORTED_MODULE_3__["Tw2Vector2Curve"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Vector3Key", function() { return _legacy__WEBPACK_IMPORTED_MODULE_3__["Tw2Vector3Key"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Vector3Curve", function() { return _legacy__WEBPACK_IMPORTED_MODULE_3__["Tw2Vector3Curve"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2VectorKey", function() { return _legacy__WEBPACK_IMPORTED_MODULE_3__["Tw2VectorKey"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2VectorCurve", function() { return _legacy__WEBPACK_IMPORTED_MODULE_3__["Tw2VectorCurve"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ColorSequencer", function() { return _legacy__WEBPACK_IMPORTED_MODULE_3__["Tw2ColorSequencer"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2EulerRotation", function() { return _legacy__WEBPACK_IMPORTED_MODULE_3__["Tw2EulerRotation"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2QuaternionSequencer", function() { return _legacy__WEBPACK_IMPORTED_MODULE_3__["Tw2QuaternionSequencer"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2RGBAScalarSequencer", function() { return _legacy__WEBPACK_IMPORTED_MODULE_3__["Tw2RGBAScalarSequencer"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ScalarSequencer", function() { return _legacy__WEBPACK_IMPORTED_MODULE_3__["Tw2ScalarSequencer"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2VectorSequencer", function() { return _legacy__WEBPACK_IMPORTED_MODULE_3__["Tw2VectorSequencer"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2XYZScalarSequencer", function() { return _legacy__WEBPACK_IMPORTED_MODULE_3__["Tw2XYZScalarSequencer"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2YPRSequencer", function() { return _legacy__WEBPACK_IMPORTED_MODULE_3__["Tw2YPRSequencer"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2WbgTrack", function() { return _legacy__WEBPACK_IMPORTED_MODULE_3__["Tw2WbgTrack"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2WbgTransformTrack", function() { return _legacy__WEBPACK_IMPORTED_MODULE_3__["Tw2WbgTransformTrack"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2TransformTrack", function() { return _legacy__WEBPACK_IMPORTED_MODULE_3__["Tw2TransformTrack"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2MayaEulerRotationCurve", function() { return _legacy__WEBPACK_IMPORTED_MODULE_3__["Tw2MayaEulerRotationCurve"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2MayaScalarCurve", function() { return _legacy__WEBPACK_IMPORTED_MODULE_3__["Tw2MayaScalarCurve"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2MayaVector3Curve", function() { return _legacy__WEBPACK_IMPORTED_MODULE_3__["Tw2MayaVector3Curve"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2MayaAnimationEngine", function() { return _legacy__WEBPACK_IMPORTED_MODULE_3__["Tw2MayaAnimationEngine"]; });
-
-/* harmony import */ var _sequencer__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./sequencer */ "./curve/sequencer/index.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "TriColorSequencer", function() { return _sequencer__WEBPACK_IMPORTED_MODULE_4__["TriColorSequencer"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2CurveColor", function() { return _sequencer__WEBPACK_IMPORTED_MODULE_4__["Tr2CurveColor"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2CurveEulerRotation", function() { return _sequencer__WEBPACK_IMPORTED_MODULE_4__["Tr2CurveEulerRotation"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2CurveVector3", function() { return _sequencer__WEBPACK_IMPORTED_MODULE_4__["Tr2CurveVector3"]; });
 
 
 
@@ -31450,10 +31858,10 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
-/***/ "./curve/legacy/curves/Tw2ColorCurve.js":
-/*!**********************************************!*\
-  !*** ./curve/legacy/curves/Tw2ColorCurve.js ***!
-  \**********************************************/
+/***/ "./curve/curve/legacy/Tw2ColorCurve.js":
+/*!*********************************************!*\
+  !*** ./curve/curve/legacy/Tw2ColorCurve.js ***!
+  \*********************************************/
 /*! exports provided: Tw2ColorKey, Tw2ColorCurve */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -31461,8 +31869,8 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2ColorKey", function() { return Tw2ColorKey; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2ColorCurve", function() { return Tw2ColorCurve; });
-/* harmony import */ var _global_index__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../global/index */ "./global/index.js");
-/* harmony import */ var _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Tw2Curve */ "./curve/legacy/curves/Tw2Curve.js");
+/* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../global */ "./global/index.js");
+/* harmony import */ var _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Tw2Curve */ "./curve/curve/Tw2Curve.js");
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 
@@ -31481,11 +31889,11 @@ class Tw2ColorKey extends _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveKey"] 
   constructor() {
     super(...arguments);
 
-    _defineProperty(this, "value", _global_index__WEBPACK_IMPORTED_MODULE_0__["vec4"].create());
+    _defineProperty(this, "value", _global__WEBPACK_IMPORTED_MODULE_0__["vec4"].create());
 
-    _defineProperty(this, "left", _global_index__WEBPACK_IMPORTED_MODULE_0__["vec4"].create());
+    _defineProperty(this, "left", _global__WEBPACK_IMPORTED_MODULE_0__["vec4"].create());
 
-    _defineProperty(this, "right", _global_index__WEBPACK_IMPORTED_MODULE_0__["vec4"].create());
+    _defineProperty(this, "right", _global__WEBPACK_IMPORTED_MODULE_0__["vec4"].create());
 
     _defineProperty(this, "interpolation", 0);
   }
@@ -31509,7 +31917,7 @@ class Tw2ColorCurve extends _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__["Tw2Curve"] {
 
     _defineProperty(this, "start", 0);
 
-    _defineProperty(this, "value", _global_index__WEBPACK_IMPORTED_MODULE_0__["vec4"].create());
+    _defineProperty(this, "value", _global__WEBPACK_IMPORTED_MODULE_0__["vec4"].create());
 
     _defineProperty(this, "extrapolation", 0);
 
@@ -31554,7 +31962,7 @@ class Tw2ColorCurve extends _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__["Tw2Curve"] {
 
   GetValueAt(time, value) {
     if (this.length === 0) {
-      return _global_index__WEBPACK_IMPORTED_MODULE_0__["vec4"].copy(value, this.value);
+      return _global__WEBPACK_IMPORTED_MODULE_0__["vec4"].copy(value, this.value);
     }
 
     const firstKey = this.keys[0],
@@ -31563,13 +31971,13 @@ class Tw2ColorCurve extends _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__["Tw2Curve"] {
     if (time >= lastKey.time) {
       switch (this.extrapolation) {
         case Tw2ColorCurve.Extrapolation.NONE:
-          return _global_index__WEBPACK_IMPORTED_MODULE_0__["vec4"].copy(value, this.value);
+          return _global__WEBPACK_IMPORTED_MODULE_0__["vec4"].copy(value, this.value);
 
         case Tw2ColorCurve.Extrapolation.CONSTANT:
-          return _global_index__WEBPACK_IMPORTED_MODULE_0__["vec4"].copy(value, lastKey.value);
+          return _global__WEBPACK_IMPORTED_MODULE_0__["vec4"].copy(value, lastKey.value);
 
         case Tw2ColorCurve.Extrapolation.GRADIENT:
-          return _global_index__WEBPACK_IMPORTED_MODULE_0__["vec4"].scaleAndAdd(value, lastKey.value, lastKey.right, time - lastKey.time);
+          return _global__WEBPACK_IMPORTED_MODULE_0__["vec4"].scaleAndAdd(value, lastKey.value, lastKey.right, time - lastKey.time);
 
         default:
           time = time % lastKey.time;
@@ -31577,13 +31985,13 @@ class Tw2ColorCurve extends _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__["Tw2Curve"] {
     } else if (time < 0 || time < firstKey.time) {
       switch (this.extrapolation) {
         case Tw2ColorCurve.Extrapolation.NONE:
-          return _global_index__WEBPACK_IMPORTED_MODULE_0__["vec4"].copy(value, this.value);
+          return _global__WEBPACK_IMPORTED_MODULE_0__["vec4"].copy(value, this.value);
 
         case Tw2ColorCurve.Extrapolation.GRADIENT:
-          return _global_index__WEBPACK_IMPORTED_MODULE_0__["vec4"].scaleAndAdd(value, firstKey.value, firstKey.left, time * this.length - lastKey.time);
+          return _global__WEBPACK_IMPORTED_MODULE_0__["vec4"].scaleAndAdd(value, firstKey.value, firstKey.left, time * this.length - lastKey.time);
 
         default:
-          return _global_index__WEBPACK_IMPORTED_MODULE_0__["vec4"].copy(value, firstKey.value);
+          return _global__WEBPACK_IMPORTED_MODULE_0__["vec4"].copy(value, firstKey.value);
       }
     }
 
@@ -31601,7 +32009,7 @@ class Tw2ColorCurve extends _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__["Tw2Curve"] {
 
     switch (ck_1.interpolation) {
       case Tw2ColorCurve.Interpolation.CONSTANT:
-        return _global_index__WEBPACK_IMPORTED_MODULE_0__["vec4"].copy(value, ck_1.value);
+        return _global__WEBPACK_IMPORTED_MODULE_0__["vec4"].copy(value, ck_1.value);
 
       default:
         value[0] = ck_1.value[0] * (1 - nt) + ck.value[0] * nt;
@@ -31644,10 +32052,10 @@ _defineProperty(Tw2ColorCurve, "Interpolation", {
 
 /***/ }),
 
-/***/ "./curve/legacy/curves/Tw2ColorCurve2.js":
-/*!***********************************************!*\
-  !*** ./curve/legacy/curves/Tw2ColorCurve2.js ***!
-  \***********************************************/
+/***/ "./curve/curve/legacy/Tw2ColorCurve2.js":
+/*!**********************************************!*\
+  !*** ./curve/curve/legacy/Tw2ColorCurve2.js ***!
+  \**********************************************/
 /*! exports provided: Tw2ColorKey2, Tw2ColorCurve2 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -31656,7 +32064,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2ColorKey2", function() { return Tw2ColorKey2; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2ColorCurve2", function() { return Tw2ColorCurve2; });
 /* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../global */ "./global/index.js");
-/* harmony import */ var _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Tw2Curve */ "./curve/legacy/curves/Tw2Curve.js");
+/* harmony import */ var _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Tw2Curve */ "./curve/curve/Tw2Curve.js");
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 
@@ -31877,401 +32285,10 @@ _defineProperty(Tw2ColorCurve2, "Interpolation", {
 
 /***/ }),
 
-/***/ "./curve/legacy/curves/Tw2Curve.js":
-/*!*****************************************!*\
-  !*** ./curve/legacy/curves/Tw2Curve.js ***!
-  \*****************************************/
-/*! exports provided: Tw2CurveKey, Tw2Curve */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2CurveKey", function() { return Tw2CurveKey; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2Curve", function() { return Tw2Curve; });
-/* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../global */ "./global/index.js");
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-/* eslint no-unused-vars:0 */
-
-/**
- * Tw2CurveKey base class
- *
- * @property {number|String} id
- * @property {String} name
- * @property {number} time
- * @class
- */
-
-class Tw2CurveKey {
-  constructor() {
-    _defineProperty(this, "_id", _global__WEBPACK_IMPORTED_MODULE_0__["util"].generateID());
-
-    _defineProperty(this, "name", "");
-
-    _defineProperty(this, "time", 0);
-  }
-
-}
-/**
- * Tw2Curve base class
- *
- * @property {number|String} id
- * @property {String} name
- * @class
- */
-
-class Tw2Curve {
-  constructor() {
-    _defineProperty(this, "_id", _global__WEBPACK_IMPORTED_MODULE_0__["util"].generateID());
-
-    _defineProperty(this, "name", "");
-  }
-
-  /**
-   * Initializes the Curve
-   */
-  Initialize() {
-    this.Sort();
-  }
-  /**
-   * Sorts the curve
-   */
-
-
-  Sort() {}
-  /**
-   * Gets the curve's length
-   * @returns {number}
-   */
-
-
-  GetLength() {
-    return 0;
-  }
-  /**
-   * Updates the current value at the given time
-   * @param {number} time
-   */
-
-
-  UpdateValue(time) {}
-  /**
-   * Compares curve keys
-   * @param {Tw2CurveKey} a
-   * @param {Tw2CurveKey} b
-   * @returns {number}
-   */
-
-
-  static Compare(a, b) {
-    if (a.time < b.time) return -1;
-    if (a.time > b.time) return 1;
-    return 0;
-  }
-  /**
-   * Sorts legacy curve keys
-   * @param {*} curve
-   * @param {Array.<Tw2CurveKey>} [keys=curve.keys] - Optional keys override
-   */
-
-
-  static Sort(curve) {
-    let keys = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : curve.keys;
-
-    if (keys && keys.length) {
-      keys.sort(Tw2Curve.Compare);
-      curve.length = keys[keys.length - 1].time;
-    }
-  }
-  /**
-   * Sorts curve keys
-   * @param {*} curve
-   */
-
-
-  static Sort2(curve) {
-    if (curve.keys && curve.keys.length) {
-      curve.keys.sort(Tw2Curve.Compare);
-      const back = curve.keys[curve.keys.length - 1];
-
-      if (back.time > curve.length) {
-        const preLength = curve.length,
-              endValue = curve.endValue,
-              endTangent = curve.endTangent;
-        curve.length = back.time;
-        curve.endValue = back.value;
-        curve.endTangent = back.leftTangent;
-
-        if (preLength > 0) {
-          back.time = preLength;
-          back.value = endValue;
-          back.leftTangent = endTangent;
-        }
-      }
-    }
-  }
-  /**
-   * The curve's key dimension
-   * @type {?number}
-   */
-
-
-}
-
-_defineProperty(Tw2Curve, "inputDimension", null);
-
-_defineProperty(Tw2Curve, "outputDimension", null);
-
-_defineProperty(Tw2Curve, "valueProperty", null);
-
-_defineProperty(Tw2Curve, "curveType", null);
-
-_defineProperty(Tw2Curve, "Key", null);
-
-_defineProperty(Tw2Curve, "Interpolation", null);
-
-_defineProperty(Tw2Curve, "Extrapolation", null);
-
-_defineProperty(Tw2Curve, "Type", {
-  CURVE: 1,
-  CURVE2: 2,
-  CURVE_MAYA: 3,
-  CURVE_NO_KEYS: 4,
-  SEQUENCER: 100,
-  SEQUENCER2: 101
-});
-
-_defineProperty(Tw2Curve, "global", {
-  vec3_0: _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].create(),
-  vec4_0: _global__WEBPACK_IMPORTED_MODULE_0__["vec4"].create(),
-  quat_0: _global__WEBPACK_IMPORTED_MODULE_0__["quat"].create(),
-  quat_1: _global__WEBPACK_IMPORTED_MODULE_0__["quat"].create()
-});
-
-/***/ }),
-
-/***/ "./curve/legacy/curves/Tw2EventCurve.js":
-/*!**********************************************!*\
-  !*** ./curve/legacy/curves/Tw2EventCurve.js ***!
-  \**********************************************/
-/*! exports provided: Tw2EventKey, Tw2EventCurve */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2EventKey", function() { return Tw2EventKey; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2EventCurve", function() { return Tw2EventCurve; });
-/* harmony import */ var _Tw2Curve__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Tw2Curve */ "./curve/legacy/curves/Tw2Curve.js");
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-
-/**
- * Tw2EventKey
- *
- * @property {String} value
- * @class
- */
-
-class Tw2EventKey extends _Tw2Curve__WEBPACK_IMPORTED_MODULE_0__["Tw2CurveKey"] {
-  constructor() {
-    super(...arguments);
-
-    _defineProperty(this, "value", "");
-  }
-
-}
-/**
- * Tw2EventCurve
- *
- * @property {String} value
- * @property {Array.<Tw2EventKey>} keys
- * @property {number} extrapolation
- * @property {number} _time
- * @property {number} _currentKey
- * @property {number} _length
- * @class
- */
-
-class Tw2EventCurve extends _Tw2Curve__WEBPACK_IMPORTED_MODULE_0__["Tw2Curve"] {
-  constructor() {
-    super(...arguments);
-
-    _defineProperty(this, "value", "");
-
-    _defineProperty(this, "keys", []);
-
-    _defineProperty(this, "extrapolation", 0);
-
-    _defineProperty(this, "_time", 0);
-
-    _defineProperty(this, "_currentKey", 0);
-
-    _defineProperty(this, "_length", 0);
-  }
-
-  /**
-   * Sorts the curve's keys
-   */
-  Sort() {
-    if (this.keys.length) {
-      this.keys.sort(_Tw2Curve__WEBPACK_IMPORTED_MODULE_0__["Tw2Curve"].Compare);
-      this._length = this.keys[this.keys.length - 1].time;
-    }
-  }
-  /**
-   * Gets the curve's length
-   * @returns {number}
-   */
-
-
-  GetLength() {
-    return this._length;
-  }
-  /**
-   * Gets a value at the given time
-   * @param {number} time
-   */
-
-
-  UpdateValue(time) {
-    if (this._length <= 0) {
-      return this.value;
-    }
-
-    let before = this._time;
-    this._time = time;
-
-    if (this._time < before) {
-      this._currentKey = 0;
-    }
-
-    if (this.extrapolation === Tw2EventCurve.Extrapolation.CYCLE) {
-      let now = this._time % this._length;
-      if (now < before) this._currentKey = 0;
-      this._time = now;
-    }
-
-    while (this._currentKey < this.keys.length && this._time >= this.keys[this._currentKey].time) {
-      this.value = this.keys[this._currentKey].value;
-      ++this._currentKey;
-    }
-  }
-  /**
-   * The curve's key dimension
-   * @type {number}
-   */
-
-
-}
-
-_defineProperty(Tw2EventCurve, "dimension", 1);
-
-_defineProperty(Tw2EventCurve, "outputDimension", 1);
-
-_defineProperty(Tw2EventCurve, "valueProperty", "value");
-
-_defineProperty(Tw2EventCurve, "curveType", _Tw2Curve__WEBPACK_IMPORTED_MODULE_0__["Tw2Curve"].Type.CURVE);
-
-_defineProperty(Tw2EventCurve, "Key", Tw2EventKey);
-
-_defineProperty(Tw2EventCurve, "Extrapolation", {
-  NONE: 0,
-  CYCLE: 3
-});
-
-/***/ }),
-
-/***/ "./curve/legacy/curves/Tw2PerlinCurve.js":
-/*!***********************************************!*\
-  !*** ./curve/legacy/curves/Tw2PerlinCurve.js ***!
-  \***********************************************/
-/*! exports provided: Tw2PerlinCurve */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2PerlinCurve", function() { return Tw2PerlinCurve; });
-/* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../global */ "./global/index.js");
-/* harmony import */ var _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Tw2Curve */ "./curve/legacy/curves/Tw2Curve.js");
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-
-
-/**
- * Tw2PerlinCurve
- *
- * @property {number} start
- * @property {number} speed
- * @property {number} alpha
- * @property {number} beta
- * @property {number} offset
- * @property {number} scale
- * @property {number} N
- * @property {number} _startOffset
- * @class
- */
-
-class Tw2PerlinCurve extends _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__["Tw2Curve"] {
-  constructor() {
-    super(...arguments);
-
-    _defineProperty(this, "value", 0);
-
-    _defineProperty(this, "start", 0);
-
-    _defineProperty(this, "speed", 1);
-
-    _defineProperty(this, "alpha", 1.1);
-
-    _defineProperty(this, "beta", 2);
-
-    _defineProperty(this, "offset", 0);
-
-    _defineProperty(this, "scale", 1);
-
-    _defineProperty(this, "N", 3);
-
-    _defineProperty(this, "_startOffset", Math.random() * 100);
-  }
-
-  /**
-   * Updates the current value at the given time
-   * @param {number} time
-   */
-  UpdateValue(time) {
-    this.value = this.GetValueAt(time);
-  }
-  /**
-   * Gets a value at a specific time
-   * @param {number} time
-   * @returns {number}
-   */
-
-
-  GetValueAt(time) {
-    time -= this._startOffset;
-    return (_global__WEBPACK_IMPORTED_MODULE_0__["noise"].perlin1D(time * this.speed, this.alpha, this.beta, this.N) + 1) / 2 * this.scale + this.offset;
-  }
-  /**
-   * The curve's dimension
-   * @type {number}
-   */
-
-
-}
-
-_defineProperty(Tw2PerlinCurve, "outputDimension", 1);
-
-_defineProperty(Tw2PerlinCurve, "valueProperty", "value");
-
-_defineProperty(Tw2PerlinCurve, "curveType", _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__["Tw2Curve"].Type.CURVE_NO_KEYS);
-
-/***/ }),
-
-/***/ "./curve/legacy/curves/Tw2QuaternionCurve.js":
-/*!***************************************************!*\
-  !*** ./curve/legacy/curves/Tw2QuaternionCurve.js ***!
-  \***************************************************/
+/***/ "./curve/curve/legacy/Tw2QuaternionCurve.js":
+/*!**************************************************!*\
+  !*** ./curve/curve/legacy/Tw2QuaternionCurve.js ***!
+  \**************************************************/
 /*! exports provided: Tw2QuaternionKey2, Tw2QuaternionCurve */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -32279,8 +32296,8 @@ _defineProperty(Tw2PerlinCurve, "curveType", _Tw2Curve__WEBPACK_IMPORTED_MODULE_
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2QuaternionKey2", function() { return Tw2QuaternionKey2; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2QuaternionCurve", function() { return Tw2QuaternionCurve; });
-/* harmony import */ var _global_index__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../global/index */ "./global/index.js");
-/* harmony import */ var _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Tw2Curve */ "./curve/legacy/curves/Tw2Curve.js");
+/* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../global */ "./global/index.js");
+/* harmony import */ var _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Tw2Curve */ "./curve/curve/Tw2Curve.js");
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 
@@ -32299,11 +32316,11 @@ class Tw2QuaternionKey2 extends _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__["Tw2Curve
   constructor() {
     super(...arguments);
 
-    _defineProperty(this, "value", _global_index__WEBPACK_IMPORTED_MODULE_0__["quat"].create());
+    _defineProperty(this, "value", _global__WEBPACK_IMPORTED_MODULE_0__["quat"].create());
 
-    _defineProperty(this, "leftTangent", _global_index__WEBPACK_IMPORTED_MODULE_0__["vec4"].create());
+    _defineProperty(this, "leftTangent", _global__WEBPACK_IMPORTED_MODULE_0__["vec4"].create());
 
-    _defineProperty(this, "rightTangent", _global_index__WEBPACK_IMPORTED_MODULE_0__["vec4"].create());
+    _defineProperty(this, "rightTangent", _global__WEBPACK_IMPORTED_MODULE_0__["vec4"].create());
 
     _defineProperty(this, "interpolation", 1);
   }
@@ -32339,15 +32356,15 @@ class Tw2QuaternionCurve extends _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__["Tw2Curv
 
     _defineProperty(this, "timeScale", 1);
 
-    _defineProperty(this, "startValue", _global_index__WEBPACK_IMPORTED_MODULE_0__["quat"].create());
+    _defineProperty(this, "startValue", _global__WEBPACK_IMPORTED_MODULE_0__["quat"].create());
 
-    _defineProperty(this, "currentValue", _global_index__WEBPACK_IMPORTED_MODULE_0__["quat"].create());
+    _defineProperty(this, "currentValue", _global__WEBPACK_IMPORTED_MODULE_0__["quat"].create());
 
-    _defineProperty(this, "endValue", _global_index__WEBPACK_IMPORTED_MODULE_0__["quat"].create());
+    _defineProperty(this, "endValue", _global__WEBPACK_IMPORTED_MODULE_0__["quat"].create());
 
-    _defineProperty(this, "startTangent", _global_index__WEBPACK_IMPORTED_MODULE_0__["vec4"].create());
+    _defineProperty(this, "startTangent", _global__WEBPACK_IMPORTED_MODULE_0__["vec4"].create());
 
-    _defineProperty(this, "endTangent", _global_index__WEBPACK_IMPORTED_MODULE_0__["vec4"].create());
+    _defineProperty(this, "endTangent", _global__WEBPACK_IMPORTED_MODULE_0__["vec4"].create());
 
     _defineProperty(this, "interpolation", 1);
 
@@ -32477,7 +32494,7 @@ class Tw2QuaternionCurve extends _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__["Tw2Curv
           deltaTime = this.length - lastKey.time;
         }
 
-        _global_index__WEBPACK_IMPORTED_MODULE_0__["quat"].slerp(value, startValue, endValue, time / deltaTime);
+        _global__WEBPACK_IMPORTED_MODULE_0__["quat"].slerp(value, startValue, endValue, time / deltaTime);
         return value;
 
       default:
@@ -32509,17 +32526,17 @@ _defineProperty(Tw2QuaternionCurve, "Interpolation", {
 
 /***/ }),
 
-/***/ "./curve/legacy/curves/Tw2RandomConstantCurve.js":
-/*!*******************************************************!*\
-  !*** ./curve/legacy/curves/Tw2RandomConstantCurve.js ***!
-  \*******************************************************/
+/***/ "./curve/curve/legacy/Tw2RandomConstantCurve.js":
+/*!******************************************************!*\
+  !*** ./curve/curve/legacy/Tw2RandomConstantCurve.js ***!
+  \******************************************************/
 /*! exports provided: Tw2RandomConstantCurve */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2RandomConstantCurve", function() { return Tw2RandomConstantCurve; });
-/* harmony import */ var _Tw2Curve__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Tw2Curve */ "./curve/legacy/curves/Tw2Curve.js");
+/* harmony import */ var _Tw2Curve__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Tw2Curve */ "./curve/curve/Tw2Curve.js");
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 
@@ -32577,10 +32594,10 @@ _defineProperty(Tw2RandomConstantCurve, "curveType", _Tw2Curve__WEBPACK_IMPORTED
 
 /***/ }),
 
-/***/ "./curve/legacy/curves/Tw2RigidOrientation.js":
-/*!****************************************************!*\
-  !*** ./curve/legacy/curves/Tw2RigidOrientation.js ***!
-  \****************************************************/
+/***/ "./curve/curve/legacy/Tw2RigidOrientation.js":
+/*!***************************************************!*\
+  !*** ./curve/curve/legacy/Tw2RigidOrientation.js ***!
+  \***************************************************/
 /*! exports provided: Tw2Torque, Tw2RigidOrientation */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -32588,8 +32605,8 @@ _defineProperty(Tw2RandomConstantCurve, "curveType", _Tw2Curve__WEBPACK_IMPORTED
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2Torque", function() { return Tw2Torque; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2RigidOrientation", function() { return Tw2RigidOrientation; });
-/* harmony import */ var _global_index__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../global/index */ "./global/index.js");
-/* harmony import */ var _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Tw2Curve */ "./curve/legacy/curves/Tw2Curve.js");
+/* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../global */ "./global/index.js");
+/* harmony import */ var _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Tw2Curve */ "./curve/curve/Tw2Curve.js");
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 
@@ -32607,11 +32624,11 @@ class Tw2Torque extends _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveKey"] {
   constructor() {
     super(...arguments);
 
-    _defineProperty(this, "rot0", _global_index__WEBPACK_IMPORTED_MODULE_0__["quat"].create());
+    _defineProperty(this, "rot0", _global__WEBPACK_IMPORTED_MODULE_0__["quat"].create());
 
-    _defineProperty(this, "omega0", _global_index__WEBPACK_IMPORTED_MODULE_0__["vec3"].create());
+    _defineProperty(this, "omega0", _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].create());
 
-    _defineProperty(this, "torque", _global_index__WEBPACK_IMPORTED_MODULE_0__["vec3"].create());
+    _defineProperty(this, "torque", _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].create());
   }
 
 }
@@ -32638,7 +32655,7 @@ class Tw2RigidOrientation extends _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__["Tw2Cur
 
     _defineProperty(this, "drag", 1);
 
-    _defineProperty(this, "value", _global_index__WEBPACK_IMPORTED_MODULE_0__["quat"].create());
+    _defineProperty(this, "value", _global__WEBPACK_IMPORTED_MODULE_0__["quat"].create());
 
     _defineProperty(this, "start", 0);
 
@@ -32681,7 +32698,7 @@ class Tw2RigidOrientation extends _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__["Tw2Cur
 
   GetValueAt(time, value) {
     if (this.states.length === 0 || time < 0 || time < this.states[0].time) {
-      return _global_index__WEBPACK_IMPORTED_MODULE_0__["quat"].copy(value, this.value);
+      return _global__WEBPACK_IMPORTED_MODULE_0__["quat"].copy(value, this.value);
     }
 
     let key = 0;
@@ -32699,9 +32716,9 @@ class Tw2RigidOrientation extends _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__["Tw2Cur
     const vec3_0 = _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__["Tw2Curve"].global.vec3_0,
           quat_0 = _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__["Tw2Curve"].global.quat_0;
     const ck = this.states[key];
-    _global_index__WEBPACK_IMPORTED_MODULE_0__["vec3"].exponentialDecay(vec3_0, ck.omega0, ck.torque, this.I, this.drag, time - ck.time);
-    _global_index__WEBPACK_IMPORTED_MODULE_0__["quat"].exp(quat_0, vec3_0);
-    _global_index__WEBPACK_IMPORTED_MODULE_0__["quat"].multiply(value, this.states[key].rot0, quat_0);
+    _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].exponentialDecay(vec3_0, ck.omega0, ck.torque, this.I, this.drag, time - ck.time);
+    _global__WEBPACK_IMPORTED_MODULE_0__["quat"].exp(quat_0, vec3_0);
+    _global__WEBPACK_IMPORTED_MODULE_0__["quat"].multiply(value, this.states[key].rot0, quat_0);
     return value;
   }
   /**
@@ -32724,10 +32741,10 @@ _defineProperty(Tw2RigidOrientation, "Key", Tw2Torque);
 
 /***/ }),
 
-/***/ "./curve/legacy/curves/Tw2RotationCurve.js":
-/*!*************************************************!*\
-  !*** ./curve/legacy/curves/Tw2RotationCurve.js ***!
-  \*************************************************/
+/***/ "./curve/curve/legacy/Tw2RotationCurve.js":
+/*!************************************************!*\
+  !*** ./curve/curve/legacy/Tw2RotationCurve.js ***!
+  \************************************************/
 /*! exports provided: Tw2QuaternionKey, Tw2RotationCurve */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -32735,8 +32752,8 @@ _defineProperty(Tw2RigidOrientation, "Key", Tw2Torque);
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2QuaternionKey", function() { return Tw2QuaternionKey; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2RotationCurve", function() { return Tw2RotationCurve; });
-/* harmony import */ var _global_index__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../global/index */ "./global/index.js");
-/* harmony import */ var _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Tw2Curve */ "./curve/legacy/curves/Tw2Curve.js");
+/* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../global */ "./global/index.js");
+/* harmony import */ var _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Tw2Curve */ "./curve/curve/Tw2Curve.js");
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 
@@ -32755,11 +32772,11 @@ class Tw2QuaternionKey extends _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveK
   constructor() {
     super(...arguments);
 
-    _defineProperty(this, "value", _global_index__WEBPACK_IMPORTED_MODULE_0__["quat"].create());
+    _defineProperty(this, "value", _global__WEBPACK_IMPORTED_MODULE_0__["quat"].create());
 
-    _defineProperty(this, "left", _global_index__WEBPACK_IMPORTED_MODULE_0__["vec4"].create());
+    _defineProperty(this, "left", _global__WEBPACK_IMPORTED_MODULE_0__["vec4"].create());
 
-    _defineProperty(this, "right", _global_index__WEBPACK_IMPORTED_MODULE_0__["vec4"].create());
+    _defineProperty(this, "right", _global__WEBPACK_IMPORTED_MODULE_0__["vec4"].create());
 
     _defineProperty(this, "interpolation", 5);
   }
@@ -32783,15 +32800,15 @@ class Tw2RotationCurve extends _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__["Tw2Curve"
 
     _defineProperty(this, "start", 0);
 
-    _defineProperty(this, "value", _global_index__WEBPACK_IMPORTED_MODULE_0__["quat"].create());
+    _defineProperty(this, "value", _global__WEBPACK_IMPORTED_MODULE_0__["quat"].create());
 
     _defineProperty(this, "extrapolation", 0);
 
     _defineProperty(this, "keys", []);
 
-    _defineProperty(this, "_currentKey", 1);
-
     _defineProperty(this, "length", 0);
+
+    _defineProperty(this, "_currentKey", 1);
   }
 
   /**
@@ -32828,7 +32845,7 @@ class Tw2RotationCurve extends _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__["Tw2Curve"
 
   GetValueAt(time, value) {
     if (this.length === 0) {
-      return _global_index__WEBPACK_IMPORTED_MODULE_0__["quat"].copy(value, this.value);
+      return _global__WEBPACK_IMPORTED_MODULE_0__["quat"].copy(value, this.value);
     }
 
     const scratch = _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__["Tw2Curve"].global,
@@ -32838,10 +32855,10 @@ class Tw2RotationCurve extends _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__["Tw2Curve"
     if (time >= lastKey.time) {
       switch (this.extrapolation) {
         case Tw2RotationCurve.Extrapolation.NONE:
-          return _global_index__WEBPACK_IMPORTED_MODULE_0__["quat"].copy(value, this.value);
+          return _global__WEBPACK_IMPORTED_MODULE_0__["quat"].copy(value, this.value);
 
         case Tw2RotationCurve.Extrapolation.CONSTANT:
-          return _global_index__WEBPACK_IMPORTED_MODULE_0__["quat"].copy(value, lastKey.value);
+          return _global__WEBPACK_IMPORTED_MODULE_0__["quat"].copy(value, lastKey.value);
 
         default:
           time = time % lastKey.time;
@@ -32849,10 +32866,10 @@ class Tw2RotationCurve extends _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__["Tw2Curve"
     } else if (time < 0 || time < firstKey.time) {
       switch (this.extrapolation) {
         case Tw2RotationCurve.Extrapolation.NONE:
-          return _global_index__WEBPACK_IMPORTED_MODULE_0__["quat"].copy(value, this.value);
+          return _global__WEBPACK_IMPORTED_MODULE_0__["quat"].copy(value, this.value);
 
         default:
-          return _global_index__WEBPACK_IMPORTED_MODULE_0__["quat"].copy(value, firstKey.value);
+          return _global__WEBPACK_IMPORTED_MODULE_0__["quat"].copy(value, firstKey.value);
       }
     }
 
@@ -32870,7 +32887,7 @@ class Tw2RotationCurve extends _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__["Tw2Curve"
 
     switch (ck_1.interpolation) {
       case Tw2RotationCurve.Interpolation.CONSTANT:
-        return _global_index__WEBPACK_IMPORTED_MODULE_0__["quat"].copy(value, ck_1.value);
+        return _global__WEBPACK_IMPORTED_MODULE_0__["quat"].copy(value, ck_1.value);
 
       case Tw2RotationCurve.Interpolation.LINEAR:
         value[0] = ck_1.value[0] * (1 - nt) + ck.value[0] * nt;
@@ -32880,28 +32897,28 @@ class Tw2RotationCurve extends _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__["Tw2Curve"
         return value;
 
       case Tw2RotationCurve.Interpolation.HERMITE:
-        const collect = _global_index__WEBPACK_IMPORTED_MODULE_0__["quat"].identity(scratch.quat_0),
+        const collect = _global__WEBPACK_IMPORTED_MODULE_0__["quat"].identity(scratch.quat_0),
               arr = [ck_1.value, ck_1.right, ck.left, ck.value];
 
         for (let i = 3; i > 0; i--) {
-          const power = _global_index__WEBPACK_IMPORTED_MODULE_0__["num"].biCumulative(nt, i);
-          if (power > 1) _global_index__WEBPACK_IMPORTED_MODULE_0__["quat"].multiply(value, collect, arr[i]);
+          const power = _global__WEBPACK_IMPORTED_MODULE_0__["num"].biCumulative(nt, i);
+          if (power > 1) _global__WEBPACK_IMPORTED_MODULE_0__["quat"].multiply(value, collect, arr[i]);
           value[0] = -arr[i - 1][0];
           value[1] = -arr[i - 1][1];
           value[2] = -arr[i - 1][2];
           value[3] = arr[i - 1][3];
-          _global_index__WEBPACK_IMPORTED_MODULE_0__["quat"].multiply(value, value, arr[i]);
-          _global_index__WEBPACK_IMPORTED_MODULE_0__["quat"].pow(value, value, power);
-          _global_index__WEBPACK_IMPORTED_MODULE_0__["quat"].multiply(collect, collect, value);
+          _global__WEBPACK_IMPORTED_MODULE_0__["quat"].multiply(value, value, arr[i]);
+          _global__WEBPACK_IMPORTED_MODULE_0__["quat"].pow(value, value, power);
+          _global__WEBPACK_IMPORTED_MODULE_0__["quat"].multiply(collect, collect, value);
         }
 
-        return _global_index__WEBPACK_IMPORTED_MODULE_0__["quat"].multiply(value, collect, ck_1.value);
+        return _global__WEBPACK_IMPORTED_MODULE_0__["quat"].multiply(value, collect, ck_1.value);
 
       case Tw2RotationCurve.Interpolation.SLERP:
-        return _global_index__WEBPACK_IMPORTED_MODULE_0__["quat"].slerp(value, ck_1.value, ck.value, nt);
+        return _global__WEBPACK_IMPORTED_MODULE_0__["quat"].slerp(value, ck_1.value, ck.value, nt);
 
       default:
-        return _global_index__WEBPACK_IMPORTED_MODULE_0__["quat"].sqlerp(value, ck_1.value, ck_1.right, ck.left, ck.value, nt);
+        return _global__WEBPACK_IMPORTED_MODULE_0__["quat"].sqlerp(value, ck_1.value, ck_1.right, ck.left, ck.value, nt);
     }
   }
   /**
@@ -32940,10 +32957,10 @@ _defineProperty(Tw2RotationCurve, "Interpolation", {
 
 /***/ }),
 
-/***/ "./curve/legacy/curves/Tw2ScalarCurve.js":
-/*!***********************************************!*\
-  !*** ./curve/legacy/curves/Tw2ScalarCurve.js ***!
-  \***********************************************/
+/***/ "./curve/curve/legacy/Tw2ScalarCurve.js":
+/*!**********************************************!*\
+  !*** ./curve/curve/legacy/Tw2ScalarCurve.js ***!
+  \**********************************************/
 /*! exports provided: Tw2ScalarKey, Tw2ScalarCurve */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -32951,7 +32968,7 @@ _defineProperty(Tw2RotationCurve, "Interpolation", {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2ScalarKey", function() { return Tw2ScalarKey; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2ScalarCurve", function() { return Tw2ScalarCurve; });
-/* harmony import */ var _Tw2Curve__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Tw2Curve */ "./curve/legacy/curves/Tw2Curve.js");
+/* harmony import */ var _Tw2Curve__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Tw2Curve */ "./curve/curve/Tw2Curve.js");
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 
@@ -33150,10 +33167,10 @@ _defineProperty(Tw2ScalarCurve, "Interpolation", {
 
 /***/ }),
 
-/***/ "./curve/legacy/curves/Tw2ScalarCurve2.js":
-/*!************************************************!*\
-  !*** ./curve/legacy/curves/Tw2ScalarCurve2.js ***!
-  \************************************************/
+/***/ "./curve/curve/legacy/Tw2ScalarCurve2.js":
+/*!***********************************************!*\
+  !*** ./curve/curve/legacy/Tw2ScalarCurve2.js ***!
+  \***********************************************/
 /*! exports provided: Tw2ScalarKey2, Tw2ScalarCurve2 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -33161,7 +33178,7 @@ _defineProperty(Tw2ScalarCurve, "Interpolation", {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2ScalarKey2", function() { return Tw2ScalarKey2; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2ScalarCurve2", function() { return Tw2ScalarCurve2; });
-/* harmony import */ var _Tw2Curve__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Tw2Curve */ "./curve/legacy/curves/Tw2Curve.js");
+/* harmony import */ var _Tw2Curve__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Tw2Curve */ "./curve/curve/Tw2Curve.js");
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 
@@ -33221,6 +33238,8 @@ class Tw2ScalarCurve2 extends _Tw2Curve__WEBPACK_IMPORTED_MODULE_0__["Tw2Curve"]
 
     _defineProperty(this, "startValue", 0);
 
+    _defineProperty(this, "currentValue", 0);
+
     _defineProperty(this, "endValue", 0);
 
     _defineProperty(this, "startTangent", 0);
@@ -33232,26 +33251,11 @@ class Tw2ScalarCurve2 extends _Tw2Curve__WEBPACK_IMPORTED_MODULE_0__["Tw2Curve"]
     _defineProperty(this, "keys", []);
 
     _defineProperty(this, "length", 0);
-
-    _defineProperty(this, "_currentValue", 0);
   }
 
-  set currentValue(value) {
-    if (Number.isNaN(value)) {
-      throw new Error();
-    }
-
-    this._currentValue = value;
-  }
-
-  get currentValue() {
-    return this._currentValue;
-  }
   /**
    * Sorts the curve's keys
    */
-
-
   Sort() {
     _Tw2Curve__WEBPACK_IMPORTED_MODULE_0__["Tw2Curve"].Sort2(this);
   }
@@ -33417,17 +33421,17 @@ _defineProperty(Tw2ScalarCurve2, "Interpolation", {
 
 /***/ }),
 
-/***/ "./curve/legacy/curves/Tw2SineCurve.js":
-/*!*********************************************!*\
-  !*** ./curve/legacy/curves/Tw2SineCurve.js ***!
-  \*********************************************/
+/***/ "./curve/curve/legacy/Tw2SineCurve.js":
+/*!********************************************!*\
+  !*** ./curve/curve/legacy/Tw2SineCurve.js ***!
+  \********************************************/
 /*! exports provided: Tw2SineCurve */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2SineCurve", function() { return Tw2SineCurve; });
-/* harmony import */ var _Tw2Curve__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Tw2Curve */ "./curve/legacy/curves/Tw2Curve.js");
+/* harmony import */ var _Tw2Curve__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Tw2Curve */ "./curve/curve/Tw2Curve.js");
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 
@@ -33487,10 +33491,10 @@ _defineProperty(Tw2SineCurve, "curveType", _Tw2Curve__WEBPACK_IMPORTED_MODULE_0_
 
 /***/ }),
 
-/***/ "./curve/legacy/curves/Tw2Vector2Curve.js":
-/*!************************************************!*\
-  !*** ./curve/legacy/curves/Tw2Vector2Curve.js ***!
-  \************************************************/
+/***/ "./curve/curve/legacy/Tw2Vector2Curve.js":
+/*!***********************************************!*\
+  !*** ./curve/curve/legacy/Tw2Vector2Curve.js ***!
+  \***********************************************/
 /*! exports provided: Tw2Vector2Key, Tw2Vector2Curve */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -33498,8 +33502,8 @@ _defineProperty(Tw2SineCurve, "curveType", _Tw2Curve__WEBPACK_IMPORTED_MODULE_0_
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2Vector2Key", function() { return Tw2Vector2Key; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2Vector2Curve", function() { return Tw2Vector2Curve; });
-/* harmony import */ var _global_index__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../global/index */ "./global/index.js");
-/* harmony import */ var _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Tw2Curve */ "./curve/legacy/curves/Tw2Curve.js");
+/* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../global */ "./global/index.js");
+/* harmony import */ var _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Tw2Curve */ "./curve/curve/Tw2Curve.js");
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 
@@ -33518,11 +33522,11 @@ class Tw2Vector2Key extends _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveKey"
   constructor() {
     super(...arguments);
 
-    _defineProperty(this, "value", _global_index__WEBPACK_IMPORTED_MODULE_0__["vec2"].create());
+    _defineProperty(this, "value", _global__WEBPACK_IMPORTED_MODULE_0__["vec2"].create());
 
-    _defineProperty(this, "leftTangent", _global_index__WEBPACK_IMPORTED_MODULE_0__["vec2"].create());
+    _defineProperty(this, "leftTangent", _global__WEBPACK_IMPORTED_MODULE_0__["vec2"].create());
 
-    _defineProperty(this, "rightTangent", _global_index__WEBPACK_IMPORTED_MODULE_0__["vec2"].create());
+    _defineProperty(this, "rightTangent", _global__WEBPACK_IMPORTED_MODULE_0__["vec2"].create());
 
     _defineProperty(this, "interpolation", 1);
   }
@@ -33558,15 +33562,15 @@ class Tw2Vector2Curve extends _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__["Tw2Curve"]
 
     _defineProperty(this, "timeScale", 1);
 
-    _defineProperty(this, "startValue", _global_index__WEBPACK_IMPORTED_MODULE_0__["vec2"].create());
+    _defineProperty(this, "startValue", _global__WEBPACK_IMPORTED_MODULE_0__["vec2"].create());
 
-    _defineProperty(this, "currentValue", _global_index__WEBPACK_IMPORTED_MODULE_0__["vec2"].create());
+    _defineProperty(this, "currentValue", _global__WEBPACK_IMPORTED_MODULE_0__["vec2"].create());
 
-    _defineProperty(this, "endValue", _global_index__WEBPACK_IMPORTED_MODULE_0__["vec2"].create());
+    _defineProperty(this, "endValue", _global__WEBPACK_IMPORTED_MODULE_0__["vec2"].create());
 
-    _defineProperty(this, "startTangent", _global_index__WEBPACK_IMPORTED_MODULE_0__["vec2"].create());
+    _defineProperty(this, "startTangent", _global__WEBPACK_IMPORTED_MODULE_0__["vec2"].create());
 
-    _defineProperty(this, "endTangent", _global_index__WEBPACK_IMPORTED_MODULE_0__["vec2"].create());
+    _defineProperty(this, "endTangent", _global__WEBPACK_IMPORTED_MODULE_0__["vec2"].create());
 
     _defineProperty(this, "interpolation", 1);
 
@@ -33612,16 +33616,16 @@ class Tw2Vector2Curve extends _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__["Tw2Curve"]
     time = time / this.timeScale + this.timeOffset;
 
     if (this.length <= 0 || time <= 0) {
-      return _global_index__WEBPACK_IMPORTED_MODULE_0__["vec2"].copy(value, this.startValue);
+      return _global__WEBPACK_IMPORTED_MODULE_0__["vec2"].copy(value, this.startValue);
     }
 
     if (time > this.length) {
       if (this.cycle) {
         time = time % this.length;
       } else if (this.reversed) {
-        return _global_index__WEBPACK_IMPORTED_MODULE_0__["vec2"].copy(value, this.startValue);
+        return _global__WEBPACK_IMPORTED_MODULE_0__["vec2"].copy(value, this.startValue);
       } else {
-        return _global_index__WEBPACK_IMPORTED_MODULE_0__["vec2"].copy(value, this.endValue);
+        return _global__WEBPACK_IMPORTED_MODULE_0__["vec2"].copy(value, this.endValue);
       }
     }
 
@@ -33661,7 +33665,7 @@ class Tw2Vector2Curve extends _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__["Tw2Curve"]
 
 
   Interpolate(time, lastKey, nextKey, value) {
-    _global_index__WEBPACK_IMPORTED_MODULE_0__["vec2"].copy(value, this.startValue);
+    _global__WEBPACK_IMPORTED_MODULE_0__["vec2"].copy(value, this.startValue);
     let startValue = this.startValue,
         endValue = this.endValue,
         interp = this.interpolation,
@@ -33751,10 +33755,10 @@ _defineProperty(Tw2Vector2Curve, "Interpolation", {
 
 /***/ }),
 
-/***/ "./curve/legacy/curves/Tw2Vector3Curve.js":
-/*!************************************************!*\
-  !*** ./curve/legacy/curves/Tw2Vector3Curve.js ***!
-  \************************************************/
+/***/ "./curve/curve/legacy/Tw2Vector3Curve.js":
+/*!***********************************************!*\
+  !*** ./curve/curve/legacy/Tw2Vector3Curve.js ***!
+  \***********************************************/
 /*! exports provided: Tw2Vector3Key, Tw2Vector3Curve */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -33762,8 +33766,8 @@ _defineProperty(Tw2Vector2Curve, "Interpolation", {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2Vector3Key", function() { return Tw2Vector3Key; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2Vector3Curve", function() { return Tw2Vector3Curve; });
-/* harmony import */ var _global_index__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../global/index */ "./global/index.js");
-/* harmony import */ var _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Tw2Curve */ "./curve/legacy/curves/Tw2Curve.js");
+/* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../global */ "./global/index.js");
+/* harmony import */ var _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Tw2Curve */ "./curve/curve/Tw2Curve.js");
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 
@@ -33783,11 +33787,11 @@ class Tw2Vector3Key extends _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveKey"
   constructor() {
     super(...arguments);
 
-    _defineProperty(this, "value", _global_index__WEBPACK_IMPORTED_MODULE_0__["vec3"].create());
+    _defineProperty(this, "value", _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].create());
 
-    _defineProperty(this, "leftTangent", _global_index__WEBPACK_IMPORTED_MODULE_0__["vec3"].create());
+    _defineProperty(this, "leftTangent", _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].create());
 
-    _defineProperty(this, "rightTangent", _global_index__WEBPACK_IMPORTED_MODULE_0__["vec3"].create());
+    _defineProperty(this, "rightTangent", _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].create());
 
     _defineProperty(this, "interpolation", 1);
   }
@@ -33823,15 +33827,15 @@ class Tw2Vector3Curve extends _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__["Tw2Curve"]
 
     _defineProperty(this, "timeScale", 1);
 
-    _defineProperty(this, "startValue", _global_index__WEBPACK_IMPORTED_MODULE_0__["vec3"].create());
+    _defineProperty(this, "startValue", _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].create());
 
-    _defineProperty(this, "currentValue", _global_index__WEBPACK_IMPORTED_MODULE_0__["vec3"].create());
+    _defineProperty(this, "currentValue", _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].create());
 
-    _defineProperty(this, "endValue", _global_index__WEBPACK_IMPORTED_MODULE_0__["vec3"].create());
+    _defineProperty(this, "endValue", _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].create());
 
-    _defineProperty(this, "startTangent", _global_index__WEBPACK_IMPORTED_MODULE_0__["vec3"].create());
+    _defineProperty(this, "startTangent", _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].create());
 
-    _defineProperty(this, "endTangent", _global_index__WEBPACK_IMPORTED_MODULE_0__["vec3"].create());
+    _defineProperty(this, "endTangent", _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].create());
 
     _defineProperty(this, "interpolation", 1);
 
@@ -33876,16 +33880,16 @@ class Tw2Vector3Curve extends _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__["Tw2Curve"]
     time = time / this.timeScale + this.timeOffset;
 
     if (this.length <= 0 || time <= 0) {
-      return _global_index__WEBPACK_IMPORTED_MODULE_0__["vec3"].copy(value, this.startValue);
+      return _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].copy(value, this.startValue);
     }
 
     if (time > this.length) {
       if (this.cycle) {
         time = time % this.length;
       } else if (this.reversed) {
-        return _global_index__WEBPACK_IMPORTED_MODULE_0__["vec3"].copy(value, this.startValue);
+        return _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].copy(value, this.startValue);
       } else {
-        return _global_index__WEBPACK_IMPORTED_MODULE_0__["vec3"].copy(value, this.endValue);
+        return _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].copy(value, this.endValue);
       }
     }
 
@@ -33925,7 +33929,7 @@ class Tw2Vector3Curve extends _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__["Tw2Curve"]
 
 
   Interpolate(time, lastKey, nextKey, value) {
-    _global_index__WEBPACK_IMPORTED_MODULE_0__["vec3"].copy(value, this.startValue);
+    _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].copy(value, this.startValue);
     let startValue = this.startValue,
         endValue = this.endValue,
         interp = this.interpolation,
@@ -34017,10 +34021,10 @@ _defineProperty(Tw2Vector3Curve, "Interpolation", {
 
 /***/ }),
 
-/***/ "./curve/legacy/curves/Tw2VectorCurve.js":
-/*!***********************************************!*\
-  !*** ./curve/legacy/curves/Tw2VectorCurve.js ***!
-  \***********************************************/
+/***/ "./curve/curve/legacy/Tw2VectorCurve.js":
+/*!**********************************************!*\
+  !*** ./curve/curve/legacy/Tw2VectorCurve.js ***!
+  \**********************************************/
 /*! exports provided: Tw2VectorKey, Tw2VectorCurve */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -34028,8 +34032,8 @@ _defineProperty(Tw2Vector3Curve, "Interpolation", {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2VectorKey", function() { return Tw2VectorKey; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2VectorCurve", function() { return Tw2VectorCurve; });
-/* harmony import */ var _global_index__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../global/index */ "./global/index.js");
-/* harmony import */ var _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Tw2Curve */ "./curve/legacy/curves/Tw2Curve.js");
+/* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../global */ "./global/index.js");
+/* harmony import */ var _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Tw2Curve */ "./curve/curve/Tw2Curve.js");
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 
@@ -34049,11 +34053,11 @@ class Tw2VectorKey extends _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveKey"]
   constructor() {
     super(...arguments);
 
-    _defineProperty(this, "value", _global_index__WEBPACK_IMPORTED_MODULE_0__["vec3"].create());
+    _defineProperty(this, "value", _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].create());
 
-    _defineProperty(this, "left", _global_index__WEBPACK_IMPORTED_MODULE_0__["vec3"].create());
+    _defineProperty(this, "left", _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].create());
 
-    _defineProperty(this, "right", _global_index__WEBPACK_IMPORTED_MODULE_0__["vec3"].create());
+    _defineProperty(this, "right", _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].create());
 
     _defineProperty(this, "interpolation", 0);
   }
@@ -34078,7 +34082,7 @@ class Tw2VectorCurve extends _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__["Tw2Curve"] 
 
     _defineProperty(this, "start", 0);
 
-    _defineProperty(this, "value", _global_index__WEBPACK_IMPORTED_MODULE_0__["vec3"].create());
+    _defineProperty(this, "value", _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].create());
 
     _defineProperty(this, "extrapolation", 0);
 
@@ -34123,7 +34127,7 @@ class Tw2VectorCurve extends _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__["Tw2Curve"] 
 
   GetValueAt(time, value) {
     if (this.length === 0) {
-      return _global_index__WEBPACK_IMPORTED_MODULE_0__["vec3"].copy(value, this.value);
+      return _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].copy(value, this.value);
     }
 
     const firstKey = this.keys[0],
@@ -34132,13 +34136,13 @@ class Tw2VectorCurve extends _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__["Tw2Curve"] 
     if (time >= lastKey.time) {
       switch (this.extrapolation) {
         case Tw2VectorCurve.Extrapolation.NONE:
-          return _global_index__WEBPACK_IMPORTED_MODULE_0__["vec3"].copy(value, this.value);
+          return _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].copy(value, this.value);
 
         case Tw2VectorCurve.Extrapolation.CONSTANT:
-          return _global_index__WEBPACK_IMPORTED_MODULE_0__["vec3"].copy(value, lastKey.value);
+          return _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].copy(value, lastKey.value);
 
         case Tw2VectorCurve.Extrapolation.GRADIENT:
-          return _global_index__WEBPACK_IMPORTED_MODULE_0__["vec3"].scaleAndAdd(value, lastKey.value, lastKey.right, time - lastKey.time);
+          return _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].scaleAndAdd(value, lastKey.value, lastKey.right, time - lastKey.time);
 
         default:
           time = time % lastKey.time;
@@ -34146,13 +34150,13 @@ class Tw2VectorCurve extends _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__["Tw2Curve"] 
     } else if (time < 0 || time < firstKey.time) {
       switch (this.extrapolation) {
         case Tw2VectorCurve.Extrapolation.NONE:
-          return _global_index__WEBPACK_IMPORTED_MODULE_0__["vec3"].copy(value, this.value);
+          return _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].copy(value, this.value);
 
         case Tw2VectorCurve.Extrapolation.GRADIENT:
-          return _global_index__WEBPACK_IMPORTED_MODULE_0__["vec3"].scaleAndAdd(value, firstKey.value, firstKey.left, time * this.length - lastKey.time);
+          return _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].scaleAndAdd(value, firstKey.value, firstKey.left, time * this.length - lastKey.time);
 
         default:
-          return _global_index__WEBPACK_IMPORTED_MODULE_0__["vec3"].copy(value, firstKey.value);
+          return _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].copy(value, firstKey.value);
       }
     }
 
@@ -34170,7 +34174,7 @@ class Tw2VectorCurve extends _Tw2Curve__WEBPACK_IMPORTED_MODULE_1__["Tw2Curve"] 
 
     switch (ck_1.interpolation) {
       case Tw2VectorCurve.Interpolation.CONSTANT:
-        return _global_index__WEBPACK_IMPORTED_MODULE_0__["vec3"].copy(value, ck_1.value);
+        return _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].copy(value, ck_1.value);
 
       case Tw2VectorCurve.Interpolation.LINEAR:
         value[0] = ck_1.value[0] * (1 - nt) + ck.value[0] * nt;
@@ -34226,83 +34230,70 @@ _defineProperty(Tw2VectorCurve, "Interpolation", {
 
 /***/ }),
 
-/***/ "./curve/legacy/curves/index.js":
-/*!**************************************!*\
-  !*** ./curve/legacy/curves/index.js ***!
-  \**************************************/
-/*! exports provided: Tw2CurveKey, Tw2Curve, Tw2ColorKey, Tw2ColorCurve, Tw2ColorKey2, Tw2ColorCurve2, Tw2EventKey, Tw2EventCurve, Tw2PerlinCurve, Tw2QuaternionKey2, Tw2QuaternionCurve, Tw2RandomConstantCurve, Tw2Torque, Tw2RigidOrientation, Tw2QuaternionKey, Tw2RotationCurve, Tw2ScalarKey, Tw2ScalarCurve, Tw2ScalarKey2, Tw2ScalarCurve2, Tw2SineCurve, Tw2Vector2Key, Tw2Vector2Curve, Tw2Vector3Key, Tw2Vector3Curve, Tw2VectorKey, Tw2VectorCurve */
+/***/ "./curve/curve/legacy/index.js":
+/*!*************************************!*\
+  !*** ./curve/curve/legacy/index.js ***!
+  \*************************************/
+/*! exports provided: Tw2ColorKey, Tw2ColorCurve, Tw2ColorKey2, Tw2ColorCurve2, Tw2QuaternionKey2, Tw2QuaternionCurve, Tw2RandomConstantCurve, Tw2Torque, Tw2RigidOrientation, Tw2QuaternionKey, Tw2RotationCurve, Tw2ScalarKey, Tw2ScalarCurve, Tw2ScalarKey2, Tw2ScalarCurve2, Tw2SineCurve, Tw2Vector2Key, Tw2Vector2Curve, Tw2Vector3Key, Tw2Vector3Curve, Tw2VectorKey, Tw2VectorCurve */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _Tw2Curve__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Tw2Curve */ "./curve/legacy/curves/Tw2Curve.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2CurveKey", function() { return _Tw2Curve__WEBPACK_IMPORTED_MODULE_0__["Tw2CurveKey"]; });
+/* harmony import */ var _Tw2ColorCurve__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Tw2ColorCurve */ "./curve/curve/legacy/Tw2ColorCurve.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ColorKey", function() { return _Tw2ColorCurve__WEBPACK_IMPORTED_MODULE_0__["Tw2ColorKey"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Curve", function() { return _Tw2Curve__WEBPACK_IMPORTED_MODULE_0__["Tw2Curve"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ColorCurve", function() { return _Tw2ColorCurve__WEBPACK_IMPORTED_MODULE_0__["Tw2ColorCurve"]; });
 
-/* harmony import */ var _Tw2ColorCurve__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Tw2ColorCurve */ "./curve/legacy/curves/Tw2ColorCurve.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ColorKey", function() { return _Tw2ColorCurve__WEBPACK_IMPORTED_MODULE_1__["Tw2ColorKey"]; });
+/* harmony import */ var _Tw2ColorCurve2__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Tw2ColorCurve2 */ "./curve/curve/legacy/Tw2ColorCurve2.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ColorKey2", function() { return _Tw2ColorCurve2__WEBPACK_IMPORTED_MODULE_1__["Tw2ColorKey2"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ColorCurve", function() { return _Tw2ColorCurve__WEBPACK_IMPORTED_MODULE_1__["Tw2ColorCurve"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ColorCurve2", function() { return _Tw2ColorCurve2__WEBPACK_IMPORTED_MODULE_1__["Tw2ColorCurve2"]; });
 
-/* harmony import */ var _Tw2ColorCurve2__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Tw2ColorCurve2 */ "./curve/legacy/curves/Tw2ColorCurve2.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ColorKey2", function() { return _Tw2ColorCurve2__WEBPACK_IMPORTED_MODULE_2__["Tw2ColorKey2"]; });
+/* harmony import */ var _Tw2QuaternionCurve__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Tw2QuaternionCurve */ "./curve/curve/legacy/Tw2QuaternionCurve.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2QuaternionKey2", function() { return _Tw2QuaternionCurve__WEBPACK_IMPORTED_MODULE_2__["Tw2QuaternionKey2"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ColorCurve2", function() { return _Tw2ColorCurve2__WEBPACK_IMPORTED_MODULE_2__["Tw2ColorCurve2"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2QuaternionCurve", function() { return _Tw2QuaternionCurve__WEBPACK_IMPORTED_MODULE_2__["Tw2QuaternionCurve"]; });
 
-/* harmony import */ var _Tw2EventCurve__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Tw2EventCurve */ "./curve/legacy/curves/Tw2EventCurve.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2EventKey", function() { return _Tw2EventCurve__WEBPACK_IMPORTED_MODULE_3__["Tw2EventKey"]; });
+/* harmony import */ var _Tw2RandomConstantCurve__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Tw2RandomConstantCurve */ "./curve/curve/legacy/Tw2RandomConstantCurve.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2RandomConstantCurve", function() { return _Tw2RandomConstantCurve__WEBPACK_IMPORTED_MODULE_3__["Tw2RandomConstantCurve"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2EventCurve", function() { return _Tw2EventCurve__WEBPACK_IMPORTED_MODULE_3__["Tw2EventCurve"]; });
+/* harmony import */ var _Tw2RigidOrientation__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Tw2RigidOrientation */ "./curve/curve/legacy/Tw2RigidOrientation.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Torque", function() { return _Tw2RigidOrientation__WEBPACK_IMPORTED_MODULE_4__["Tw2Torque"]; });
 
-/* harmony import */ var _Tw2PerlinCurve__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Tw2PerlinCurve */ "./curve/legacy/curves/Tw2PerlinCurve.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2PerlinCurve", function() { return _Tw2PerlinCurve__WEBPACK_IMPORTED_MODULE_4__["Tw2PerlinCurve"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2RigidOrientation", function() { return _Tw2RigidOrientation__WEBPACK_IMPORTED_MODULE_4__["Tw2RigidOrientation"]; });
 
-/* harmony import */ var _Tw2QuaternionCurve__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Tw2QuaternionCurve */ "./curve/legacy/curves/Tw2QuaternionCurve.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2QuaternionKey2", function() { return _Tw2QuaternionCurve__WEBPACK_IMPORTED_MODULE_5__["Tw2QuaternionKey2"]; });
+/* harmony import */ var _Tw2RotationCurve__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Tw2RotationCurve */ "./curve/curve/legacy/Tw2RotationCurve.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2QuaternionKey", function() { return _Tw2RotationCurve__WEBPACK_IMPORTED_MODULE_5__["Tw2QuaternionKey"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2QuaternionCurve", function() { return _Tw2QuaternionCurve__WEBPACK_IMPORTED_MODULE_5__["Tw2QuaternionCurve"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2RotationCurve", function() { return _Tw2RotationCurve__WEBPACK_IMPORTED_MODULE_5__["Tw2RotationCurve"]; });
 
-/* harmony import */ var _Tw2RandomConstantCurve__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Tw2RandomConstantCurve */ "./curve/legacy/curves/Tw2RandomConstantCurve.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2RandomConstantCurve", function() { return _Tw2RandomConstantCurve__WEBPACK_IMPORTED_MODULE_6__["Tw2RandomConstantCurve"]; });
+/* harmony import */ var _Tw2ScalarCurve__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Tw2ScalarCurve */ "./curve/curve/legacy/Tw2ScalarCurve.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ScalarKey", function() { return _Tw2ScalarCurve__WEBPACK_IMPORTED_MODULE_6__["Tw2ScalarKey"]; });
 
-/* harmony import */ var _Tw2RigidOrientation__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Tw2RigidOrientation */ "./curve/legacy/curves/Tw2RigidOrientation.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Torque", function() { return _Tw2RigidOrientation__WEBPACK_IMPORTED_MODULE_7__["Tw2Torque"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ScalarCurve", function() { return _Tw2ScalarCurve__WEBPACK_IMPORTED_MODULE_6__["Tw2ScalarCurve"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2RigidOrientation", function() { return _Tw2RigidOrientation__WEBPACK_IMPORTED_MODULE_7__["Tw2RigidOrientation"]; });
+/* harmony import */ var _Tw2ScalarCurve2__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Tw2ScalarCurve2 */ "./curve/curve/legacy/Tw2ScalarCurve2.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ScalarKey2", function() { return _Tw2ScalarCurve2__WEBPACK_IMPORTED_MODULE_7__["Tw2ScalarKey2"]; });
 
-/* harmony import */ var _Tw2RotationCurve__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Tw2RotationCurve */ "./curve/legacy/curves/Tw2RotationCurve.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2QuaternionKey", function() { return _Tw2RotationCurve__WEBPACK_IMPORTED_MODULE_8__["Tw2QuaternionKey"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ScalarCurve2", function() { return _Tw2ScalarCurve2__WEBPACK_IMPORTED_MODULE_7__["Tw2ScalarCurve2"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2RotationCurve", function() { return _Tw2RotationCurve__WEBPACK_IMPORTED_MODULE_8__["Tw2RotationCurve"]; });
+/* harmony import */ var _Tw2SineCurve__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Tw2SineCurve */ "./curve/curve/legacy/Tw2SineCurve.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2SineCurve", function() { return _Tw2SineCurve__WEBPACK_IMPORTED_MODULE_8__["Tw2SineCurve"]; });
 
-/* harmony import */ var _Tw2ScalarCurve__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./Tw2ScalarCurve */ "./curve/legacy/curves/Tw2ScalarCurve.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ScalarKey", function() { return _Tw2ScalarCurve__WEBPACK_IMPORTED_MODULE_9__["Tw2ScalarKey"]; });
+/* harmony import */ var _Tw2Vector2Curve__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./Tw2Vector2Curve */ "./curve/curve/legacy/Tw2Vector2Curve.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Vector2Key", function() { return _Tw2Vector2Curve__WEBPACK_IMPORTED_MODULE_9__["Tw2Vector2Key"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ScalarCurve", function() { return _Tw2ScalarCurve__WEBPACK_IMPORTED_MODULE_9__["Tw2ScalarCurve"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Vector2Curve", function() { return _Tw2Vector2Curve__WEBPACK_IMPORTED_MODULE_9__["Tw2Vector2Curve"]; });
 
-/* harmony import */ var _Tw2ScalarCurve2__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./Tw2ScalarCurve2 */ "./curve/legacy/curves/Tw2ScalarCurve2.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ScalarKey2", function() { return _Tw2ScalarCurve2__WEBPACK_IMPORTED_MODULE_10__["Tw2ScalarKey2"]; });
+/* harmony import */ var _Tw2Vector3Curve__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./Tw2Vector3Curve */ "./curve/curve/legacy/Tw2Vector3Curve.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Vector3Key", function() { return _Tw2Vector3Curve__WEBPACK_IMPORTED_MODULE_10__["Tw2Vector3Key"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ScalarCurve2", function() { return _Tw2ScalarCurve2__WEBPACK_IMPORTED_MODULE_10__["Tw2ScalarCurve2"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Vector3Curve", function() { return _Tw2Vector3Curve__WEBPACK_IMPORTED_MODULE_10__["Tw2Vector3Curve"]; });
 
-/* harmony import */ var _Tw2SineCurve__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./Tw2SineCurve */ "./curve/legacy/curves/Tw2SineCurve.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2SineCurve", function() { return _Tw2SineCurve__WEBPACK_IMPORTED_MODULE_11__["Tw2SineCurve"]; });
+/* harmony import */ var _Tw2VectorCurve__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./Tw2VectorCurve */ "./curve/curve/legacy/Tw2VectorCurve.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2VectorKey", function() { return _Tw2VectorCurve__WEBPACK_IMPORTED_MODULE_11__["Tw2VectorKey"]; });
 
-/* harmony import */ var _Tw2Vector2Curve__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./Tw2Vector2Curve */ "./curve/legacy/curves/Tw2Vector2Curve.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Vector2Key", function() { return _Tw2Vector2Curve__WEBPACK_IMPORTED_MODULE_12__["Tw2Vector2Key"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Vector2Curve", function() { return _Tw2Vector2Curve__WEBPACK_IMPORTED_MODULE_12__["Tw2Vector2Curve"]; });
-
-/* harmony import */ var _Tw2Vector3Curve__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./Tw2Vector3Curve */ "./curve/legacy/curves/Tw2Vector3Curve.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Vector3Key", function() { return _Tw2Vector3Curve__WEBPACK_IMPORTED_MODULE_13__["Tw2Vector3Key"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Vector3Curve", function() { return _Tw2Vector3Curve__WEBPACK_IMPORTED_MODULE_13__["Tw2Vector3Curve"]; });
-
-/* harmony import */ var _Tw2VectorCurve__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./Tw2VectorCurve */ "./curve/legacy/curves/Tw2VectorCurve.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2VectorKey", function() { return _Tw2VectorCurve__WEBPACK_IMPORTED_MODULE_14__["Tw2VectorKey"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2VectorCurve", function() { return _Tw2VectorCurve__WEBPACK_IMPORTED_MODULE_14__["Tw2VectorCurve"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2VectorCurve", function() { return _Tw2VectorCurve__WEBPACK_IMPORTED_MODULE_11__["Tw2VectorCurve"]; });
 
 
 
@@ -34310,6 +34301,380 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+
+
+
+
+
+
+
+/***/ }),
+
+/***/ "./curve/expression/Tr2CurveEulerRotationExpression.js":
+/*!*************************************************************!*\
+  !*** ./curve/expression/Tr2CurveEulerRotationExpression.js ***!
+  \*************************************************************/
+/*! exports provided: Tr2CurveEulerRotationExpression */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tr2CurveEulerRotationExpression", function() { return Tr2CurveEulerRotationExpression; });
+/* harmony import */ var _Tw2CurveExpression__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Tw2CurveExpression */ "./curve/expression/Tw2CurveExpression.js");
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+
+/**
+ * Tr2CurveEulerRotationExpression
+ *
+ * @property {String} expressionPitch                     -
+ * @property {String} expressionRoll                      -
+ * @property {String} expressionYaw                       -
+ */
+
+class Tr2CurveEulerRotationExpression extends _Tw2CurveExpression__WEBPACK_IMPORTED_MODULE_0__["Tw2CurveExpression"] {
+  constructor() {
+    super(...arguments);
+
+    _defineProperty(this, "expressionPitch", "");
+
+    _defineProperty(this, "expressionRoll", "");
+
+    _defineProperty(this, "expressionYaw", "");
+  }
+
+  /**
+   * Black definition
+   * @param {*} r
+   * @returns {*[]}
+   */
+  static black(r) {
+    return [["inputs", r.array], ["name", r.string], ["expressionYaw", r.string], ["expressionPitch", r.string], ["expressionRoll", r.string]];
+  }
+  /**
+   * Identifies that the class is in staging
+   * @property {null|Number}
+   */
+
+
+}
+
+_defineProperty(Tr2CurveEulerRotationExpression, "__isStaging", 4);
+
+/***/ }),
+
+/***/ "./curve/expression/Tr2CurveScalarExpression.js":
+/*!******************************************************!*\
+  !*** ./curve/expression/Tr2CurveScalarExpression.js ***!
+  \******************************************************/
+/*! exports provided: Tr2CurveScalarExpression */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tr2CurveScalarExpression", function() { return Tr2CurveScalarExpression; });
+/* harmony import */ var _Tw2CurveExpression__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Tw2CurveExpression */ "./curve/expression/Tw2CurveExpression.js");
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+
+/**
+ * Tr2CurveScalarExpression
+ * TODO: Implement
+ *
+ * @property {String} expression       -
+ * @property {Number} input1           -
+ * @property {Number} input2           -
+ * @property {Number} input3           -
+ */
+
+class Tr2CurveScalarExpression extends _Tw2CurveExpression__WEBPACK_IMPORTED_MODULE_0__["Tw2CurveExpression"] {
+  constructor() {
+    super(...arguments);
+
+    _defineProperty(this, "expression", "");
+
+    _defineProperty(this, "input1", -1);
+
+    _defineProperty(this, "input2", -1);
+
+    _defineProperty(this, "input3", -1);
+  }
+
+  // What should be the default value?
+
+  /**
+   * Black definition
+   * @param {*} r
+   * @returns {*[]}
+   */
+  static black(r) {
+    return [["inputs", r.array], ["name", r.string], ["expression", r.string], ["input1", r.float], ["input2", r.float], ["input3", r.float]];
+  }
+  /**
+   * Identifies that the class is in staging
+   * @property {null|Number}
+   */
+
+
+}
+
+_defineProperty(Tr2CurveScalarExpression, "__isStaging", 4);
+
+/***/ }),
+
+/***/ "./curve/expression/Tr2CurveVector3Expression.js":
+/*!*******************************************************!*\
+  !*** ./curve/expression/Tr2CurveVector3Expression.js ***!
+  \*******************************************************/
+/*! exports provided: Tr2CurveVector3Expression */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tr2CurveVector3Expression", function() { return Tr2CurveVector3Expression; });
+/* harmony import */ var _global_index__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../global/index */ "./global/index.js");
+/* harmony import */ var _Tw2CurveExpression__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Tw2CurveExpression */ "./curve/expression/Tw2CurveExpression.js");
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+
+
+/**
+ * Tr2CurveVector3Expression
+ * TODO: Implement
+ *
+ * @property {String} expressionX                         -
+ * @property {String} expressionY                         -
+ * @property {String} expressionZ                         -
+ */
+
+class Tr2CurveVector3Expression extends _Tw2CurveExpression__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveExpression"] {
+  constructor() {
+    super(...arguments);
+
+    _defineProperty(this, "expressionX", "");
+
+    _defineProperty(this, "expressionY", "");
+
+    _defineProperty(this, "expressionZ", "");
+  }
+
+  /**
+   * Black definition
+   * @param {*} r
+   * @returns {*[]}
+   */
+  static black(r) {
+    return [["inputs", r.array], ["name", r.string], ["expressionX", r.string], ["expressionY", r.string], ["expressionZ", r.string]];
+  }
+  /**
+   * Identifies that the class is in staging
+   * @property {null|Number}
+   */
+
+
+}
+
+_defineProperty(Tr2CurveVector3Expression, "__isStaging", 4);
+
+/***/ }),
+
+/***/ "./curve/expression/Tw2CurveExpression.js":
+/*!************************************************!*\
+  !*** ./curve/expression/Tw2CurveExpression.js ***!
+  \************************************************/
+/*! exports provided: Tw2CurveExpression */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2CurveExpression", function() { return Tw2CurveExpression; });
+/* harmony import */ var _global_class__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../global/class */ "./global/class/index.js");
+
+function Tw2CurveExpression() {
+  _global_class__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"].defineID(this);
+  this.name = "";
+  this.inputs = [];
+}
+Tw2CurveExpression.prototype = Object.assign(Object.create(_global_class__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"].prototype), {
+  constructor: Tw2CurveExpression
+});
+
+/***/ }),
+
+/***/ "./curve/expression/index.js":
+/*!***********************************!*\
+  !*** ./curve/expression/index.js ***!
+  \***********************************/
+/*! exports provided: Tr2CurveEulerRotationExpression, Tr2CurveScalarExpression, Tr2CurveVector3Expression, Tw2CurveExpression */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _Tr2CurveEulerRotationExpression__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Tr2CurveEulerRotationExpression */ "./curve/expression/Tr2CurveEulerRotationExpression.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2CurveEulerRotationExpression", function() { return _Tr2CurveEulerRotationExpression__WEBPACK_IMPORTED_MODULE_0__["Tr2CurveEulerRotationExpression"]; });
+
+/* harmony import */ var _Tr2CurveScalarExpression__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Tr2CurveScalarExpression */ "./curve/expression/Tr2CurveScalarExpression.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2CurveScalarExpression", function() { return _Tr2CurveScalarExpression__WEBPACK_IMPORTED_MODULE_1__["Tr2CurveScalarExpression"]; });
+
+/* harmony import */ var _Tr2CurveVector3Expression__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Tr2CurveVector3Expression */ "./curve/expression/Tr2CurveVector3Expression.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2CurveVector3Expression", function() { return _Tr2CurveVector3Expression__WEBPACK_IMPORTED_MODULE_2__["Tr2CurveVector3Expression"]; });
+
+/* harmony import */ var _Tw2CurveExpression__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Tw2CurveExpression */ "./curve/expression/Tw2CurveExpression.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2CurveExpression", function() { return _Tw2CurveExpression__WEBPACK_IMPORTED_MODULE_3__["Tw2CurveExpression"]; });
+
+
+
+
+
+
+/***/ }),
+
+/***/ "./curve/index.js":
+/*!************************!*\
+  !*** ./curve/index.js ***!
+  \************************/
+/*! exports provided: Tw2CurveSet, Tw2CurveSetRange, Tw2ValueBinding, Tr2RotationAdapter, Tr2TranslationAdapter, Tw2CurveAdapter, AudEventKey, AudEventCurve, Tr2BoneMatrixCurve, Tw2CurveConstant, Tw2CurveScalarKey, Tr2CurveScalar, Tr2ScalarExprKey, Tr2ScalarExprKeyCurve, Tw2EventKey, Tw2EventCurve, Tw2PerlinCurve, Tw2CurveKey, Tw2Curve, Tr2CurveEulerRotationExpression, Tr2CurveScalarExpression, Tr2CurveVector3Expression, Tw2CurveExpression, TriColorSequencer, Tw2CurveColor, Tw2CurveEulerRotation, Tw2CurveVector3, Tw2CurveSequencer, Tw2ColorKey, Tw2ColorCurve, Tw2ColorKey2, Tw2ColorCurve2, Tw2QuaternionKey2, Tw2QuaternionCurve, Tw2RandomConstantCurve, Tw2Torque, Tw2RigidOrientation, Tw2QuaternionKey, Tw2RotationCurve, Tw2ScalarKey, Tw2ScalarCurve, Tw2ScalarKey2, Tw2ScalarCurve2, Tw2SineCurve, Tw2Vector2Key, Tw2Vector2Curve, Tw2Vector3Key, Tw2Vector3Curve, Tw2VectorKey, Tw2VectorCurve, Tw2WbgTrack, Tw2WbgTransformTrack, Tw2TransformTrack, Tw2MayaEulerRotationCurve, Tw2MayaScalarCurve, Tw2MayaVector3Curve, Tw2MayaAnimationEngine, Tw2ColorSequencer, Tw2EulerRotation, Tw2QuaternionSequencer, Tw2RGBAScalarSequencer, Tw2ScalarSequencer, Tw2VectorSequencer, Tw2XYZScalarSequencer, Tw2YPRSequencer */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _Tw2CurveSet__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Tw2CurveSet */ "./curve/Tw2CurveSet.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2CurveSet", function() { return _Tw2CurveSet__WEBPACK_IMPORTED_MODULE_0__["Tw2CurveSet"]; });
+
+/* harmony import */ var _Tw2CurveSetRange__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Tw2CurveSetRange */ "./curve/Tw2CurveSetRange.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2CurveSetRange", function() { return _Tw2CurveSetRange__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSetRange"]; });
+
+/* harmony import */ var _Tw2ValueBinding__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Tw2ValueBinding */ "./curve/Tw2ValueBinding.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ValueBinding", function() { return _Tw2ValueBinding__WEBPACK_IMPORTED_MODULE_2__["Tw2ValueBinding"]; });
+
+/* harmony import */ var _adapter__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./adapter */ "./curve/adapter/index.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2RotationAdapter", function() { return _adapter__WEBPACK_IMPORTED_MODULE_3__["Tr2RotationAdapter"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2TranslationAdapter", function() { return _adapter__WEBPACK_IMPORTED_MODULE_3__["Tr2TranslationAdapter"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2CurveAdapter", function() { return _adapter__WEBPACK_IMPORTED_MODULE_3__["Tw2CurveAdapter"]; });
+
+/* harmony import */ var _curve__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./curve */ "./curve/curve/index.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "AudEventKey", function() { return _curve__WEBPACK_IMPORTED_MODULE_4__["AudEventKey"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "AudEventCurve", function() { return _curve__WEBPACK_IMPORTED_MODULE_4__["AudEventCurve"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2BoneMatrixCurve", function() { return _curve__WEBPACK_IMPORTED_MODULE_4__["Tr2BoneMatrixCurve"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2CurveConstant", function() { return _curve__WEBPACK_IMPORTED_MODULE_4__["Tw2CurveConstant"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2CurveScalarKey", function() { return _curve__WEBPACK_IMPORTED_MODULE_4__["Tw2CurveScalarKey"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2CurveScalar", function() { return _curve__WEBPACK_IMPORTED_MODULE_4__["Tr2CurveScalar"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2ScalarExprKey", function() { return _curve__WEBPACK_IMPORTED_MODULE_4__["Tr2ScalarExprKey"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2ScalarExprKeyCurve", function() { return _curve__WEBPACK_IMPORTED_MODULE_4__["Tr2ScalarExprKeyCurve"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2EventKey", function() { return _curve__WEBPACK_IMPORTED_MODULE_4__["Tw2EventKey"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2EventCurve", function() { return _curve__WEBPACK_IMPORTED_MODULE_4__["Tw2EventCurve"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2PerlinCurve", function() { return _curve__WEBPACK_IMPORTED_MODULE_4__["Tw2PerlinCurve"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2CurveKey", function() { return _curve__WEBPACK_IMPORTED_MODULE_4__["Tw2CurveKey"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Curve", function() { return _curve__WEBPACK_IMPORTED_MODULE_4__["Tw2Curve"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ColorKey", function() { return _curve__WEBPACK_IMPORTED_MODULE_4__["Tw2ColorKey"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ColorCurve", function() { return _curve__WEBPACK_IMPORTED_MODULE_4__["Tw2ColorCurve"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ColorKey2", function() { return _curve__WEBPACK_IMPORTED_MODULE_4__["Tw2ColorKey2"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ColorCurve2", function() { return _curve__WEBPACK_IMPORTED_MODULE_4__["Tw2ColorCurve2"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2QuaternionKey2", function() { return _curve__WEBPACK_IMPORTED_MODULE_4__["Tw2QuaternionKey2"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2QuaternionCurve", function() { return _curve__WEBPACK_IMPORTED_MODULE_4__["Tw2QuaternionCurve"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2RandomConstantCurve", function() { return _curve__WEBPACK_IMPORTED_MODULE_4__["Tw2RandomConstantCurve"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Torque", function() { return _curve__WEBPACK_IMPORTED_MODULE_4__["Tw2Torque"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2RigidOrientation", function() { return _curve__WEBPACK_IMPORTED_MODULE_4__["Tw2RigidOrientation"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2QuaternionKey", function() { return _curve__WEBPACK_IMPORTED_MODULE_4__["Tw2QuaternionKey"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2RotationCurve", function() { return _curve__WEBPACK_IMPORTED_MODULE_4__["Tw2RotationCurve"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ScalarKey", function() { return _curve__WEBPACK_IMPORTED_MODULE_4__["Tw2ScalarKey"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ScalarCurve", function() { return _curve__WEBPACK_IMPORTED_MODULE_4__["Tw2ScalarCurve"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ScalarKey2", function() { return _curve__WEBPACK_IMPORTED_MODULE_4__["Tw2ScalarKey2"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ScalarCurve2", function() { return _curve__WEBPACK_IMPORTED_MODULE_4__["Tw2ScalarCurve2"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2SineCurve", function() { return _curve__WEBPACK_IMPORTED_MODULE_4__["Tw2SineCurve"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Vector2Key", function() { return _curve__WEBPACK_IMPORTED_MODULE_4__["Tw2Vector2Key"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Vector2Curve", function() { return _curve__WEBPACK_IMPORTED_MODULE_4__["Tw2Vector2Curve"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Vector3Key", function() { return _curve__WEBPACK_IMPORTED_MODULE_4__["Tw2Vector3Key"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Vector3Curve", function() { return _curve__WEBPACK_IMPORTED_MODULE_4__["Tw2Vector3Curve"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2VectorKey", function() { return _curve__WEBPACK_IMPORTED_MODULE_4__["Tw2VectorKey"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2VectorCurve", function() { return _curve__WEBPACK_IMPORTED_MODULE_4__["Tw2VectorCurve"]; });
+
+/* harmony import */ var _expression__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./expression */ "./curve/expression/index.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2CurveEulerRotationExpression", function() { return _expression__WEBPACK_IMPORTED_MODULE_5__["Tr2CurveEulerRotationExpression"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2CurveScalarExpression", function() { return _expression__WEBPACK_IMPORTED_MODULE_5__["Tr2CurveScalarExpression"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2CurveVector3Expression", function() { return _expression__WEBPACK_IMPORTED_MODULE_5__["Tr2CurveVector3Expression"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2CurveExpression", function() { return _expression__WEBPACK_IMPORTED_MODULE_5__["Tw2CurveExpression"]; });
+
+/* harmony import */ var _legacy__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./legacy */ "./curve/legacy/index.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2WbgTrack", function() { return _legacy__WEBPACK_IMPORTED_MODULE_6__["Tw2WbgTrack"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2WbgTransformTrack", function() { return _legacy__WEBPACK_IMPORTED_MODULE_6__["Tw2WbgTransformTrack"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2TransformTrack", function() { return _legacy__WEBPACK_IMPORTED_MODULE_6__["Tw2TransformTrack"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2MayaEulerRotationCurve", function() { return _legacy__WEBPACK_IMPORTED_MODULE_6__["Tw2MayaEulerRotationCurve"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2MayaScalarCurve", function() { return _legacy__WEBPACK_IMPORTED_MODULE_6__["Tw2MayaScalarCurve"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2MayaVector3Curve", function() { return _legacy__WEBPACK_IMPORTED_MODULE_6__["Tw2MayaVector3Curve"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2MayaAnimationEngine", function() { return _legacy__WEBPACK_IMPORTED_MODULE_6__["Tw2MayaAnimationEngine"]; });
+
+/* harmony import */ var _sequencer__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./sequencer */ "./curve/sequencer/index.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "TriColorSequencer", function() { return _sequencer__WEBPACK_IMPORTED_MODULE_7__["TriColorSequencer"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2CurveColor", function() { return _sequencer__WEBPACK_IMPORTED_MODULE_7__["Tw2CurveColor"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2CurveEulerRotation", function() { return _sequencer__WEBPACK_IMPORTED_MODULE_7__["Tw2CurveEulerRotation"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2CurveVector3", function() { return _sequencer__WEBPACK_IMPORTED_MODULE_7__["Tw2CurveVector3"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2CurveSequencer", function() { return _sequencer__WEBPACK_IMPORTED_MODULE_7__["Tw2CurveSequencer"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ColorSequencer", function() { return _sequencer__WEBPACK_IMPORTED_MODULE_7__["Tw2ColorSequencer"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2EulerRotation", function() { return _sequencer__WEBPACK_IMPORTED_MODULE_7__["Tw2EulerRotation"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2QuaternionSequencer", function() { return _sequencer__WEBPACK_IMPORTED_MODULE_7__["Tw2QuaternionSequencer"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2RGBAScalarSequencer", function() { return _sequencer__WEBPACK_IMPORTED_MODULE_7__["Tw2RGBAScalarSequencer"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ScalarSequencer", function() { return _sequencer__WEBPACK_IMPORTED_MODULE_7__["Tw2ScalarSequencer"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2VectorSequencer", function() { return _sequencer__WEBPACK_IMPORTED_MODULE_7__["Tw2VectorSequencer"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2XYZScalarSequencer", function() { return _sequencer__WEBPACK_IMPORTED_MODULE_7__["Tw2XYZScalarSequencer"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2YPRSequencer", function() { return _sequencer__WEBPACK_IMPORTED_MODULE_7__["Tw2YPRSequencer"]; });
 
 
 
@@ -34326,100 +34691,26 @@ __webpack_require__.r(__webpack_exports__);
 /*!*******************************!*\
   !*** ./curve/legacy/index.js ***!
   \*******************************/
-/*! exports provided: Tw2CurveKey, Tw2Curve, Tw2ColorKey, Tw2ColorCurve, Tw2ColorKey2, Tw2ColorCurve2, Tw2EventKey, Tw2EventCurve, Tw2PerlinCurve, Tw2QuaternionKey2, Tw2QuaternionCurve, Tw2RandomConstantCurve, Tw2Torque, Tw2RigidOrientation, Tw2QuaternionKey, Tw2RotationCurve, Tw2ScalarKey, Tw2ScalarCurve, Tw2ScalarKey2, Tw2ScalarCurve2, Tw2SineCurve, Tw2Vector2Key, Tw2Vector2Curve, Tw2Vector3Key, Tw2Vector3Curve, Tw2VectorKey, Tw2VectorCurve, Tw2ColorSequencer, Tw2EulerRotation, Tw2QuaternionSequencer, Tw2RGBAScalarSequencer, Tw2ScalarSequencer, Tw2VectorSequencer, Tw2XYZScalarSequencer, Tw2YPRSequencer, Tw2WbgTrack, Tw2WbgTransformTrack, Tw2TransformTrack, Tw2MayaEulerRotationCurve, Tw2MayaScalarCurve, Tw2MayaVector3Curve, Tw2MayaAnimationEngine */
+/*! exports provided: Tw2WbgTrack, Tw2WbgTransformTrack, Tw2TransformTrack, Tw2MayaEulerRotationCurve, Tw2MayaScalarCurve, Tw2MayaVector3Curve, Tw2MayaAnimationEngine */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _curves__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./curves */ "./curve/legacy/curves/index.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2CurveKey", function() { return _curves__WEBPACK_IMPORTED_MODULE_0__["Tw2CurveKey"]; });
+/* harmony import */ var _tracks__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./tracks */ "./curve/legacy/tracks/index.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2WbgTrack", function() { return _tracks__WEBPACK_IMPORTED_MODULE_0__["Tw2WbgTrack"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Curve", function() { return _curves__WEBPACK_IMPORTED_MODULE_0__["Tw2Curve"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2WbgTransformTrack", function() { return _tracks__WEBPACK_IMPORTED_MODULE_0__["Tw2WbgTransformTrack"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ColorKey", function() { return _curves__WEBPACK_IMPORTED_MODULE_0__["Tw2ColorKey"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2TransformTrack", function() { return _tracks__WEBPACK_IMPORTED_MODULE_0__["Tw2TransformTrack"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ColorCurve", function() { return _curves__WEBPACK_IMPORTED_MODULE_0__["Tw2ColorCurve"]; });
+/* harmony import */ var _maya__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./maya */ "./curve/legacy/maya/index.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2MayaEulerRotationCurve", function() { return _maya__WEBPACK_IMPORTED_MODULE_1__["Tw2MayaEulerRotationCurve"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ColorKey2", function() { return _curves__WEBPACK_IMPORTED_MODULE_0__["Tw2ColorKey2"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2MayaScalarCurve", function() { return _maya__WEBPACK_IMPORTED_MODULE_1__["Tw2MayaScalarCurve"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ColorCurve2", function() { return _curves__WEBPACK_IMPORTED_MODULE_0__["Tw2ColorCurve2"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2MayaVector3Curve", function() { return _maya__WEBPACK_IMPORTED_MODULE_1__["Tw2MayaVector3Curve"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2EventKey", function() { return _curves__WEBPACK_IMPORTED_MODULE_0__["Tw2EventKey"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2EventCurve", function() { return _curves__WEBPACK_IMPORTED_MODULE_0__["Tw2EventCurve"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2PerlinCurve", function() { return _curves__WEBPACK_IMPORTED_MODULE_0__["Tw2PerlinCurve"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2QuaternionKey2", function() { return _curves__WEBPACK_IMPORTED_MODULE_0__["Tw2QuaternionKey2"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2QuaternionCurve", function() { return _curves__WEBPACK_IMPORTED_MODULE_0__["Tw2QuaternionCurve"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2RandomConstantCurve", function() { return _curves__WEBPACK_IMPORTED_MODULE_0__["Tw2RandomConstantCurve"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Torque", function() { return _curves__WEBPACK_IMPORTED_MODULE_0__["Tw2Torque"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2RigidOrientation", function() { return _curves__WEBPACK_IMPORTED_MODULE_0__["Tw2RigidOrientation"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2QuaternionKey", function() { return _curves__WEBPACK_IMPORTED_MODULE_0__["Tw2QuaternionKey"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2RotationCurve", function() { return _curves__WEBPACK_IMPORTED_MODULE_0__["Tw2RotationCurve"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ScalarKey", function() { return _curves__WEBPACK_IMPORTED_MODULE_0__["Tw2ScalarKey"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ScalarCurve", function() { return _curves__WEBPACK_IMPORTED_MODULE_0__["Tw2ScalarCurve"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ScalarKey2", function() { return _curves__WEBPACK_IMPORTED_MODULE_0__["Tw2ScalarKey2"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ScalarCurve2", function() { return _curves__WEBPACK_IMPORTED_MODULE_0__["Tw2ScalarCurve2"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2SineCurve", function() { return _curves__WEBPACK_IMPORTED_MODULE_0__["Tw2SineCurve"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Vector2Key", function() { return _curves__WEBPACK_IMPORTED_MODULE_0__["Tw2Vector2Key"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Vector2Curve", function() { return _curves__WEBPACK_IMPORTED_MODULE_0__["Tw2Vector2Curve"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Vector3Key", function() { return _curves__WEBPACK_IMPORTED_MODULE_0__["Tw2Vector3Key"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2Vector3Curve", function() { return _curves__WEBPACK_IMPORTED_MODULE_0__["Tw2Vector3Curve"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2VectorKey", function() { return _curves__WEBPACK_IMPORTED_MODULE_0__["Tw2VectorKey"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2VectorCurve", function() { return _curves__WEBPACK_IMPORTED_MODULE_0__["Tw2VectorCurve"]; });
-
-/* harmony import */ var _sequencers__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./sequencers */ "./curve/legacy/sequencers/index.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ColorSequencer", function() { return _sequencers__WEBPACK_IMPORTED_MODULE_1__["Tw2ColorSequencer"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2EulerRotation", function() { return _sequencers__WEBPACK_IMPORTED_MODULE_1__["Tw2EulerRotation"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2QuaternionSequencer", function() { return _sequencers__WEBPACK_IMPORTED_MODULE_1__["Tw2QuaternionSequencer"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2RGBAScalarSequencer", function() { return _sequencers__WEBPACK_IMPORTED_MODULE_1__["Tw2RGBAScalarSequencer"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ScalarSequencer", function() { return _sequencers__WEBPACK_IMPORTED_MODULE_1__["Tw2ScalarSequencer"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2VectorSequencer", function() { return _sequencers__WEBPACK_IMPORTED_MODULE_1__["Tw2VectorSequencer"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2XYZScalarSequencer", function() { return _sequencers__WEBPACK_IMPORTED_MODULE_1__["Tw2XYZScalarSequencer"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2YPRSequencer", function() { return _sequencers__WEBPACK_IMPORTED_MODULE_1__["Tw2YPRSequencer"]; });
-
-/* harmony import */ var _tracks__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./tracks */ "./curve/legacy/tracks/index.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2WbgTrack", function() { return _tracks__WEBPACK_IMPORTED_MODULE_2__["Tw2WbgTrack"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2WbgTransformTrack", function() { return _tracks__WEBPACK_IMPORTED_MODULE_2__["Tw2WbgTransformTrack"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2TransformTrack", function() { return _tracks__WEBPACK_IMPORTED_MODULE_2__["Tw2TransformTrack"]; });
-
-/* harmony import */ var _maya__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./maya */ "./curve/legacy/maya/index.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2MayaEulerRotationCurve", function() { return _maya__WEBPACK_IMPORTED_MODULE_3__["Tw2MayaEulerRotationCurve"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2MayaScalarCurve", function() { return _maya__WEBPACK_IMPORTED_MODULE_3__["Tw2MayaScalarCurve"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2MayaVector3Curve", function() { return _maya__WEBPACK_IMPORTED_MODULE_3__["Tw2MayaVector3Curve"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2MayaAnimationEngine", function() { return _maya__WEBPACK_IMPORTED_MODULE_3__["Tw2MayaAnimationEngine"]; });
-
-
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2MayaAnimationEngine", function() { return _maya__WEBPACK_IMPORTED_MODULE_1__["Tw2MayaAnimationEngine"]; });
 
 
 
@@ -34436,8 +34727,8 @@ __webpack_require__.r(__webpack_exports__);
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2MayaAnimationEngine", function() { return Tw2MayaAnimationEngine; });
-/* harmony import */ var _global_index__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../global/index */ "./global/index.js");
-/* harmony import */ var _core_index__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../../core/index */ "./core/index.js");
+/* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../global */ "./global/index.js");
+/* harmony import */ var _core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../../core */ "./core/index.js");
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 
@@ -34456,7 +34747,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 class Tw2MayaAnimationEngine {
   constructor() {
-    _defineProperty(this, "_id", _global_index__WEBPACK_IMPORTED_MODULE_0__["util"].generateID());
+    _defineProperty(this, "_id", _global__WEBPACK_IMPORTED_MODULE_0__["util"].generateID());
 
     _defineProperty(this, "curves", []);
 
@@ -34633,7 +34924,7 @@ class Tw2MayaAnimationEngine {
 
 
   _EvaluateInfinities(curve, segments, startSegment, time, bool) {
-    throw new _core_index__WEBPACK_IMPORTED_MODULE_1__["ErrFeatureNotImplemented"]({
+    throw new _core__WEBPACK_IMPORTED_MODULE_1__["ErrFeatureNotImplemented"]({
       feature: "Maya animation engine evaluate infinities"
     });
   }
@@ -34668,13 +34959,13 @@ class Tw2MayaAnimationEngine {
     if (segment[Tw2MayaAnimationEngine.BezierSegment.IS_LINEAR]) {
       t = s;
     } else {
-      let poly = _global_index__WEBPACK_IMPORTED_MODULE_0__["vec4"].create();
+      let poly = _global__WEBPACK_IMPORTED_MODULE_0__["vec4"].create();
       poly[3] = segment[Tw2MayaAnimationEngine.BezierSegment.COEFF][3];
       poly[2] = segment[Tw2MayaAnimationEngine.BezierSegment.COEFF][2];
       poly[1] = segment[Tw2MayaAnimationEngine.BezierSegment.COEFF][1];
       poly[0] = segment[Tw2MayaAnimationEngine.BezierSegment.COEFF][0] - s;
       let roots = [];
-      if (_global_index__WEBPACK_IMPORTED_MODULE_0__["curve"].polyZeroes(poly, 3, 0.0, 1, 1.0, 1, roots) === 1) t = roots[0];else t = 0.0;
+      if (_global__WEBPACK_IMPORTED_MODULE_0__["curve"].polyZeroes(poly, 3, 0.0, 1, 1.0, 1, roots) === 1) t = roots[0];else t = 0.0;
     }
 
     let poly = segment[Tw2MayaAnimationEngine.BezierSegment.POLYY];
@@ -34809,8 +35100,8 @@ _defineProperty(Tw2MayaAnimationEngine, "INFINITY", 0);
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2MayaEulerRotationCurve", function() { return Tw2MayaEulerRotationCurve; });
-/* harmony import */ var _global_index__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../global/index */ "./global/index.js");
-/* harmony import */ var _curves__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../curves */ "./curve/legacy/curves/index.js");
+/* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../global */ "./global/index.js");
+/* harmony import */ var _curve__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../curve */ "./curve/curve/index.js");
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 
@@ -34830,7 +35121,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
  * @class
  */
 
-class Tw2MayaEulerRotationCurve extends _curves__WEBPACK_IMPORTED_MODULE_1__["Tw2Curve"] {
+class Tw2MayaEulerRotationCurve extends _curve__WEBPACK_IMPORTED_MODULE_1__["Tw2Curve"] {
   constructor() {
     super(...arguments);
 
@@ -34842,11 +35133,11 @@ class Tw2MayaEulerRotationCurve extends _curves__WEBPACK_IMPORTED_MODULE_1__["Tw
 
     _defineProperty(this, "animationEngine", null);
 
-    _defineProperty(this, "eulerValue", _global_index__WEBPACK_IMPORTED_MODULE_0__["vec3"].create());
+    _defineProperty(this, "eulerValue", _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].create());
 
     _defineProperty(this, "updateQuaternion", false);
 
-    _defineProperty(this, "quatValue", _global_index__WEBPACK_IMPORTED_MODULE_0__["quat"].create());
+    _defineProperty(this, "quatValue", _global__WEBPACK_IMPORTED_MODULE_0__["quat"].create());
 
     _defineProperty(this, "length", 0);
   }
@@ -34941,7 +35232,7 @@ _defineProperty(Tw2MayaEulerRotationCurve, "outputDimension", 3);
 
 _defineProperty(Tw2MayaEulerRotationCurve, "valueProperty", "eulerValue");
 
-_defineProperty(Tw2MayaEulerRotationCurve, "curveType", _curves__WEBPACK_IMPORTED_MODULE_1__["Tw2Curve"].Type.CURVE_MAYA);
+_defineProperty(Tw2MayaEulerRotationCurve, "curveType", _curve__WEBPACK_IMPORTED_MODULE_1__["Tw2Curve"].Type.CURVE_MAYA);
 
 /***/ }),
 
@@ -34955,7 +35246,7 @@ _defineProperty(Tw2MayaEulerRotationCurve, "curveType", _curves__WEBPACK_IMPORTE
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2MayaScalarCurve", function() { return Tw2MayaScalarCurve; });
-/* harmony import */ var _curves__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../curves */ "./curve/legacy/curves/index.js");
+/* harmony import */ var _curve__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../curve */ "./curve/curve/index.js");
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 
@@ -34969,7 +35260,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
  * @class
  */
 
-class Tw2MayaScalarCurve extends _curves__WEBPACK_IMPORTED_MODULE_0__["Tw2Curve"] {
+class Tw2MayaScalarCurve extends _curve__WEBPACK_IMPORTED_MODULE_0__["Tw2Curve"] {
   constructor() {
     super(...arguments);
 
@@ -35029,7 +35320,7 @@ _defineProperty(Tw2MayaScalarCurve, "outputDimension", 1);
 
 _defineProperty(Tw2MayaScalarCurve, "valueProperty", "value");
 
-_defineProperty(Tw2MayaScalarCurve, "curveType", _curves__WEBPACK_IMPORTED_MODULE_0__["Tw2Curve"].Type.CURVE_MAYA);
+_defineProperty(Tw2MayaScalarCurve, "curveType", _curve__WEBPACK_IMPORTED_MODULE_0__["Tw2Curve"].Type.CURVE_MAYA);
 
 /***/ }),
 
@@ -35043,8 +35334,8 @@ _defineProperty(Tw2MayaScalarCurve, "curveType", _curves__WEBPACK_IMPORTED_MODUL
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2MayaVector3Curve", function() { return Tw2MayaVector3Curve; });
-/* harmony import */ var _global_index__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../global/index */ "./global/index.js");
-/* harmony import */ var _curves__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../curves */ "./curve/legacy/curves/index.js");
+/* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../global */ "./global/index.js");
+/* harmony import */ var _curve__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../curve */ "./curve/curve/index.js");
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 
@@ -35061,7 +35352,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
  * @property {number} length
  */
 
-class Tw2MayaVector3Curve extends _curves__WEBPACK_IMPORTED_MODULE_1__["Tw2Curve"] {
+class Tw2MayaVector3Curve extends _curve__WEBPACK_IMPORTED_MODULE_1__["Tw2Curve"] {
   constructor() {
     super(...arguments);
 
@@ -35073,7 +35364,7 @@ class Tw2MayaVector3Curve extends _curves__WEBPACK_IMPORTED_MODULE_1__["Tw2Curve
 
     _defineProperty(this, "animationEngine", null);
 
-    _defineProperty(this, "value", _global_index__WEBPACK_IMPORTED_MODULE_0__["vec3"].create());
+    _defineProperty(this, "value", _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].create());
 
     _defineProperty(this, "length", 0);
   }
@@ -35155,7 +35446,7 @@ _defineProperty(Tw2MayaVector3Curve, "outputDimension", 3);
 
 _defineProperty(Tw2MayaVector3Curve, "valueProperty", "value");
 
-_defineProperty(Tw2MayaVector3Curve, "curveType", _curves__WEBPACK_IMPORTED_MODULE_1__["Tw2Curve"].Type.CURVE_MAYA);
+_defineProperty(Tw2MayaVector3Curve, "curveType", _curve__WEBPACK_IMPORTED_MODULE_1__["Tw2Curve"].Type.CURVE_MAYA);
 
 /***/ }),
 
@@ -35179,1075 +35470,6 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony import */ var _Tw2MayaAnimationEngine__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Tw2MayaAnimationEngine */ "./curve/legacy/maya/Tw2MayaAnimationEngine.js");
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2MayaAnimationEngine", function() { return _Tw2MayaAnimationEngine__WEBPACK_IMPORTED_MODULE_3__["Tw2MayaAnimationEngine"]; });
-
-
-
-
-
-
-/***/ }),
-
-/***/ "./curve/legacy/sequencers/Tw2ColorSequencer.js":
-/*!******************************************************!*\
-  !*** ./curve/legacy/sequencers/Tw2ColorSequencer.js ***!
-  \******************************************************/
-/*! exports provided: Tw2ColorSequencer */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2ColorSequencer", function() { return Tw2ColorSequencer; });
-/* harmony import */ var _global_index__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../global/index */ "./global/index.js");
-/* harmony import */ var _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Tw2CurveSequencer */ "./curve/legacy/sequencers/Tw2CurveSequencer.js");
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-
-
-/**
- * Tw2ColorSequencer
- *
- * @property {number} start
- * @property {vec4} value
- * @property {number} operator
- * @property {Array<Tw2Curve>} functions
- * @class
- */
-
-class Tw2ColorSequencer extends _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"] {
-  constructor() {
-    super(...arguments);
-
-    _defineProperty(this, "start", 0);
-
-    _defineProperty(this, "value", _global_index__WEBPACK_IMPORTED_MODULE_0__["vec4"].create());
-
-    _defineProperty(this, "operator", 0);
-
-    _defineProperty(this, "functions", []);
-  }
-
-  /**
-   * Sorts the sequencer
-   */
-  Sort() {
-    _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"].Sort(this);
-  }
-  /**
-   * Gets sequencer length
-   * @returns {number}
-   */
-
-
-  GetLength() {
-    let len = 0;
-
-    for (let i = 0; i < this.functions.length; ++i) {
-      if ("GetLength" in this.functions[i]) {
-        len = Math.max(len, this.functions[i].GetLength());
-      }
-    }
-
-    return len;
-  }
-  /**
-   * Updates a value at a specific time
-   * @param {number} time
-   */
-
-
-  UpdateValue(time) {
-    this.GetValueAt(time, this.value);
-  }
-  /**
-   * Gets a value at a specific time
-   * @param {number} time
-   * @param {vec4} value
-   * @returns {vec4}
-   */
-
-
-  GetValueAt(time, value) {
-    const vec4_0 = _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"].global.vec4_0;
-
-    switch (this.operator) {
-      case Tw2ColorSequencer.Operator.MULTIPLY:
-        _global_index__WEBPACK_IMPORTED_MODULE_0__["vec4"].set(value, 1, 1, 1, 1);
-
-        for (let i = 0; i < this.functions.length; ++i) {
-          this.functions[i].GetValueAt(time, vec4_0);
-          _global_index__WEBPACK_IMPORTED_MODULE_0__["vec4"].multiply(value, value, vec4_0);
-        }
-
-        return value;
-
-      default:
-        _global_index__WEBPACK_IMPORTED_MODULE_0__["vec4"].set(value, 0, 0, 0, 0);
-
-        for (let i = 0; i < this.functions.length; ++i) {
-          this.functions[i].GetValueAt(time, vec4_0);
-          _global_index__WEBPACK_IMPORTED_MODULE_0__["vec4"].add(value, value, vec4_0);
-        }
-
-        return value;
-    }
-  }
-  /**
-   * The sequencer's curve dimension
-   * @type {number}
-   */
-
-
-}
-
-_defineProperty(Tw2ColorSequencer, "inputDimension", 4);
-
-_defineProperty(Tw2ColorSequencer, "outputDimension", 4);
-
-_defineProperty(Tw2ColorSequencer, "valueProperty", "value");
-
-_defineProperty(Tw2ColorSequencer, "curveType", _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"].Type.SEQUENCER);
-
-_defineProperty(Tw2ColorSequencer, "childArray", "functions");
-
-_defineProperty(Tw2ColorSequencer, "Operator", {
-  MULTIPLY: 0,
-  ADD: 1
-});
-
-/***/ }),
-
-/***/ "./curve/legacy/sequencers/Tw2CurveSequencer.js":
-/*!******************************************************!*\
-  !*** ./curve/legacy/sequencers/Tw2CurveSequencer.js ***!
-  \******************************************************/
-/*! exports provided: Tw2CurveSequencer */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2CurveSequencer", function() { return Tw2CurveSequencer; });
-/* harmony import */ var _curves__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../curves */ "./curve/legacy/curves/index.js");
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-
-/**
- * Tw2CurveSequencer base class
- *
- * @class
- */
-
-class Tw2CurveSequencer extends _curves__WEBPACK_IMPORTED_MODULE_0__["Tw2Curve"] {
-  /**
-   * Legacy sequencer sorting
-   * @param {Tw2CurveSequencer} sequencer
-   */
-  static Sort(sequencer) {
-    let curves = sequencer["functions"];
-
-    if (curves && curves.length) {
-      for (let i = 0; i < curves.length; i++) {
-        if (curves[i] && "Sort" in curves[i]) curves[i].Sort();
-      }
-    }
-  }
-  /**
-   * Standard sequencer sorting
-   * @param {Tw2CurveSequencer} sequencer
-   */
-
-
-  static Sort2(sequencer) {
-    const names = sequencer.constructor.childProperties;
-
-    if (names) {
-      for (let i = 0; i < names.length; i++) {
-        let curve = sequencer[names[i]];
-        if (curve && "Sort" in curve) curve.Sort();
-      }
-    }
-  }
-  /**
-   * The sequencer's curve property names
-   * @type {?Array.<string>}
-   */
-
-
-}
-
-_defineProperty(Tw2CurveSequencer, "childProperties", null);
-
-_defineProperty(Tw2CurveSequencer, "childArray", null);
-
-_defineProperty(Tw2CurveSequencer, "Operator", null);
-
-/***/ }),
-
-/***/ "./curve/legacy/sequencers/Tw2EulerRotation.js":
-/*!*****************************************************!*\
-  !*** ./curve/legacy/sequencers/Tw2EulerRotation.js ***!
-  \*****************************************************/
-/*! exports provided: Tw2EulerRotation */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2EulerRotation", function() { return Tw2EulerRotation; });
-/* harmony import */ var _global_index__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../global/index */ "./global/index.js");
-/* harmony import */ var _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Tw2CurveSequencer */ "./curve/legacy/sequencers/Tw2CurveSequencer.js");
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-
-
-/**
- * Tw2EulerRotation
- *
- * @property {String} name
- * @property {Tw2Curve} [yawCurve]
- * @property {Tw2Curve} [pitchCurve]
- * @property {Tw2Curve} [rollCurve]
- * @property {quat} currentValue=[0,0,0,1]
- * @class
- */
-
-class Tw2EulerRotation extends _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"] {
-  constructor() {
-    super(...arguments);
-
-    _defineProperty(this, "yawCurve", null);
-
-    _defineProperty(this, "pitchCurve", null);
-
-    _defineProperty(this, "rollCurve", null);
-
-    _defineProperty(this, "currentValue", _global_index__WEBPACK_IMPORTED_MODULE_0__["quat"].create());
-  }
-
-  /**
-   * Sorts the sequencer
-   */
-  Sort() {
-    _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"].Sort2(this);
-  }
-  /**
-   * Gets sequencer length
-   * @returns {number}
-   */
-
-
-  GetLength() {
-    let len = 0;
-    if (this.yawCurve && "GetLength" in this.yawCurve) len = this.yawCurve.GetLength();
-    if (this.pitchCurve && "GetLength" in this.pitchCurve) len = Math.max(len, this.pitchCurve.GetLength());
-    if (this.rollCurve && "GetLength" in this.rollCurve) len = Math.max(len, this.rollCurve.GetLength());
-    return len;
-  }
-  /**
-   * Updates the current value at a specific time
-   * @param {number} time
-   */
-
-
-  UpdateValue(time) {
-    this.GetValueAt(time, this.currentValue);
-  }
-  /**
-   * Gets a value at a specific time
-   * @param {number} time
-   * @param {quat} value
-   * @returns {quat}
-   */
-
-
-  GetValueAt(time, value) {
-    const yaw = this.yawCurve ? this.yawCurve.GetValueAt(time) : 0.0,
-          pitch = this.pitchCurve ? this.pitchCurve.GetValueAt(time) : 0.0,
-          roll = this.rollCurve ? this.rollCurve.GetValueAt(time) : 0.0;
-    const sinYaw = Math.sin(yaw / 2.0),
-          cosYaw = Math.cos(yaw / 2.0),
-          sinPitch = Math.sin(pitch / 2.0),
-          cosPitch = Math.cos(pitch / 2.0),
-          sinRoll = Math.sin(roll / 2.0),
-          cosRoll = Math.cos(roll / 2.0);
-    value[0] = sinYaw * cosPitch * sinRoll + cosYaw * sinPitch * cosRoll;
-    value[1] = sinYaw * cosPitch * cosRoll - cosYaw * sinPitch * sinRoll;
-    value[2] = cosYaw * cosPitch * sinRoll - sinYaw * sinPitch * cosRoll;
-    value[3] = cosYaw * cosPitch * cosRoll + sinYaw * sinPitch * sinRoll;
-    return value;
-  }
-  /**
-   * The sequencer's curve dimension
-   * @type {number}
-   */
-
-
-}
-
-_defineProperty(Tw2EulerRotation, "inputDimension", 1);
-
-_defineProperty(Tw2EulerRotation, "outputDimension", 3);
-
-_defineProperty(Tw2EulerRotation, "valueProperty", "currentValue");
-
-_defineProperty(Tw2EulerRotation, "curveType", _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"].Type.SEQUENCER2);
-
-_defineProperty(Tw2EulerRotation, "childProperties", ["yawCurve", "pitchCurve", "rollCurve"]);
-
-/***/ }),
-
-/***/ "./curve/legacy/sequencers/Tw2QuaternionSequencer.js":
-/*!***********************************************************!*\
-  !*** ./curve/legacy/sequencers/Tw2QuaternionSequencer.js ***!
-  \***********************************************************/
-/*! exports provided: Tw2QuaternionSequencer */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2QuaternionSequencer", function() { return Tw2QuaternionSequencer; });
-/* harmony import */ var _global_index__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../global/index */ "./global/index.js");
-/* harmony import */ var _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Tw2CurveSequencer */ "./curve/legacy/sequencers/Tw2CurveSequencer.js");
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-
-
-/**
- * Tw2QuaternionSequencer
- *
- * @property {String} name
- * @property {number} start
- * @property {quat} value
- * @property {Array<Tw2Curve>} functions
- * @class
- */
-
-class Tw2QuaternionSequencer extends _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"] {
-  constructor() {
-    super(...arguments);
-
-    _defineProperty(this, "start", 0);
-
-    _defineProperty(this, "value", _global_index__WEBPACK_IMPORTED_MODULE_0__["quat"].create());
-
-    _defineProperty(this, "functions", []);
-  }
-
-  /**
-   * Sorts the sequencer
-   */
-  Sort() {
-    _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"].Sort(this);
-  }
-  /**
-   * Gets sequencer length
-   * @returns {number}
-   */
-
-
-  GetLength() {
-    let len = 0;
-
-    for (let i = 0; i < this.functions.length; ++i) {
-      if ("GetLength" in this.functions[i]) {
-        len = Math.max(len, this.functions[i].GetLength());
-      }
-    }
-
-    return len;
-  }
-  /**
-   * Updates a value at a specific time
-   * @param {number} time
-   */
-
-
-  UpdateValue(time) {
-    this.GetValueAt(time, this.value);
-  }
-  /**
-   * Gets a value at a specific time
-   * @param {number} time
-   * @param {quat} value
-   * @returns {quat}
-   */
-
-
-  GetValueAt(time, value) {
-    _global_index__WEBPACK_IMPORTED_MODULE_0__["quat"].identity(value);
-    const quat_0 = _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"].global.quat_0;
-
-    for (let i = 0; i < this.functions.length; ++i) {
-      this.functions[i].GetValueAt(time, quat_0);
-      _global_index__WEBPACK_IMPORTED_MODULE_0__["quat"].multiply(value, value, quat_0);
-    }
-
-    return value;
-  }
-  /**
-   * The sequencer's curve dimension
-   * @type {number}
-   */
-
-
-}
-
-_defineProperty(Tw2QuaternionSequencer, "inputDimension", 4);
-
-_defineProperty(Tw2QuaternionSequencer, "outputDimension", 4);
-
-_defineProperty(Tw2QuaternionSequencer, "valueProperty", "value");
-
-_defineProperty(Tw2QuaternionSequencer, "curveType", _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"].Type.SEQUENCER);
-
-_defineProperty(Tw2QuaternionSequencer, "childArray", "functions");
-
-/***/ }),
-
-/***/ "./curve/legacy/sequencers/Tw2RGBAScalarSequencer.js":
-/*!***********************************************************!*\
-  !*** ./curve/legacy/sequencers/Tw2RGBAScalarSequencer.js ***!
-  \***********************************************************/
-/*! exports provided: Tw2RGBAScalarSequencer */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2RGBAScalarSequencer", function() { return Tw2RGBAScalarSequencer; });
-/* harmony import */ var _global_index__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../global/index */ "./global/index.js");
-/* harmony import */ var _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Tw2CurveSequencer */ "./curve/legacy/sequencers/Tw2CurveSequencer.js");
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-
-
-/**
- * Tw2RGBAScalarSequencer
- *
- * @property {vec4} value
- * @property {Tw2Curve} RedCurve
- * @property {Tw2Curve} GreenCurve
- * @property {Tw2Curve} BlueCurve
- * @property {Tw2Curve} AlphaCurve
- * @class
- */
-
-class Tw2RGBAScalarSequencer extends _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"] {
-  constructor() {
-    super(...arguments);
-
-    _defineProperty(this, "value", _global_index__WEBPACK_IMPORTED_MODULE_0__["vec4"].create());
-
-    _defineProperty(this, "RedCurve", null);
-
-    _defineProperty(this, "GreenCurve", null);
-
-    _defineProperty(this, "BlueCurve", null);
-
-    _defineProperty(this, "AlphaCurve", null);
-  }
-
-  /**
-   * Sorts the sequencer
-   */
-  Sort() {
-    _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"].Sort2(this);
-  }
-  /**
-   * Gets sequencer length
-   * @returns {number}
-   */
-
-
-  GetLength() {
-    let len = 0;
-    if (this.RedCurve && "GetLength" in this.RedCurve) len = this.RedCurve.GetLength();
-    if (this.GreenCurve && "GetLength" in this.GreenCurve) len = Math.max(len, this.GreenCurve.GetLength());
-    if (this.BlueCurve && "GetLength" in this.BlueCurve) len = Math.max(len, this.BlueCurve.GetLength());
-    if (this.AlphaCurve && "GetLength" in this.AlphaCurve) len = Math.max(len, this.AlphaCurve.GetLength());
-    return len;
-  }
-  /**
-   * Updates the current value at a specific time
-   * @param {number} time
-   */
-
-
-  UpdateValue(time) {
-    this.GetValueAt(time, this.value);
-  }
-  /**
-   * Gets a value at a specific time
-   * @param {number} time
-   * @param {vec4} value
-   * @returns {vec4}
-   */
-
-
-  GetValueAt(time, value) {
-    value[0] = this.RedCurve ? this.RedCurve.GetValueAt(time) : 0;
-    value[1] = this.GreenCurve ? this.GreenCurve.GetValueAt(time) : 0;
-    value[2] = this.BlueCurve ? this.BlueCurve.GetValueAt(time) : 0;
-    value[3] = this.AlphaCurve ? this.AlphaCurve.GetValueAt(time) : 0;
-    return value;
-  }
-  /**
-   * The sequencer's curve dimension
-   * @type {number}
-   */
-
-
-}
-
-_defineProperty(Tw2RGBAScalarSequencer, "inputDimension", 1);
-
-_defineProperty(Tw2RGBAScalarSequencer, "outputDimension", 4);
-
-_defineProperty(Tw2RGBAScalarSequencer, "valueProperty", "value");
-
-_defineProperty(Tw2RGBAScalarSequencer, "curveType", _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"].Type.SEQUENCER2);
-
-_defineProperty(Tw2RGBAScalarSequencer, "childProperties", ["RedCurve", "GreenCurve", "BlueCurve", "AlphaCurve"]);
-
-/***/ }),
-
-/***/ "./curve/legacy/sequencers/Tw2ScalarSequencer.js":
-/*!*******************************************************!*\
-  !*** ./curve/legacy/sequencers/Tw2ScalarSequencer.js ***!
-  \*******************************************************/
-/*! exports provided: Tw2ScalarSequencer */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2ScalarSequencer", function() { return Tw2ScalarSequencer; });
-/* harmony import */ var _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Tw2CurveSequencer */ "./curve/legacy/sequencers/Tw2CurveSequencer.js");
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-
-/**
- * Tw2ScalarSequencer
- *
- * @property {String} name
- * @property {number} value
- * @property {number} operator
- * @property {Array<Tw2Curve>} functions
- * @property {number} inMinClamp
- * @property {number} inMaxClamp
- * @property {number} outMinClamp
- * @property {number} outMaxClamp
- * @property {Boolean} clamping
- * @class
- */
-
-class Tw2ScalarSequencer extends _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_0__["Tw2CurveSequencer"] {
-  constructor() {
-    super(...arguments);
-
-    _defineProperty(this, "value", 0);
-
-    _defineProperty(this, "operator", 0);
-
-    _defineProperty(this, "functions", []);
-
-    _defineProperty(this, "inMinClamp", 0);
-
-    _defineProperty(this, "inMaxClamp", 1);
-
-    _defineProperty(this, "outMinClamp", 0);
-
-    _defineProperty(this, "outMaxClamp", 1);
-
-    _defineProperty(this, "clamping", false);
-  }
-
-  /**
-   * Sorts the sequencer
-   */
-  Sort() {
-    _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_0__["Tw2CurveSequencer"].Sort(this);
-  }
-  /**
-   * Gets sequencer length
-   * @returns {number}
-   */
-
-
-  GetLength() {
-    let len = 0;
-
-    for (let i = 0; i < this.functions.length; ++i) {
-      if ("GetLength" in this.functions[i]) {
-        len = Math.max(len, this.functions[i].GetLength());
-      }
-    }
-
-    return len;
-  }
-  /**
-   * Updates a value at a specific time
-   *
-   * @param {number} time
-   */
-
-
-  UpdateValue(time) {
-    this.value = this.GetValueAt(time);
-  }
-  /**
-   * Gets a value at a specific time
-   *
-   * @param {number} time
-   * @returns {number}
-   */
-
-
-  GetValueAt(time) {
-    let value;
-
-    switch (this.operator) {
-      case Tw2ScalarSequencer.Operator.MULTIPLY:
-        value = 1;
-
-        for (let i = 0; i < this.functions.length; ++i) {
-          let v = this.functions[i].GetValueAt(time);
-
-          if (this.clamping) {
-            v = Math.min(Math.max(v, this.inMinClamp), this.inMaxClamp);
-          }
-
-          value *= v;
-        }
-
-        break;
-
-      default:
-        value = 0;
-
-        for (let i = 0; i < this.functions.length; ++i) {
-          let v = this.functions[i].GetValueAt(time);
-
-          if (this.clamping) {
-            v = Math.min(Math.max(v, this.inMinClamp), this.inMaxClamp);
-          }
-
-          value += v;
-        }
-
-    }
-
-    if (this.clamping) {
-      value = Math.min(Math.max(value, this.outMinClamp), this.outMaxClamp);
-    }
-
-    return value;
-  }
-  /**
-   * The sequencer's curve dimension
-   * @type {number}
-   */
-
-
-}
-
-_defineProperty(Tw2ScalarSequencer, "inputDimension", 1);
-
-_defineProperty(Tw2ScalarSequencer, "outputDimension", 1);
-
-_defineProperty(Tw2ScalarSequencer, "valueProperty", "value");
-
-_defineProperty(Tw2ScalarSequencer, "curveType", _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_0__["Tw2CurveSequencer"].Type.SEQUENCER);
-
-_defineProperty(Tw2ScalarSequencer, "childArray", "functions");
-
-_defineProperty(Tw2ScalarSequencer, "Operator", {
-  MULTIPLY: 0,
-  ADD: 1
-});
-
-/***/ }),
-
-/***/ "./curve/legacy/sequencers/Tw2VectorSequencer.js":
-/*!*******************************************************!*\
-  !*** ./curve/legacy/sequencers/Tw2VectorSequencer.js ***!
-  \*******************************************************/
-/*! exports provided: Tw2VectorSequencer */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2VectorSequencer", function() { return Tw2VectorSequencer; });
-/* harmony import */ var _global_index__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../global/index */ "./global/index.js");
-/* harmony import */ var _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Tw2CurveSequencer */ "./curve/legacy/sequencers/Tw2CurveSequencer.js");
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-
-
-/**
- * Tw2VectorSequencer
- *
- * @property {String} name
- * @property {number} start
- * @property {vec3} value
- * @property {number} operator
- * @property {Array.<Tw2Curve>} functions
- * @class
- */
-
-class Tw2VectorSequencer extends _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"] {
-  constructor() {
-    super(...arguments);
-
-    _defineProperty(this, "start", 0);
-
-    _defineProperty(this, "value", _global_index__WEBPACK_IMPORTED_MODULE_0__["vec3"].create());
-
-    _defineProperty(this, "operator", 0);
-
-    _defineProperty(this, "functions", []);
-  }
-
-  /**
-   * Sorts the sequencer
-   */
-  Sort() {
-    _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"].Sort(this);
-  }
-  /**
-   * Gets sequencer length
-   * @returns {number}
-   */
-
-
-  GetLength() {
-    let len = 0;
-
-    for (let i = 0; i < this.functions.length; ++i) {
-      if ("GetLength" in this.functions[i]) {
-        len = Math.max(len, this.functions[i].GetLength());
-      }
-    }
-
-    return len;
-  }
-  /**
-   * Updates the current value at a specific time
-   * @param {number} time
-   */
-
-
-  UpdateValue(time) {
-    this.GetValueAt(time, this.value);
-  }
-  /**
-   * Gets a value at a specific time
-   * @param {number} time
-   * @param {vec3} value
-   * @returns {vec3}
-   */
-
-
-  GetValueAt(time, value) {
-    const vec3_0 = _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"].global.vec3_0;
-
-    switch (this.operator) {
-      case Tw2VectorSequencer.Operator.MULTIPLY:
-        _global_index__WEBPACK_IMPORTED_MODULE_0__["vec3"].set(value, 1, 1, 1);
-
-        for (let i = 0; i < this.functions.length; ++i) {
-          this.functions[i].GetValueAt(time, vec3_0);
-          _global_index__WEBPACK_IMPORTED_MODULE_0__["vec3"].multiply(value, value, vec3_0);
-        }
-
-        return value;
-
-      default:
-        _global_index__WEBPACK_IMPORTED_MODULE_0__["vec3"].set(value, 0, 0, 0);
-
-        for (let i = 0; i < this.functions.length; ++i) {
-          this.functions[i].GetValueAt(time, vec3_0);
-          _global_index__WEBPACK_IMPORTED_MODULE_0__["vec3"].add(value, value, vec3_0);
-        }
-
-        return value;
-    }
-  }
-  /**
-   * The sequencer's curve dimension
-   * @type {number}
-   */
-
-
-}
-
-_defineProperty(Tw2VectorSequencer, "inputDimension", 3);
-
-_defineProperty(Tw2VectorSequencer, "outputDimension", 3);
-
-_defineProperty(Tw2VectorSequencer, "valueProperty", "value");
-
-_defineProperty(Tw2VectorSequencer, "curveType", _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"].Type.SEQUENCER);
-
-_defineProperty(Tw2VectorSequencer, "childArray", "functions");
-
-_defineProperty(Tw2VectorSequencer, "Operator", {
-  MULTIPLY: 0,
-  ADD: 1
-});
-
-/***/ }),
-
-/***/ "./curve/legacy/sequencers/Tw2XYZScalarSequencer.js":
-/*!**********************************************************!*\
-  !*** ./curve/legacy/sequencers/Tw2XYZScalarSequencer.js ***!
-  \**********************************************************/
-/*! exports provided: Tw2XYZScalarSequencer */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2XYZScalarSequencer", function() { return Tw2XYZScalarSequencer; });
-/* harmony import */ var _global_index__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../global/index */ "./global/index.js");
-/* harmony import */ var _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Tw2CurveSequencer */ "./curve/legacy/sequencers/Tw2CurveSequencer.js");
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-
-
-/**
- * Tw2XYZScalarSequencer
- *
- * @property {String} name
- * @property {vec3} value
- * @property {Tw2CurveSequencer} XCurve
- * @property {Tw2CurveSequencer} YCurve
- * @property {Tw2CurveSequencer} ZCurve
- * @class
- */
-
-class Tw2XYZScalarSequencer extends _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"] {
-  constructor() {
-    super(...arguments);
-
-    _defineProperty(this, "value", _global_index__WEBPACK_IMPORTED_MODULE_0__["vec3"].create());
-
-    _defineProperty(this, "XCurve", null);
-
-    _defineProperty(this, "YCurve", null);
-
-    _defineProperty(this, "ZCurve", null);
-  }
-
-  /**
-   * Sorts the sequencer
-   */
-  Sort() {
-    _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"].Sort2(this);
-  }
-  /**
-   * Gets sequencer length
-   * @returns {number}
-   */
-
-
-  GetLength() {
-    let len = 0;
-    if (this.XCurve && "GetLength" in this.XCurve) len = this.XCurve.GetLength();
-    if (this.YCurve && "GetLength" in this.YCurve) len = Math.max(len, this.YCurve.GetLength());
-    if (this.ZCurve && "GetLength" in this.ZCurve) len = Math.max(len, this.ZCurve.GetLength());
-    return len;
-  }
-  /**
-   * Updates a value at a specific time
-   * @param {number} time
-   */
-
-
-  UpdateValue(time) {
-    this.GetValueAt(time, this.value);
-  }
-  /**
-   * Gets a value at a specific time
-   * @param {number} time
-   * @param {vec3} value
-   * @returns {vec3}
-   */
-
-
-  GetValueAt(time, value) {
-    value[0] = this.XCurve ? this.XCurve.GetValueAt(time) : 0;
-    value[1] = this.YCurve ? this.YCurve.GetValueAt(time) : 0;
-    value[2] = this.ZCurve ? this.ZCurve.GetValueAt(time) : 0;
-    return value;
-  }
-  /**
-   * The sequencer's curve dimension
-   * @type {number}
-   */
-
-
-}
-
-_defineProperty(Tw2XYZScalarSequencer, "inputDimension", 1);
-
-_defineProperty(Tw2XYZScalarSequencer, "outputDimension", 3);
-
-_defineProperty(Tw2XYZScalarSequencer, "valueProperty", "value");
-
-_defineProperty(Tw2XYZScalarSequencer, "curveType", _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"].Type.SEQUENCER2);
-
-_defineProperty(Tw2XYZScalarSequencer, "childProperties", ["XCurve", "YCurve", "ZCurve"]);
-
-/***/ }),
-
-/***/ "./curve/legacy/sequencers/Tw2YPRSequencer.js":
-/*!****************************************************!*\
-  !*** ./curve/legacy/sequencers/Tw2YPRSequencer.js ***!
-  \****************************************************/
-/*! exports provided: Tw2YPRSequencer */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2YPRSequencer", function() { return Tw2YPRSequencer; });
-/* harmony import */ var _global_index__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../global/index */ "./global/index.js");
-/* harmony import */ var _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Tw2CurveSequencer */ "./curve/legacy/sequencers/Tw2CurveSequencer.js");
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-
-
-/**
- * Tw2YPRSequencer
- *
- * @property {quat} value
- * @property {vec3} YawPitchRoll
- * @property {Tw2Curve} YawCurve
- * @property {Tw2Curve} PitchCurve
- * @property {Tw2Curve} RollCurve
- * @class
- */
-
-class Tw2YPRSequencer extends _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"] {
-  constructor() {
-    super(...arguments);
-
-    _defineProperty(this, "value", _global_index__WEBPACK_IMPORTED_MODULE_0__["quat"].create());
-
-    _defineProperty(this, "YawPitchRoll", _global_index__WEBPACK_IMPORTED_MODULE_0__["vec3"].create());
-
-    _defineProperty(this, "YawCurve", null);
-
-    _defineProperty(this, "PitchCurve", null);
-
-    _defineProperty(this, "RollCurve", null);
-  }
-
-  /**
-   * Sorts the sequencer
-   */
-  Sort() {
-    _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"].Sort2(this);
-  }
-  /**
-   * Gets sequencer length
-   * @returns {number}
-   */
-
-
-  GetLength() {
-    let len = 0;
-    if (this.YawCurve && "GetLength" in this.YawCurve) len = this.YawCurve.GetLength();
-    if (this.PitchCurve && "GetLength" in this.PitchCurve) len = Math.max(len, this.PitchCurve.GetLength());
-    if (this.RollCurve && "GetLength" in this.RollCurve) len = Math.max(len, this.RollCurve.GetLength());
-    return len;
-  }
-  /**
-   * Updates a value at a specific time
-   *
-   * @param {number} time
-   */
-
-
-  UpdateValue(time) {
-    this.GetValueAt(time, this.value);
-  }
-  /**
-   * Gets a value at a specific time
-   *
-   * @param {number} time
-   * @param {quat} value
-   * @returns {quat}
-   */
-
-
-  GetValueAt(time, value) {
-    if (this.YawCurve) this.YawPitchRoll[0] = this.YawCurve.GetValueAt(time);
-    if (this.PitchCurve) this.YawPitchRoll[1] = this.PitchCurve.GetValueAt(time);
-    if (this.RollCurve) this.YawPitchRoll[2] = this.RollCurve.GetValueAt(time);
-    const sinYaw = Math.sin(this.YawPitchRoll[0] / 180 * Math.PI / 2.0),
-          cosYaw = Math.cos(this.YawPitchRoll[0] / 180 * Math.PI / 2.0),
-          sinPitch = Math.sin(this.YawPitchRoll[1] / 180 * Math.PI / 2.0),
-          cosPitch = Math.cos(this.YawPitchRoll[1] / 180 * Math.PI / 2.0),
-          sinRoll = Math.sin(this.YawPitchRoll[2] / 180 * Math.PI / 2.0),
-          cosRoll = Math.cos(this.YawPitchRoll[2] / 180 * Math.PI / 2.0);
-    value[0] = sinYaw * cosPitch * sinRoll + cosYaw * sinPitch * cosRoll;
-    value[1] = sinYaw * cosPitch * cosRoll - cosYaw * sinPitch * sinRoll;
-    value[2] = cosYaw * cosPitch * sinRoll - sinYaw * sinPitch * cosRoll;
-    value[3] = cosYaw * cosPitch * cosRoll + sinYaw * sinPitch * sinRoll;
-    return value;
-  }
-  /**
-   * The sequencer's curve dimension
-   * @type {number}
-   */
-
-
-}
-
-_defineProperty(Tw2YPRSequencer, "inputDimension", 1);
-
-_defineProperty(Tw2YPRSequencer, "outputDimension", 4);
-
-_defineProperty(Tw2YPRSequencer, "valueProperty", "value");
-
-_defineProperty(Tw2YPRSequencer, "curveType", _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"].Type.SEQUENCER2);
-
-_defineProperty(Tw2YPRSequencer, "childProperties", ["YawCurve", "PitchCurve", "RollCurve"]);
-
-/***/ }),
-
-/***/ "./curve/legacy/sequencers/index.js":
-/*!******************************************!*\
-  !*** ./curve/legacy/sequencers/index.js ***!
-  \******************************************/
-/*! exports provided: Tw2ColorSequencer, Tw2EulerRotation, Tw2QuaternionSequencer, Tw2RGBAScalarSequencer, Tw2ScalarSequencer, Tw2VectorSequencer, Tw2XYZScalarSequencer, Tw2YPRSequencer */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _Tw2ColorSequencer__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Tw2ColorSequencer */ "./curve/legacy/sequencers/Tw2ColorSequencer.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ColorSequencer", function() { return _Tw2ColorSequencer__WEBPACK_IMPORTED_MODULE_0__["Tw2ColorSequencer"]; });
-
-/* harmony import */ var _Tw2EulerRotation__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Tw2EulerRotation */ "./curve/legacy/sequencers/Tw2EulerRotation.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2EulerRotation", function() { return _Tw2EulerRotation__WEBPACK_IMPORTED_MODULE_1__["Tw2EulerRotation"]; });
-
-/* harmony import */ var _Tw2QuaternionSequencer__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Tw2QuaternionSequencer */ "./curve/legacy/sequencers/Tw2QuaternionSequencer.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2QuaternionSequencer", function() { return _Tw2QuaternionSequencer__WEBPACK_IMPORTED_MODULE_2__["Tw2QuaternionSequencer"]; });
-
-/* harmony import */ var _Tw2RGBAScalarSequencer__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Tw2RGBAScalarSequencer */ "./curve/legacy/sequencers/Tw2RGBAScalarSequencer.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2RGBAScalarSequencer", function() { return _Tw2RGBAScalarSequencer__WEBPACK_IMPORTED_MODULE_3__["Tw2RGBAScalarSequencer"]; });
-
-/* harmony import */ var _Tw2ScalarSequencer__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Tw2ScalarSequencer */ "./curve/legacy/sequencers/Tw2ScalarSequencer.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ScalarSequencer", function() { return _Tw2ScalarSequencer__WEBPACK_IMPORTED_MODULE_4__["Tw2ScalarSequencer"]; });
-
-/* harmony import */ var _Tw2VectorSequencer__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Tw2VectorSequencer */ "./curve/legacy/sequencers/Tw2VectorSequencer.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2VectorSequencer", function() { return _Tw2VectorSequencer__WEBPACK_IMPORTED_MODULE_5__["Tw2VectorSequencer"]; });
-
-/* harmony import */ var _Tw2XYZScalarSequencer__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Tw2XYZScalarSequencer */ "./curve/legacy/sequencers/Tw2XYZScalarSequencer.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2XYZScalarSequencer", function() { return _Tw2XYZScalarSequencer__WEBPACK_IMPORTED_MODULE_6__["Tw2XYZScalarSequencer"]; });
-
-/* harmony import */ var _Tw2YPRSequencer__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Tw2YPRSequencer */ "./curve/legacy/sequencers/Tw2YPRSequencer.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2YPRSequencer", function() { return _Tw2YPRSequencer__WEBPACK_IMPORTED_MODULE_7__["Tw2YPRSequencer"]; });
-
-
-
-
 
 
 
@@ -36585,174 +35807,6 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
-/***/ "./curve/sequencer/Tr2CurveColor.js":
-/*!******************************************!*\
-  !*** ./curve/sequencer/Tr2CurveColor.js ***!
-  \******************************************/
-/*! exports provided: Tr2CurveColor */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tr2CurveColor", function() { return Tr2CurveColor; });
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-/**
- * Tr2CurveColor
- * TODO: Implement
- * @ccp Tr2CurveColor
- *
- * @property {String} name
- * @property {Tr2CurveScalar} r
- * @property {Tr2CurveScalar} g
- * @property {Tr2CurveScalar} b
- * @property {Tr2CurveScalar} a
- */
-class Tr2CurveColor {
-  constructor() {
-    _defineProperty(this, "name", "");
-
-    _defineProperty(this, "r", null);
-
-    _defineProperty(this, "g", null);
-
-    _defineProperty(this, "b", null);
-
-    _defineProperty(this, "a", null);
-  }
-
-  /**
-   * Black definition
-   * @param {*} r
-   * @returns {*[]}
-   */
-  static black(r) {
-    return [["name", r.string], ["r", r.object], ["g", r.object], ["b", r.object], ["a", r.object]];
-  }
-  /**
-   * Identifies that the class is in staging
-   * @property {null|Number}
-   */
-
-
-}
-
-_defineProperty(Tr2CurveColor, "__isStaging", 4);
-
-/***/ }),
-
-/***/ "./curve/sequencer/Tr2CurveEulerRotation.js":
-/*!**************************************************!*\
-  !*** ./curve/sequencer/Tr2CurveEulerRotation.js ***!
-  \**************************************************/
-/*! exports provided: Tr2CurveEulerRotation */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tr2CurveEulerRotation", function() { return Tr2CurveEulerRotation; });
-/* harmony import */ var _global_index__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../global/index */ "./global/index.js");
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-
-/**
- * Tr2CurveEulerRotation
- *
- * @property {String} name          -
- * @property {Tr2CurveScalar} pitch -
- * @property {Tr2CurveScalar} roll  -
- * @property {Tr2CurveScalar} yaw   -
- */
-
-class Tr2CurveEulerRotation extends _global_index__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"] {
-  constructor() {
-    super(...arguments);
-
-    _defineProperty(this, "name", "");
-
-    _defineProperty(this, "pitch", null);
-
-    _defineProperty(this, "roll", null);
-
-    _defineProperty(this, "yaw", null);
-  }
-
-  /**
-   * Black definition
-   * @param {*} r
-   * @returns {*[]}
-   */
-  static black(r) {
-    return [["name", r.string], ["pitch", r.object], ["roll", r.object], ["yaw", r.object]];
-  }
-  /**
-   * Identifies that the class is in staging
-   * @property {null|Number}
-   */
-
-
-}
-
-_defineProperty(Tr2CurveEulerRotation, "__isStaging", 4);
-
-/***/ }),
-
-/***/ "./curve/sequencer/Tr2CurveVector3.js":
-/*!********************************************!*\
-  !*** ./curve/sequencer/Tr2CurveVector3.js ***!
-  \********************************************/
-/*! exports provided: Tr2CurveVector3 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tr2CurveVector3", function() { return Tr2CurveVector3; });
-/* harmony import */ var _global_index__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../global/index */ "./global/index.js");
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-
-/**
- * Tr2CurveVector3
- *
- * @property {String} name      -
- * @property {Tr2CurveScalar} x -
- * @property {Tr2CurveScalar} y -
- * @property {Tr2CurveScalar} z -
- */
-
-class Tr2CurveVector3 extends _global_index__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"] {
-  constructor() {
-    super(...arguments);
-
-    _defineProperty(this, "name", "");
-
-    _defineProperty(this, "x", null);
-
-    _defineProperty(this, "y", null);
-
-    _defineProperty(this, "z", null);
-  }
-
-  /**
-   * Black definition
-   * @param {*} r
-   * @returns {*[]}
-   */
-  static black(r) {
-    return [["name", r.string], ["x", r.object], ["y", r.object], ["z", r.object]];
-  }
-  /**
-   * Identifies that the class is in staging
-   * @property {null|Number}
-   */
-
-
-}
-
-_defineProperty(Tr2CurveVector3, "__isStaging", 4);
-
-/***/ }),
-
 /***/ "./curve/sequencer/TriColorSequencer.js":
 /*!**********************************************!*\
   !*** ./curve/sequencer/TriColorSequencer.js ***!
@@ -36763,29 +35817,79 @@ _defineProperty(Tr2CurveVector3, "__isStaging", 4);
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TriColorSequencer", function() { return TriColorSequencer; });
-/* harmony import */ var _global_index__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../global/index */ "./global/index.js");
+/* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../global */ "./global/index.js");
+/* harmony import */ var _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Tw2CurveSequencer */ "./curve/sequencer/Tw2CurveSequencer.js");
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 
 
 /**
- * TriColorSequencer
+ * Color sequencer
+ * TODO: Can't rename to Tw2ColorSequencer as a legacy one already exists
+ * @ccp TriColorSequencer
  *
- * @property {String} name                             -
- * @property {Array.<Curve|CurveExpression>} functions -
- * @property {vec4} value                              -
+ * @property {String} name                                   -
+ * @property {Array.<Tw2Curve|Tw2CurveExpression>} functions -
+ * @property {vec4} value                                    -
  */
 
-class TriColorSequencer extends _global_index__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"] {
+class TriColorSequencer extends _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"] {
   constructor() {
     super(...arguments);
 
-    _defineProperty(this, "name", "");
-
     _defineProperty(this, "functions", []);
 
-    _defineProperty(this, "value", _global_index__WEBPACK_IMPORTED_MODULE_0__["vec4"].create());
+    _defineProperty(this, "value", _global__WEBPACK_IMPORTED_MODULE_0__["vec4"].create());
   }
+
+  /**
+   * Sorts the sequencer
+   */
+  Sort() {
+    _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"].Sort(this);
+  }
+  /**
+   * Gets sequencer length
+   * @returns {number}
+   */
+
+
+  GetLength() {
+    return _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"].GetLengthFromKeys(this);
+  }
+  /**
+   * Updates a value at a specific time
+   * @param {number} time
+   */
+
+
+  UpdateValue(time) {
+    this.GetValueAt(time, this.value);
+  }
+  /**
+   * Gets a value at a specific time
+   * @param {number} time
+   * @param {vec4} value
+   * @returns {vec4}
+   */
+
+
+  GetValueAt(time, value) {
+    const vec4_0 = _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"].global.vec4_0;
+    _global__WEBPACK_IMPORTED_MODULE_0__["vec4"].set(vec4_0, 0, 0, 0, 0);
+
+    for (let i = 0; i < this.functions.length; i++) {
+      this.functions[i].GetValueAt(time, value);
+      _global__WEBPACK_IMPORTED_MODULE_0__["vec4"].add(value, value, vec4_0);
+    }
+
+    return value;
+  }
+  /**
+   * The sequencer's curve dimension
+   * @type {number}
+   */
+
 
   /**
    * Black definition
@@ -36803,7 +35907,493 @@ class TriColorSequencer extends _global_index__WEBPACK_IMPORTED_MODULE_0__["Tw2B
 
 }
 
-_defineProperty(TriColorSequencer, "__isStaging", 4);
+_defineProperty(TriColorSequencer, "inputDimension", 4);
+
+_defineProperty(TriColorSequencer, "outputDimension", 4);
+
+_defineProperty(TriColorSequencer, "valueProperty", "value");
+
+_defineProperty(TriColorSequencer, "curveType", _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"].Type.SEQUENCER);
+
+_defineProperty(TriColorSequencer, "childArray", "functions");
+
+_defineProperty(TriColorSequencer, "__isStaging", 2);
+
+/***/ }),
+
+/***/ "./curve/sequencer/Tw2CurveColor.js":
+/*!******************************************!*\
+  !*** ./curve/sequencer/Tw2CurveColor.js ***!
+  \******************************************/
+/*! exports provided: Tw2CurveColor */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2CurveColor", function() { return Tw2CurveColor; });
+/* harmony import */ var _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Tw2CurveSequencer */ "./curve/sequencer/Tw2CurveSequencer.js");
+/* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../global */ "./global/index.js");
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+
+
+/**
+ * Tw2CurveColor
+ * TODO: No value property by default, how is this curve's value supposed to be read?
+ * @ccp Tr2CurveColor
+ *
+ * @property {Tr2CurveScalar} r -
+ * @property {Tr2CurveScalar} g -
+ * @property {Tr2CurveScalar} b -
+ * @property {Tr2CurveScalar} a -
+ * @property {vec4} _value      -
+ */
+
+class Tw2CurveColor extends _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_0__["Tw2CurveSequencer"] {
+  constructor() {
+    super(...arguments);
+
+    _defineProperty(this, "r", null);
+
+    _defineProperty(this, "g", null);
+
+    _defineProperty(this, "b", null);
+
+    _defineProperty(this, "a", null);
+
+    _defineProperty(this, "_value", _global__WEBPACK_IMPORTED_MODULE_1__["vec4"].fromValues(0, 0, 0, 0));
+  }
+
+  /**
+   * Sorts the sequencer
+   */
+  Sort() {
+    _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_0__["Tw2CurveSequencer"].Sort2(this);
+  }
+  /**
+   * Gets sequencer length
+   * @returns {number}
+   */
+
+
+  GetLength() {
+    return _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_0__["Tw2CurveSequencer"].GetLengthFromProperties(this);
+  }
+  /**
+   * Updates the current value at the given time
+   * @param {number} time
+   */
+
+
+  UpdateValue(time) {
+    this.GetValueAt(time, this._value);
+  }
+  /**
+   * Gets a value at a specific time
+   * @param {Number} time
+   * @param {vec4} value
+   * @returns {vec4}
+   */
+
+
+  GetValueAt(time, value) {
+    value[0] = this.r ? this.r.GetValueAt(time) : 0;
+    value[1] = this.g ? this.g.GetValueAt(time) : 0;
+    value[2] = this.b ? this.b.GetValueAt(time) : 0;
+    value[3] = this.a ? this.a.GetValueAt(time) : 0;
+    return value;
+  }
+  /**
+   * The sequencer's curve input dimension
+   * @type {number}
+   */
+
+
+  /**
+   * Black definition
+   * @param {*} r
+   * @returns {*[]}
+   */
+  static black(r) {
+    return [["name", r.string], ["r", r.object], ["g", r.object], ["b", r.object], ["a", r.object]];
+  }
+  /**
+   * Identifies that the class is in staging
+   * @property {null|Number}
+   */
+
+
+}
+
+_defineProperty(Tw2CurveColor, "inputDimension", 1);
+
+_defineProperty(Tw2CurveColor, "outputDimension", 4);
+
+_defineProperty(Tw2CurveColor, "valueProperty", "_value");
+
+_defineProperty(Tw2CurveColor, "curveType", _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_0__["Tw2CurveSequencer"].Type.SEQUENCER);
+
+_defineProperty(Tw2CurveColor, "childProperties", ["r", "g", "b", "a"]);
+
+_defineProperty(Tw2CurveColor, "__isStaging", 2);
+
+/***/ }),
+
+/***/ "./curve/sequencer/Tw2CurveEulerRotation.js":
+/*!**************************************************!*\
+  !*** ./curve/sequencer/Tw2CurveEulerRotation.js ***!
+  \**************************************************/
+/*! exports provided: Tw2CurveEulerRotation */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2CurveEulerRotation", function() { return Tw2CurveEulerRotation; });
+/* harmony import */ var _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Tw2CurveSequencer */ "./curve/sequencer/Tw2CurveSequencer.js");
+/* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../global */ "./global/index.js");
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+
+
+/**
+ * Euler to Quaternion sequencer
+ * TODO: No value property by default, how is this curve's value supposed to be read?
+ * @ccp Tr2CurveEulerRotation
+ *
+ * @property {Tr2CurveScalar} pitch -
+ * @property {Tr2CurveScalar} roll  -
+ * @property {Tr2CurveScalar} yaw   -
+ */
+
+class Tw2CurveEulerRotation extends _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_0__["Tw2CurveSequencer"] {
+  constructor() {
+    super(...arguments);
+
+    _defineProperty(this, "pitch", null);
+
+    _defineProperty(this, "roll", null);
+
+    _defineProperty(this, "yaw", null);
+
+    _defineProperty(this, "_value", _global__WEBPACK_IMPORTED_MODULE_1__["quat"].create());
+  }
+
+  /**
+   * Sorts the sequencer
+   */
+  Sort() {
+    _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_0__["Tw2CurveSequencer"].Sort2(this);
+  }
+  /**
+   * Gets sequencer length
+   * @returns {number}
+   */
+
+
+  GetLength() {
+    return _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_0__["Tw2CurveSequencer"].GetLengthFromProperties(this);
+  }
+  /**
+   * Updates the current value at a specific time
+   * @param {number} time
+   */
+
+
+  UpdateValue(time) {
+    this.GetValueAt(time, this._value);
+  }
+  /**
+   * Gets a value at a specific time
+   * @param {number} time
+   * @param {quat} value
+   * @returns {quat}
+   */
+
+
+  GetValueAt(time, value) {
+    const yaw = this.yaw ? this.yaw.GetValueAt(time) : 0.0,
+          pitch = this.pitch ? this.pitch.GetValueAt(time) : 0.0,
+          roll = this.roll ? this.roll.GetValueAt(time) : 0.0;
+    const sinYaw = Math.sin(yaw / 2.0),
+          cosYaw = Math.cos(yaw / 2.0),
+          sinPitch = Math.sin(pitch / 2.0),
+          cosPitch = Math.cos(pitch / 2.0),
+          sinRoll = Math.sin(roll / 2.0),
+          cosRoll = Math.cos(roll / 2.0);
+    value[0] = sinYaw * cosPitch * sinRoll + cosYaw * sinPitch * cosRoll;
+    value[1] = sinYaw * cosPitch * cosRoll - cosYaw * sinPitch * sinRoll;
+    value[2] = cosYaw * cosPitch * sinRoll - sinYaw * sinPitch * cosRoll;
+    value[3] = cosYaw * cosPitch * cosRoll + sinYaw * sinPitch * sinRoll;
+    return value;
+  }
+  /**
+   * The sequencer's curve input dimension
+   * @type {number}
+   */
+
+
+  /**
+   * Black definition
+   * @param {*} r
+   * @returns {*[]}
+   */
+  static black(r) {
+    return [["name", r.string], ["pitch", r.object], ["roll", r.object], ["yaw", r.object]];
+  }
+  /**
+   * Identifies that the class is in staging
+   * @property {null|Number}
+   */
+
+
+}
+
+_defineProperty(Tw2CurveEulerRotation, "inputDimension", 1);
+
+_defineProperty(Tw2CurveEulerRotation, "outputDimension", 4);
+
+_defineProperty(Tw2CurveEulerRotation, "valueProperty", "_value");
+
+_defineProperty(Tw2CurveEulerRotation, "curveType", _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_0__["Tw2CurveSequencer"].Type.SEQUENCER2);
+
+_defineProperty(Tw2CurveEulerRotation, "childProperties", ["yaw", "pitch", "roll"]);
+
+_defineProperty(Tw2CurveEulerRotation, "__isStaging", 2);
+
+/***/ }),
+
+/***/ "./curve/sequencer/Tw2CurveSequencer.js":
+/*!**********************************************!*\
+  !*** ./curve/sequencer/Tw2CurveSequencer.js ***!
+  \**********************************************/
+/*! exports provided: Tw2CurveSequencer */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2CurveSequencer", function() { return Tw2CurveSequencer; });
+/* harmony import */ var _curve_Tw2Curve__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../curve/Tw2Curve */ "./curve/curve/Tw2Curve.js");
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+
+/**
+ * Tw2CurveSequencer base class
+ *
+ * @class
+ */
+
+class Tw2CurveSequencer extends _curve_Tw2Curve__WEBPACK_IMPORTED_MODULE_0__["Tw2Curve"] {
+  /**
+   * Legacy sequencer sorting
+   * @param {Tw2CurveSequencer} sequencer
+   * @param {String} [childArray]
+   */
+  static Sort(sequencer) {
+    let childArray = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : sequencer.constructor.childArray;
+    let curves = sequencer[childArray];
+
+    if (curves && curves.length) {
+      for (let i = 0; i < curves.length; i++) {
+        if (curves[i] && "Sort" in curves[i]) {
+          curves[i].Sort();
+        }
+      }
+    }
+  }
+  /**
+   * Standard sequencer sorting
+   * @param {Tw2CurveSequencer} sequencer
+   * @param {Array<String>} [childProperties]
+   */
+
+
+  static Sort2(sequencer) {
+    let childProperties = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : sequencer.constructor.childProperties;
+
+    if (childProperties) {
+      for (let i = 0; i < childProperties.length; i++) {
+        let curve = sequencer[childProperties[i]];
+
+        if (curve && "Sort" in curve) {
+          curve.Sort();
+        }
+      }
+    }
+  }
+  /**
+   * Gets the length of the sequencer from it's key array
+   * @param {Tw2CurveSequencer} sequencer
+   * @param {String} [childArray]
+   * @returns {number}
+   */
+
+
+  static GetLengthFromKeys(sequencer) {
+    let childArray = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : sequencer.constructor.childArray;
+    const curveArray = sequencer[childArray];
+    let len = 0;
+
+    for (let i = 0; i < curveArray.length; ++i) {
+      if ("GetLength" in curveArray[i]) {
+        len = Math.max(len, curveArray[i].GetLength());
+      }
+    }
+
+    return len;
+  }
+  /**
+   * Gets the length of a sequencer's curves
+   * @param {*} sequencer
+   * @param {Array<String>} [childProperties]
+   * @returns {number}
+   */
+
+
+  static GetLengthFromProperties(sequencer) {
+    let childProperties = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : sequencer.constructor.childProperties;
+    let len = 0;
+
+    for (let i = 0; i < childProperties.length; i++) {
+      const curve = sequencer[childProperties[i]];
+
+      if (curve && "GetLength" in curve) {
+        len = Math.max(len, curve.GetLength());
+      }
+    }
+
+    return len;
+  }
+  /**
+   * The sequencer's curve input dimension
+   * @type {?number}
+   */
+
+
+}
+
+_defineProperty(Tw2CurveSequencer, "inputDimension", null);
+
+_defineProperty(Tw2CurveSequencer, "outputDimension", null);
+
+_defineProperty(Tw2CurveSequencer, "childProperties", null);
+
+_defineProperty(Tw2CurveSequencer, "childArray", null);
+
+_defineProperty(Tw2CurveSequencer, "Operator", null);
+
+/***/ }),
+
+/***/ "./curve/sequencer/Tw2CurveVector3.js":
+/*!********************************************!*\
+  !*** ./curve/sequencer/Tw2CurveVector3.js ***!
+  \********************************************/
+/*! exports provided: Tw2CurveVector3 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2CurveVector3", function() { return Tw2CurveVector3; });
+/* harmony import */ var _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Tw2CurveSequencer */ "./curve/sequencer/Tw2CurveSequencer.js");
+/* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../global */ "./global/index.js");
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+
+
+/**
+ * Vector3 curve sequencer
+ * TODO: No value property by default, how is this curve's value supposed to be read?
+ * @ccp Tr2CurveVector3
+ *
+ * @property {Tr2CurveScalar} x -
+ * @property {Tr2CurveScalar} y -
+ * @property {Tr2CurveScalar} z -
+ * @property {vec3} _value      -
+ */
+
+class Tw2CurveVector3 extends _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_0__["Tw2CurveSequencer"] {
+  constructor() {
+    super(...arguments);
+
+    _defineProperty(this, "x", null);
+
+    _defineProperty(this, "y", null);
+
+    _defineProperty(this, "z", null);
+
+    _defineProperty(this, "_value", _global__WEBPACK_IMPORTED_MODULE_1__["vec3"].create());
+  }
+
+  /**
+   * Sorts the sequencer
+   */
+  Sort() {
+    _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_0__["Tw2CurveSequencer"].Sort2(this);
+  }
+  /**
+   * Gets sequencer length
+   * @returns {number}
+   */
+
+
+  GetLength() {
+    return _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_0__["Tw2CurveSequencer"].GetLengthFromProperties(this);
+  }
+  /**
+   * Updates a value at a specific time
+   * @param {number} time
+   */
+
+
+  UpdateValue(time) {
+    this.GetValueAt(time, this._value);
+  }
+  /**
+   * Gets a value at a specific time
+   * @param {number} time
+   * @param {vec3} value
+   * @returns {vec3}
+   */
+
+
+  GetValueAt(time, value) {
+    value[0] = this.x ? this.x.GetValueAt(time) : 0;
+    value[1] = this.y ? this.y.GetValueAt(time) : 0;
+    value[2] = this.z ? this.z.GetValueAt(time) : 0;
+    return value;
+  }
+  /**
+   * The sequencer's curve dimension
+   * @type {number}
+   */
+
+
+  /**
+   * Black definition
+   * @param {*} r
+   * @returns {*[]}
+   */
+  static black(r) {
+    return [["name", r.string], ["x", r.object], ["y", r.object], ["z", r.object]];
+  }
+  /**
+   * Identifies that the class is in staging
+   * @property {null|Number}
+   */
+
+
+}
+
+_defineProperty(Tw2CurveVector3, "inputDimension", 1);
+
+_defineProperty(Tw2CurveVector3, "outputDimension", 3);
+
+_defineProperty(Tw2CurveVector3, "valueProperty", "_value");
+
+_defineProperty(Tw2CurveVector3, "curveType", _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_0__["Tw2CurveSequencer"].Type.SEQUENCER2);
+
+_defineProperty(Tw2CurveVector3, "childProperties", ["x", "y", "z"]);
+
+_defineProperty(Tw2CurveVector3, "__isStaging", 2);
 
 /***/ }),
 
@@ -36811,7 +36401,7 @@ _defineProperty(TriColorSequencer, "__isStaging", 4);
 /*!**********************************!*\
   !*** ./curve/sequencer/index.js ***!
   \**********************************/
-/*! exports provided: TriColorSequencer, Tr2CurveColor, Tr2CurveEulerRotation, Tr2CurveVector3 */
+/*! exports provided: TriColorSequencer, Tw2CurveColor, Tw2CurveEulerRotation, Tw2CurveVector3, Tw2CurveSequencer, Tw2ColorSequencer, Tw2EulerRotation, Tw2QuaternionSequencer, Tw2RGBAScalarSequencer, Tw2ScalarSequencer, Tw2VectorSequencer, Tw2XYZScalarSequencer, Tw2YPRSequencer */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -36819,14 +36409,991 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _TriColorSequencer__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./TriColorSequencer */ "./curve/sequencer/TriColorSequencer.js");
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "TriColorSequencer", function() { return _TriColorSequencer__WEBPACK_IMPORTED_MODULE_0__["TriColorSequencer"]; });
 
-/* harmony import */ var _Tr2CurveColor__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Tr2CurveColor */ "./curve/sequencer/Tr2CurveColor.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2CurveColor", function() { return _Tr2CurveColor__WEBPACK_IMPORTED_MODULE_1__["Tr2CurveColor"]; });
+/* harmony import */ var _Tw2CurveColor__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Tw2CurveColor */ "./curve/sequencer/Tw2CurveColor.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2CurveColor", function() { return _Tw2CurveColor__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveColor"]; });
 
-/* harmony import */ var _Tr2CurveEulerRotation__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Tr2CurveEulerRotation */ "./curve/sequencer/Tr2CurveEulerRotation.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2CurveEulerRotation", function() { return _Tr2CurveEulerRotation__WEBPACK_IMPORTED_MODULE_2__["Tr2CurveEulerRotation"]; });
+/* harmony import */ var _Tw2CurveEulerRotation__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Tw2CurveEulerRotation */ "./curve/sequencer/Tw2CurveEulerRotation.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2CurveEulerRotation", function() { return _Tw2CurveEulerRotation__WEBPACK_IMPORTED_MODULE_2__["Tw2CurveEulerRotation"]; });
 
-/* harmony import */ var _Tr2CurveVector3__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Tr2CurveVector3 */ "./curve/sequencer/Tr2CurveVector3.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2CurveVector3", function() { return _Tr2CurveVector3__WEBPACK_IMPORTED_MODULE_3__["Tr2CurveVector3"]; });
+/* harmony import */ var _Tw2CurveVector3__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Tw2CurveVector3 */ "./curve/sequencer/Tw2CurveVector3.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2CurveVector3", function() { return _Tw2CurveVector3__WEBPACK_IMPORTED_MODULE_3__["Tw2CurveVector3"]; });
+
+/* harmony import */ var _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Tw2CurveSequencer */ "./curve/sequencer/Tw2CurveSequencer.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2CurveSequencer", function() { return _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_4__["Tw2CurveSequencer"]; });
+
+/* harmony import */ var _legacy__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./legacy */ "./curve/sequencer/legacy/index.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ColorSequencer", function() { return _legacy__WEBPACK_IMPORTED_MODULE_5__["Tw2ColorSequencer"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2EulerRotation", function() { return _legacy__WEBPACK_IMPORTED_MODULE_5__["Tw2EulerRotation"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2QuaternionSequencer", function() { return _legacy__WEBPACK_IMPORTED_MODULE_5__["Tw2QuaternionSequencer"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2RGBAScalarSequencer", function() { return _legacy__WEBPACK_IMPORTED_MODULE_5__["Tw2RGBAScalarSequencer"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ScalarSequencer", function() { return _legacy__WEBPACK_IMPORTED_MODULE_5__["Tw2ScalarSequencer"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2VectorSequencer", function() { return _legacy__WEBPACK_IMPORTED_MODULE_5__["Tw2VectorSequencer"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2XYZScalarSequencer", function() { return _legacy__WEBPACK_IMPORTED_MODULE_5__["Tw2XYZScalarSequencer"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2YPRSequencer", function() { return _legacy__WEBPACK_IMPORTED_MODULE_5__["Tw2YPRSequencer"]; });
+
+
+
+
+
+
+
+
+/***/ }),
+
+/***/ "./curve/sequencer/legacy/Tw2ColorSequencer.js":
+/*!*****************************************************!*\
+  !*** ./curve/sequencer/legacy/Tw2ColorSequencer.js ***!
+  \*****************************************************/
+/*! exports provided: Tw2ColorSequencer */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2ColorSequencer", function() { return Tw2ColorSequencer; });
+/* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../global */ "./global/index.js");
+/* harmony import */ var _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Tw2CurveSequencer */ "./curve/sequencer/Tw2CurveSequencer.js");
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+
+
+/**
+ * Tw2ColorSequencer
+ *
+ * @property {number} start
+ * @property {vec4} value
+ * @property {number} operator
+ * @property {Array<Tw2Curve>} functions
+ * @class
+ */
+
+class Tw2ColorSequencer extends _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"] {
+  constructor() {
+    super(...arguments);
+
+    _defineProperty(this, "start", 0);
+
+    _defineProperty(this, "value", _global__WEBPACK_IMPORTED_MODULE_0__["vec4"].create());
+
+    _defineProperty(this, "operator", 0);
+
+    _defineProperty(this, "functions", []);
+  }
+
+  /**
+   * Sorts the sequencer
+   */
+  Sort() {
+    _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"].Sort(this);
+  }
+  /**
+   * Gets sequencer length
+   * @returns {number}
+   */
+
+
+  GetLength() {
+    return _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"].GetLengthFromKeys(this);
+  }
+  /**
+   * Updates a value at a specific time
+   * @param {number} time
+   */
+
+
+  UpdateValue(time) {
+    this.GetValueAt(time, this.value);
+  }
+  /**
+   * Gets a value at a specific time
+   * @param {number} time
+   * @param {vec4} value
+   * @returns {vec4}
+   */
+
+
+  GetValueAt(time, value) {
+    const vec4_0 = _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"].global.vec4_0;
+
+    switch (this.operator) {
+      case Tw2ColorSequencer.Operator.MULTIPLY:
+        _global__WEBPACK_IMPORTED_MODULE_0__["vec4"].set(value, 1, 1, 1, 1);
+
+        for (let i = 0; i < this.functions.length; ++i) {
+          this.functions[i].GetValueAt(time, vec4_0);
+          _global__WEBPACK_IMPORTED_MODULE_0__["vec4"].multiply(value, value, vec4_0);
+        }
+
+        break;
+
+      default:
+        _global__WEBPACK_IMPORTED_MODULE_0__["vec4"].set(value, 0, 0, 0, 0);
+
+        for (let i = 0; i < this.functions.length; ++i) {
+          this.functions[i].GetValueAt(time, vec4_0);
+          _global__WEBPACK_IMPORTED_MODULE_0__["vec4"].add(value, value, vec4_0);
+        }
+
+    }
+
+    return value;
+  }
+  /**
+   * The sequencer's curve dimension
+   * @type {number}
+   */
+
+
+}
+
+_defineProperty(Tw2ColorSequencer, "inputDimension", 4);
+
+_defineProperty(Tw2ColorSequencer, "outputDimension", 4);
+
+_defineProperty(Tw2ColorSequencer, "valueProperty", "value");
+
+_defineProperty(Tw2ColorSequencer, "curveType", _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"].Type.SEQUENCER);
+
+_defineProperty(Tw2ColorSequencer, "childArray", "functions");
+
+_defineProperty(Tw2ColorSequencer, "Operator", {
+  MULTIPLY: 0,
+  ADD: 1
+});
+
+/***/ }),
+
+/***/ "./curve/sequencer/legacy/Tw2EulerRotation.js":
+/*!****************************************************!*\
+  !*** ./curve/sequencer/legacy/Tw2EulerRotation.js ***!
+  \****************************************************/
+/*! exports provided: Tw2EulerRotation */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2EulerRotation", function() { return Tw2EulerRotation; });
+/* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../global */ "./global/index.js");
+/* harmony import */ var _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Tw2CurveSequencer */ "./curve/sequencer/Tw2CurveSequencer.js");
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+
+
+/**
+ * Tw2EulerRotation
+ *
+ * @property {String} name
+ * @property {Tw2Curve} [yawCurve]
+ * @property {Tw2Curve} [pitchCurve]
+ * @property {Tw2Curve} [rollCurve]
+ * @property {quat} currentValue=[0,0,0,1]
+ * @class
+ */
+
+class Tw2EulerRotation extends _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"] {
+  constructor() {
+    super(...arguments);
+
+    _defineProperty(this, "yawCurve", null);
+
+    _defineProperty(this, "pitchCurve", null);
+
+    _defineProperty(this, "rollCurve", null);
+
+    _defineProperty(this, "currentValue", _global__WEBPACK_IMPORTED_MODULE_0__["quat"].create());
+  }
+
+  /**
+   * Sorts the sequencer
+   */
+  Sort() {
+    _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"].Sort2(this);
+  }
+  /**
+   * Gets sequencer length
+   * @returns {number}
+   */
+
+
+  GetLength() {
+    return _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"].GetLengthFromProperties(this);
+  }
+  /**
+   * Updates the current value at a specific time
+   * @param {number} time
+   */
+
+
+  UpdateValue(time) {
+    this.GetValueAt(time, this.currentValue);
+  }
+  /**
+   * Gets a value at a specific time
+   * @param {number} time
+   * @param {quat} value
+   * @returns {quat}
+   */
+
+
+  GetValueAt(time, value) {
+    const yaw = this.yawCurve ? this.yawCurve.GetValueAt(time) : 0.0,
+          pitch = this.pitchCurve ? this.pitchCurve.GetValueAt(time) : 0.0,
+          roll = this.rollCurve ? this.rollCurve.GetValueAt(time) : 0.0;
+    const sinYaw = Math.sin(yaw / 2.0),
+          cosYaw = Math.cos(yaw / 2.0),
+          sinPitch = Math.sin(pitch / 2.0),
+          cosPitch = Math.cos(pitch / 2.0),
+          sinRoll = Math.sin(roll / 2.0),
+          cosRoll = Math.cos(roll / 2.0);
+    value[0] = sinYaw * cosPitch * sinRoll + cosYaw * sinPitch * cosRoll;
+    value[1] = sinYaw * cosPitch * cosRoll - cosYaw * sinPitch * sinRoll;
+    value[2] = cosYaw * cosPitch * sinRoll - sinYaw * sinPitch * cosRoll;
+    value[3] = cosYaw * cosPitch * cosRoll + sinYaw * sinPitch * sinRoll;
+    return value;
+  }
+  /**
+   * The sequencer's curve dimension
+   * @type {number}
+   */
+
+
+}
+
+_defineProperty(Tw2EulerRotation, "inputDimension", 1);
+
+_defineProperty(Tw2EulerRotation, "outputDimension", 4);
+
+_defineProperty(Tw2EulerRotation, "valueProperty", "currentValue");
+
+_defineProperty(Tw2EulerRotation, "curveType", _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"].Type.SEQUENCER2);
+
+_defineProperty(Tw2EulerRotation, "childProperties", ["yawCurve", "pitchCurve", "rollCurve"]);
+
+/***/ }),
+
+/***/ "./curve/sequencer/legacy/Tw2QuaternionSequencer.js":
+/*!**********************************************************!*\
+  !*** ./curve/sequencer/legacy/Tw2QuaternionSequencer.js ***!
+  \**********************************************************/
+/*! exports provided: Tw2QuaternionSequencer */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2QuaternionSequencer", function() { return Tw2QuaternionSequencer; });
+/* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../global */ "./global/index.js");
+/* harmony import */ var _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Tw2CurveSequencer */ "./curve/sequencer/Tw2CurveSequencer.js");
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+
+
+/**
+ * Tw2QuaternionSequencer
+ *
+ * @property {String} name
+ * @property {number} start
+ * @property {quat} value
+ * @property {Array<Tw2Curve>} functions
+ * @class
+ */
+
+class Tw2QuaternionSequencer extends _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"] {
+  constructor() {
+    super(...arguments);
+
+    _defineProperty(this, "start", 0);
+
+    _defineProperty(this, "value", _global__WEBPACK_IMPORTED_MODULE_0__["quat"].create());
+
+    _defineProperty(this, "functions", []);
+  }
+
+  /**
+   * Sorts the sequencer
+   */
+  Sort() {
+    _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"].Sort(this);
+  }
+  /**
+   * Gets sequencer length
+   * @returns {number}
+   */
+
+
+  GetLength() {
+    return _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"].GetLengthFromKeys(this);
+  }
+  /**
+   * Updates a value at a specific time
+   * @param {number} time
+   */
+
+
+  UpdateValue(time) {
+    this.GetValueAt(time, this.value);
+  }
+  /**
+   * Gets a value at a specific time
+   * @param {number} time
+   * @param {quat} value
+   * @returns {quat}
+   */
+
+
+  GetValueAt(time, value) {
+    _global__WEBPACK_IMPORTED_MODULE_0__["quat"].identity(value);
+    const quat_0 = _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"].global.quat_0;
+
+    for (let i = 0; i < this.functions.length; ++i) {
+      this.functions[i].GetValueAt(time, quat_0);
+      _global__WEBPACK_IMPORTED_MODULE_0__["quat"].multiply(value, value, quat_0);
+    }
+
+    return value;
+  }
+  /**
+   * The sequencer's curve dimension
+   * @type {number}
+   */
+
+
+}
+
+_defineProperty(Tw2QuaternionSequencer, "inputDimension", 4);
+
+_defineProperty(Tw2QuaternionSequencer, "outputDimension", 4);
+
+_defineProperty(Tw2QuaternionSequencer, "valueProperty", "value");
+
+_defineProperty(Tw2QuaternionSequencer, "curveType", _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"].Type.SEQUENCER);
+
+_defineProperty(Tw2QuaternionSequencer, "childArray", "functions");
+
+/***/ }),
+
+/***/ "./curve/sequencer/legacy/Tw2RGBAScalarSequencer.js":
+/*!**********************************************************!*\
+  !*** ./curve/sequencer/legacy/Tw2RGBAScalarSequencer.js ***!
+  \**********************************************************/
+/*! exports provided: Tw2RGBAScalarSequencer */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2RGBAScalarSequencer", function() { return Tw2RGBAScalarSequencer; });
+/* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../global */ "./global/index.js");
+/* harmony import */ var _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Tw2CurveSequencer */ "./curve/sequencer/Tw2CurveSequencer.js");
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+
+
+/**
+ * Tw2RGBAScalarSequencer
+ *
+ * @property {vec4} value
+ * @property {Tw2Curve} RedCurve
+ * @property {Tw2Curve} GreenCurve
+ * @property {Tw2Curve} BlueCurve
+ * @property {Tw2Curve} AlphaCurve
+ * @class
+ */
+
+class Tw2RGBAScalarSequencer extends _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"] {
+  constructor() {
+    super(...arguments);
+
+    _defineProperty(this, "value", _global__WEBPACK_IMPORTED_MODULE_0__["vec4"].create());
+
+    _defineProperty(this, "RedCurve", null);
+
+    _defineProperty(this, "GreenCurve", null);
+
+    _defineProperty(this, "BlueCurve", null);
+
+    _defineProperty(this, "AlphaCurve", null);
+  }
+
+  /**
+   * Sorts the sequencer
+   */
+  Sort() {
+    _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"].Sort2(this);
+  }
+  /**
+   * Gets sequencer length
+   * @returns {number}
+   */
+
+
+  GetLength() {
+    return _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"].GetLengthFromProperties(this);
+  }
+  /**
+   * Updates the current value at a specific time
+   * @param {number} time
+   */
+
+
+  UpdateValue(time) {
+    this.GetValueAt(time, this.value);
+  }
+  /**
+   * Gets a value at a specific time
+   * @param {number} time
+   * @param {vec4} value
+   * @returns {vec4}
+   */
+
+
+  GetValueAt(time, value) {
+    value[0] = this.RedCurve ? this.RedCurve.GetValueAt(time) : 0;
+    value[1] = this.GreenCurve ? this.GreenCurve.GetValueAt(time) : 0;
+    value[2] = this.BlueCurve ? this.BlueCurve.GetValueAt(time) : 0;
+    value[3] = this.AlphaCurve ? this.AlphaCurve.GetValueAt(time) : 0;
+    return value;
+  }
+  /**
+   * The sequencer's curve dimension
+   * @type {number}
+   */
+
+
+}
+
+_defineProperty(Tw2RGBAScalarSequencer, "inputDimension", 1);
+
+_defineProperty(Tw2RGBAScalarSequencer, "outputDimension", 4);
+
+_defineProperty(Tw2RGBAScalarSequencer, "valueProperty", "value");
+
+_defineProperty(Tw2RGBAScalarSequencer, "curveType", _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"].Type.SEQUENCER2);
+
+_defineProperty(Tw2RGBAScalarSequencer, "childProperties", ["RedCurve", "GreenCurve", "BlueCurve", "AlphaCurve"]);
+
+/***/ }),
+
+/***/ "./curve/sequencer/legacy/Tw2ScalarSequencer.js":
+/*!******************************************************!*\
+  !*** ./curve/sequencer/legacy/Tw2ScalarSequencer.js ***!
+  \******************************************************/
+/*! exports provided: Tw2ScalarSequencer */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2ScalarSequencer", function() { return Tw2ScalarSequencer; });
+/* harmony import */ var _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Tw2CurveSequencer */ "./curve/sequencer/Tw2CurveSequencer.js");
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+
+/**
+ * Tw2ScalarSequencer
+ *
+ * @property {String} name
+ * @property {number} value
+ * @property {number} operator
+ * @property {Array<Tw2Curve>} functions
+ * @property {number} inMinClamp
+ * @property {number} inMaxClamp
+ * @property {number} outMinClamp
+ * @property {number} outMaxClamp
+ * @property {Boolean} clamping
+ * @class
+ */
+
+class Tw2ScalarSequencer extends _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_0__["Tw2CurveSequencer"] {
+  constructor() {
+    super(...arguments);
+
+    _defineProperty(this, "value", 0);
+
+    _defineProperty(this, "operator", 0);
+
+    _defineProperty(this, "functions", []);
+
+    _defineProperty(this, "inMinClamp", 0);
+
+    _defineProperty(this, "inMaxClamp", 1);
+
+    _defineProperty(this, "outMinClamp", 0);
+
+    _defineProperty(this, "outMaxClamp", 1);
+
+    _defineProperty(this, "clamping", false);
+  }
+
+  /**
+   * Sorts the sequencer
+   */
+  Sort() {
+    _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_0__["Tw2CurveSequencer"].Sort(this);
+  }
+  /**
+   * Gets sequencer length
+   * @returns {number}
+   */
+
+
+  GetLength() {
+    return _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_0__["Tw2CurveSequencer"].GetLengthFromKeys(this);
+  }
+  /**
+   * Updates a value at a specific time
+   *
+   * @param {number} time
+   */
+
+
+  UpdateValue(time) {
+    this.value = this.GetValueAt(time);
+  }
+  /**
+   * Gets a value at a specific time
+   *
+   * @param {number} time
+   * @returns {number}
+   */
+
+
+  GetValueAt(time) {
+    let value;
+
+    switch (this.operator) {
+      case Tw2ScalarSequencer.Operator.MULTIPLY:
+        value = 1;
+
+        for (let i = 0; i < this.functions.length; ++i) {
+          let v = this.functions[i].GetValueAt(time);
+
+          if (this.clamping) {
+            v = Math.min(Math.max(v, this.inMinClamp), this.inMaxClamp);
+          }
+
+          value *= v;
+        }
+
+        break;
+
+      default:
+        value = 0;
+
+        for (let i = 0; i < this.functions.length; ++i) {
+          let v = this.functions[i].GetValueAt(time);
+
+          if (this.clamping) {
+            v = Math.min(Math.max(v, this.inMinClamp), this.inMaxClamp);
+          }
+
+          value += v;
+        }
+
+    }
+
+    if (this.clamping) {
+      value = Math.min(Math.max(value, this.outMinClamp), this.outMaxClamp);
+    }
+
+    return value;
+  }
+  /**
+   * The sequencer's curve dimension
+   * @type {number}
+   */
+
+
+}
+
+_defineProperty(Tw2ScalarSequencer, "inputDimension", 1);
+
+_defineProperty(Tw2ScalarSequencer, "outputDimension", 1);
+
+_defineProperty(Tw2ScalarSequencer, "valueProperty", "value");
+
+_defineProperty(Tw2ScalarSequencer, "curveType", _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_0__["Tw2CurveSequencer"].Type.SEQUENCER);
+
+_defineProperty(Tw2ScalarSequencer, "childArray", "functions");
+
+_defineProperty(Tw2ScalarSequencer, "Operator", {
+  MULTIPLY: 0,
+  ADD: 1
+});
+
+/***/ }),
+
+/***/ "./curve/sequencer/legacy/Tw2VectorSequencer.js":
+/*!******************************************************!*\
+  !*** ./curve/sequencer/legacy/Tw2VectorSequencer.js ***!
+  \******************************************************/
+/*! exports provided: Tw2VectorSequencer */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2VectorSequencer", function() { return Tw2VectorSequencer; });
+/* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../global */ "./global/index.js");
+/* harmony import */ var _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Tw2CurveSequencer */ "./curve/sequencer/Tw2CurveSequencer.js");
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+
+
+/**
+ * Tw2VectorSequencer
+ *
+ * @property {String} name
+ * @property {number} start
+ * @property {vec3} value
+ * @property {number} operator
+ * @property {Array.<Tw2Curve>} functions
+ * @class
+ */
+
+class Tw2VectorSequencer extends _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"] {
+  constructor() {
+    super(...arguments);
+
+    _defineProperty(this, "start", 0);
+
+    _defineProperty(this, "value", _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].create());
+
+    _defineProperty(this, "operator", 0);
+
+    _defineProperty(this, "functions", []);
+  }
+
+  /**
+   * Sorts the sequencer
+   */
+  Sort() {
+    _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"].Sort(this);
+  }
+  /**
+   * Gets sequencer length
+   * @returns {number}
+   */
+
+
+  GetLength() {
+    return _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"].GetLengthFromKeys(this);
+  }
+  /**
+   * Updates the current value at a specific time
+   * @param {number} time
+   */
+
+
+  UpdateValue(time) {
+    this.GetValueAt(time, this.value);
+  }
+  /**
+   * Gets a value at a specific time
+   * @param {number} time
+   * @param {vec3} value
+   * @returns {vec3}
+   */
+
+
+  GetValueAt(time, value) {
+    const vec3_0 = _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"].global.vec3_0;
+
+    switch (this.operator) {
+      case Tw2VectorSequencer.Operator.MULTIPLY:
+        _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].set(value, 1, 1, 1);
+
+        for (let i = 0; i < this.functions.length; ++i) {
+          this.functions[i].GetValueAt(time, vec3_0);
+          _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].multiply(value, value, vec3_0);
+        }
+
+        return value;
+
+      default:
+        _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].set(value, 0, 0, 0);
+
+        for (let i = 0; i < this.functions.length; ++i) {
+          this.functions[i].GetValueAt(time, vec3_0);
+          _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].add(value, value, vec3_0);
+        }
+
+        return value;
+    }
+  }
+  /**
+   * The sequencer's curve dimension
+   * @type {number}
+   */
+
+
+}
+
+_defineProperty(Tw2VectorSequencer, "inputDimension", 3);
+
+_defineProperty(Tw2VectorSequencer, "outputDimension", 3);
+
+_defineProperty(Tw2VectorSequencer, "valueProperty", "value");
+
+_defineProperty(Tw2VectorSequencer, "curveType", _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"].Type.SEQUENCER);
+
+_defineProperty(Tw2VectorSequencer, "childArray", "functions");
+
+_defineProperty(Tw2VectorSequencer, "Operator", {
+  MULTIPLY: 0,
+  ADD: 1
+});
+
+/***/ }),
+
+/***/ "./curve/sequencer/legacy/Tw2XYZScalarSequencer.js":
+/*!*********************************************************!*\
+  !*** ./curve/sequencer/legacy/Tw2XYZScalarSequencer.js ***!
+  \*********************************************************/
+/*! exports provided: Tw2XYZScalarSequencer */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2XYZScalarSequencer", function() { return Tw2XYZScalarSequencer; });
+/* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../global */ "./global/index.js");
+/* harmony import */ var _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Tw2CurveSequencer */ "./curve/sequencer/Tw2CurveSequencer.js");
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+
+
+/**
+ * Tw2XYZScalarSequencer
+ *
+ * @property {String} name
+ * @property {vec3} value
+ * @property {Tw2CurveSequencer} XCurve
+ * @property {Tw2CurveSequencer} YCurve
+ * @property {Tw2CurveSequencer} ZCurve
+ * @class
+ */
+
+class Tw2XYZScalarSequencer extends _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"] {
+  constructor() {
+    super(...arguments);
+
+    _defineProperty(this, "value", _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].create());
+
+    _defineProperty(this, "XCurve", null);
+
+    _defineProperty(this, "YCurve", null);
+
+    _defineProperty(this, "ZCurve", null);
+  }
+
+  /**
+   * Sorts the sequencer
+   */
+  Sort() {
+    _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"].Sort2(this);
+  }
+  /**
+   * Gets sequencer length
+   * @returns {number}
+   */
+
+
+  GetLength() {
+    return _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"].GetLengthFromProperties(this);
+  }
+  /**
+   * Updates a value at a specific time
+   * @param {number} time
+   */
+
+
+  UpdateValue(time) {
+    this.GetValueAt(time, this.value);
+  }
+  /**
+   * Gets a value at a specific time
+   * @param {number} time
+   * @param {vec3} value
+   * @returns {vec3}
+   */
+
+
+  GetValueAt(time, value) {
+    value[0] = this.XCurve ? this.XCurve.GetValueAt(time) : 0;
+    value[1] = this.YCurve ? this.YCurve.GetValueAt(time) : 0;
+    value[2] = this.ZCurve ? this.ZCurve.GetValueAt(time) : 0;
+    return value;
+  }
+  /**
+   * The sequencer's curve dimension
+   * @type {number}
+   */
+
+
+}
+
+_defineProperty(Tw2XYZScalarSequencer, "inputDimension", 1);
+
+_defineProperty(Tw2XYZScalarSequencer, "outputDimension", 3);
+
+_defineProperty(Tw2XYZScalarSequencer, "valueProperty", "value");
+
+_defineProperty(Tw2XYZScalarSequencer, "curveType", _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"].Type.SEQUENCER2);
+
+_defineProperty(Tw2XYZScalarSequencer, "childProperties", ["XCurve", "YCurve", "ZCurve"]);
+
+/***/ }),
+
+/***/ "./curve/sequencer/legacy/Tw2YPRSequencer.js":
+/*!***************************************************!*\
+  !*** ./curve/sequencer/legacy/Tw2YPRSequencer.js ***!
+  \***************************************************/
+/*! exports provided: Tw2YPRSequencer */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tw2YPRSequencer", function() { return Tw2YPRSequencer; });
+/* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../global */ "./global/index.js");
+/* harmony import */ var _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Tw2CurveSequencer */ "./curve/sequencer/Tw2CurveSequencer.js");
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+
+
+/**
+ * Tw2YPRSequencer
+ *
+ * @property {quat} value
+ * @property {vec3} YawPitchRoll
+ * @property {Tw2Curve} YawCurve
+ * @property {Tw2Curve} PitchCurve
+ * @property {Tw2Curve} RollCurve
+ * @class
+ */
+
+class Tw2YPRSequencer extends _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"] {
+  constructor() {
+    super(...arguments);
+
+    _defineProperty(this, "value", _global__WEBPACK_IMPORTED_MODULE_0__["quat"].create());
+
+    _defineProperty(this, "YawPitchRoll", _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].create());
+
+    _defineProperty(this, "YawCurve", null);
+
+    _defineProperty(this, "PitchCurve", null);
+
+    _defineProperty(this, "RollCurve", null);
+  }
+
+  /**
+   * Sorts the sequencer
+   */
+  Sort() {
+    _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"].Sort2(this);
+  }
+  /**
+   * Gets sequencer length
+   * @returns {number}
+   */
+
+
+  GetLength() {
+    return _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"].GetLengthFromProperties(this);
+  }
+  /**
+   * Updates a value at a specific time
+   *
+   * @param {number} time
+   */
+
+
+  UpdateValue(time) {
+    this.GetValueAt(time, this.value);
+  }
+  /**
+   * Gets a value at a specific time
+   *
+   * @param {number} time
+   * @param {quat} value
+   * @returns {quat}
+   */
+
+
+  GetValueAt(time, value) {
+    if (this.YawCurve) this.YawPitchRoll[0] = this.YawCurve.GetValueAt(time);
+    if (this.PitchCurve) this.YawPitchRoll[1] = this.PitchCurve.GetValueAt(time);
+    if (this.RollCurve) this.YawPitchRoll[2] = this.RollCurve.GetValueAt(time);
+    const sinYaw = Math.sin(this.YawPitchRoll[0] / 180 * Math.PI / 2.0),
+          cosYaw = Math.cos(this.YawPitchRoll[0] / 180 * Math.PI / 2.0),
+          sinPitch = Math.sin(this.YawPitchRoll[1] / 180 * Math.PI / 2.0),
+          cosPitch = Math.cos(this.YawPitchRoll[1] / 180 * Math.PI / 2.0),
+          sinRoll = Math.sin(this.YawPitchRoll[2] / 180 * Math.PI / 2.0),
+          cosRoll = Math.cos(this.YawPitchRoll[2] / 180 * Math.PI / 2.0);
+    value[0] = sinYaw * cosPitch * sinRoll + cosYaw * sinPitch * cosRoll;
+    value[1] = sinYaw * cosPitch * cosRoll - cosYaw * sinPitch * sinRoll;
+    value[2] = cosYaw * cosPitch * sinRoll - sinYaw * sinPitch * cosRoll;
+    value[3] = cosYaw * cosPitch * cosRoll + sinYaw * sinPitch * sinRoll;
+    return value;
+  }
+  /**
+   * The sequencer's curve dimension
+   * @type {number}
+   */
+
+
+}
+
+_defineProperty(Tw2YPRSequencer, "inputDimension", 1);
+
+_defineProperty(Tw2YPRSequencer, "outputDimension", 4);
+
+_defineProperty(Tw2YPRSequencer, "valueProperty", "value");
+
+_defineProperty(Tw2YPRSequencer, "curveType", _Tw2CurveSequencer__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSequencer"].Type.SEQUENCER2);
+
+_defineProperty(Tw2YPRSequencer, "childProperties", ["YawCurve", "PitchCurve", "RollCurve"]);
+
+/***/ }),
+
+/***/ "./curve/sequencer/legacy/index.js":
+/*!*****************************************!*\
+  !*** ./curve/sequencer/legacy/index.js ***!
+  \*****************************************/
+/*! exports provided: Tw2ColorSequencer, Tw2EulerRotation, Tw2QuaternionSequencer, Tw2RGBAScalarSequencer, Tw2ScalarSequencer, Tw2VectorSequencer, Tw2XYZScalarSequencer, Tw2YPRSequencer */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _Tw2ColorSequencer__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Tw2ColorSequencer */ "./curve/sequencer/legacy/Tw2ColorSequencer.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ColorSequencer", function() { return _Tw2ColorSequencer__WEBPACK_IMPORTED_MODULE_0__["Tw2ColorSequencer"]; });
+
+/* harmony import */ var _Tw2EulerRotation__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Tw2EulerRotation */ "./curve/sequencer/legacy/Tw2EulerRotation.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2EulerRotation", function() { return _Tw2EulerRotation__WEBPACK_IMPORTED_MODULE_1__["Tw2EulerRotation"]; });
+
+/* harmony import */ var _Tw2QuaternionSequencer__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Tw2QuaternionSequencer */ "./curve/sequencer/legacy/Tw2QuaternionSequencer.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2QuaternionSequencer", function() { return _Tw2QuaternionSequencer__WEBPACK_IMPORTED_MODULE_2__["Tw2QuaternionSequencer"]; });
+
+/* harmony import */ var _Tw2RGBAScalarSequencer__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Tw2RGBAScalarSequencer */ "./curve/sequencer/legacy/Tw2RGBAScalarSequencer.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2RGBAScalarSequencer", function() { return _Tw2RGBAScalarSequencer__WEBPACK_IMPORTED_MODULE_3__["Tw2RGBAScalarSequencer"]; });
+
+/* harmony import */ var _Tw2ScalarSequencer__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Tw2ScalarSequencer */ "./curve/sequencer/legacy/Tw2ScalarSequencer.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ScalarSequencer", function() { return _Tw2ScalarSequencer__WEBPACK_IMPORTED_MODULE_4__["Tw2ScalarSequencer"]; });
+
+/* harmony import */ var _Tw2VectorSequencer__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Tw2VectorSequencer */ "./curve/sequencer/legacy/Tw2VectorSequencer.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2VectorSequencer", function() { return _Tw2VectorSequencer__WEBPACK_IMPORTED_MODULE_5__["Tw2VectorSequencer"]; });
+
+/* harmony import */ var _Tw2XYZScalarSequencer__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Tw2XYZScalarSequencer */ "./curve/sequencer/legacy/Tw2XYZScalarSequencer.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2XYZScalarSequencer", function() { return _Tw2XYZScalarSequencer__WEBPACK_IMPORTED_MODULE_6__["Tw2XYZScalarSequencer"]; });
+
+/* harmony import */ var _Tw2YPRSequencer__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Tw2YPRSequencer */ "./curve/sequencer/legacy/Tw2YPRSequencer.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2YPRSequencer", function() { return _Tw2YPRSequencer__WEBPACK_IMPORTED_MODULE_7__["Tw2YPRSequencer"]; });
+
+
+
+
 
 
 
@@ -37176,6 +37743,8 @@ class EveSpaceScene extends _global__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"]
 
     _defineProperty(this, "_envMap2Res", null);
 
+    _defineProperty(this, "spriteScale", 1);
+
     Object.defineProperty(this.visible, "environment", {
       get: () => this.backgroundRenderingEnabled,
       set: bool => this.backgroundRenderingEnabled = bool ? 1 : 0
@@ -37398,17 +37967,17 @@ class EveSpaceScene extends _global__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"]
       }
     }
   }
+
   /**
    * Updates children's view dependent data and renders them
    * @param {Number} dt - deltaTime
    */
-
-
   Render(dt) {
     this.ApplyPerFrameData();
     const d = _global__WEBPACK_IMPORTED_MODULE_0__["device"],
           g = EveSpaceScene.global,
           tr = this.localTransform,
+          spriteScale = _global__WEBPACK_IMPORTED_MODULE_0__["mat4"].maxScaleOnAxis(tr) * this.spriteScale,
           show = this.visible;
 
     if (show["environment"] && this.backgroundEffect) {
@@ -37456,7 +38025,7 @@ class EveSpaceScene extends _global__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"]
     if (show.objects) {
       for (let i = 0; i < this.objects.length; ++i) {
         if (this.objects[i].UpdateViewDependentData) {
-          this.objects[i].UpdateViewDependentData(tr, dt);
+          this.objects[i].UpdateViewDependentData(tr, dt, spriteScale);
         }
       }
     }
@@ -37464,7 +38033,7 @@ class EveSpaceScene extends _global__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"]
     if (show.backgroundObjects) {
       for (let i = 0; i < this.backgroundObjects.length; i++) {
         if (this.backgroundObjects[i].UpdateViewDependentData) {
-          this.backgroundObjects[i].UpdateViewDependentData(tr, dt);
+          this.backgroundObjects[i].UpdateViewDependentData(tr, dt, spriteScale);
         }
       }
     }
@@ -37955,6 +38524,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "EveChild", function() { return EveChild; });
 /* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../global */ "./global/index.js");
 /* harmony import */ var _core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../core */ "./core/index.js");
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 /* eslint no-unused-vars:0 */
 
 
@@ -37962,12 +38533,7 @@ __webpack_require__.r(__webpack_exports__);
  * Root EveChild class
  */
 
-function EveChild() {
-  _global__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"].defineID(this);
-}
-EveChild.prototype = Object.assign(Object.create(_global__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"].prototype), {
-  constructor: EveChild,
-
+class EveChild extends _global__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"] {
   /**
    * Per frame update
    * @param {number} dt
@@ -37975,52 +38541,52 @@ EveChild.prototype = Object.assign(Object.create(_global__WEBPACK_IMPORTED_MODUL
    */
   Update(dt, parentTransform) {
     throw new _core__WEBPACK_IMPORTED_MODULE_1__["ErrAbstractClassMethod"]();
-  },
-
+  }
   /**
    * Gets object resources
    * @param {Array} [out=[]]
    * @returns {Array<Tw2Resource>} out
    */
+
+
   GetResources() {
     let out = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
     throw new _core__WEBPACK_IMPORTED_MODULE_1__["ErrAbstractClassMethod"]();
-  },
-
+  }
   /**
    * Gets render batches
    * @param {number} mode
    * @param {Tw2BatchAccumulator} accumulator
    * @param {Tw2PerObjectData} perObjectData
    */
+
+
   GetBatches(mode, accumulator, perObjectData) {
     throw new _core__WEBPACK_IMPORTED_MODULE_1__["ErrAbstractClassMethod"]();
   }
+  /**
+   * Class globals and scratch variables
+   * @type {Object}
+   */
 
-});
-/**
- * Class globals and scratch variables
- * @type {Object}
- */
 
-EveChild.global = {
+}
+
+_defineProperty(EveChild, "global", {
   mat4_0: _global__WEBPACK_IMPORTED_MODULE_0__["mat4"].create(),
   vec3_0: _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].create()
-};
-/**
- * Per object data
- * @type {{ffe: *[]}}
- */
+});
 
-EveChild.perObjectData = {
+_defineProperty(EveChild, "perObjectData", {
   ffe: [["world", 16], ["worldInverseTranspose", 16]]
-};
-/**
- * Identifies that the class is a child effect
- * @returns {boolean}
- */
+  /**
+   * Identifies that the class is a child effect
+   * @returns {boolean}
+   */
 
-EveChild.__isEffectChild = true;
+});
+
+_defineProperty(EveChild, "__isEffectChild", true);
 
 /***/ }),
 
@@ -38256,6 +38822,8 @@ class EveChildContainer extends _EveChild__WEBPACK_IMPORTED_MODULE_0__["EveChild
     _defineProperty(this, "transformModifiers", []);
 
     _defineProperty(this, "translation", _global__WEBPACK_IMPORTED_MODULE_1__["vec3"].create());
+
+    _defineProperty(this, "useSRT", true);
 
     _defineProperty(this, "_worldTransform", _global__WEBPACK_IMPORTED_MODULE_1__["mat4"].create());
 
@@ -39913,9 +40481,11 @@ _defineProperty(EveLensflare, "__isStaging", 1);
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "EveMeshOverlayEffect", function() { return EveMeshOverlayEffect; });
 /* harmony import */ var _core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../core */ "./core/index.js");
-/* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../global */ "./global/index.js");
-/* harmony import */ var _global_util__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../global/util */ "./global/util/index.js");
+/* harmony import */ var _curve__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../curve */ "./curve/index.js");
+/* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../global */ "./global/index.js");
+/* harmony import */ var _global_util__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../global/util */ "./global/util/index.js");
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 
 
 
@@ -39942,7 +40512,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
  * @property {Boolean} visible.distortionEffects    - Currently not supported
  */
 
-class EveMeshOverlayEffect extends _global__WEBPACK_IMPORTED_MODULE_1__["Tw2BaseClass"] {
+class EveMeshOverlayEffect extends _global__WEBPACK_IMPORTED_MODULE_2__["Tw2BaseClass"] {
   constructor() {
     super(...arguments);
 
@@ -39980,7 +40550,7 @@ class EveMeshOverlayEffect extends _global__WEBPACK_IMPORTED_MODULE_1__["Tw2Base
    * @param {String|String[]} names
    */
   static createAreaEffects(dest, src, names) {
-    names = Object(_global_util__WEBPACK_IMPORTED_MODULE_2__["toArray"])(names);
+    names = Object(_global_util__WEBPACK_IMPORTED_MODULE_3__["toArray"])(names);
 
     for (let i = 0; i < names.length; i++) {
       const name = names[i];
@@ -40004,16 +40574,16 @@ class EveMeshOverlayEffect extends _global__WEBPACK_IMPORTED_MODULE_1__["Tw2Base
     const item = new EveMeshOverlayEffect();
 
     if (values) {
-      Object(_global_util__WEBPACK_IMPORTED_MODULE_2__["assignIfExists"])(item, values, ["name", "display", "update"]);
+      Object(_global_util__WEBPACK_IMPORTED_MODULE_3__["assignIfExists"])(item, values, ["name", "display", "update"]);
 
       if (values.curveSet) {
-        item.curveSet = _core__WEBPACK_IMPORTED_MODULE_0__["Tw2CurveSet"].from(values.curveSet);
+        item.curveSet = _curve__WEBPACK_IMPORTED_MODULE_1__["Tw2CurveSet"].from(values.curveSet);
       }
 
       const areas = ["additiveEffects", "distortionEffects", "opaqueEffects", "transparentEffects", "decalEffects"];
 
       if (values.visible) {
-        Object(_global_util__WEBPACK_IMPORTED_MODULE_2__["assignIfExists"])(item.visible, values.visible, areas);
+        Object(_global_util__WEBPACK_IMPORTED_MODULE_3__["assignIfExists"])(item.visible, values.visible, areas);
       }
 
       this.createAreaEffects(item, values, areas);
@@ -40068,25 +40638,25 @@ class EveMeshOverlayEffect extends _global__WEBPACK_IMPORTED_MODULE_1__["Tw2Base
 
 
   GetEffects(mode) {
-    if (!this.display) {
+    if (this.display) {
       switch (mode) {
-        case _global__WEBPACK_IMPORTED_MODULE_1__["RM_OPAQUE"]:
+        case _global__WEBPACK_IMPORTED_MODULE_2__["RM_OPAQUE"]:
           if (this.visible.opaqueEffects) return this.opaqueEffects;
           break;
 
-        case _global__WEBPACK_IMPORTED_MODULE_1__["RM_TRANSPARENT"]:
+        case _global__WEBPACK_IMPORTED_MODULE_2__["RM_TRANSPARENT"]:
           if (this.visible.transparentEffects) return this.transparentEffects;
           break;
 
-        case _global__WEBPACK_IMPORTED_MODULE_1__["RM_ADDITIVE"]:
+        case _global__WEBPACK_IMPORTED_MODULE_2__["RM_ADDITIVE"]:
           if (this.visible.additiveEffects) return this.additiveEffects;
           break;
 
-        case _global__WEBPACK_IMPORTED_MODULE_1__["RM_DECAL"]:
+        case _global__WEBPACK_IMPORTED_MODULE_2__["RM_DECAL"]:
           if (this.visible.decalEffects) return this.decalEffects;
           break;
 
-        case _global__WEBPACK_IMPORTED_MODULE_1__["RM_DISTORTION"]:
+        case _global__WEBPACK_IMPORTED_MODULE_2__["RM_DISTORTION"]:
           if (this.visible.distortionEffects) return this.distortionEffects;
       }
     }
@@ -40484,6 +41054,8 @@ class EveStretch extends _global__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"] {
 
     _defineProperty(this, "_time", 0);
 
+    _defineProperty(this, "_useParentMatrix", false);
+
     EveStretch.init();
   }
   /**
@@ -40571,11 +41143,13 @@ class EveStretch extends _global__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"] {
   }
   /**
    * Updates view dependent data
+   * @param {mat4} parentTransform
    */
 
 
-  UpdateViewDependentData() {
-    if (!this.display) return;
+  UpdateViewDependentData(parentTransform) {
+    if (!this.display) return; // TODO: Handle parent scale....
+
     const g = EveStretch.global,
           directionVec = _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].subtract(g.vec3_0, this._destinationPosition, this._sourcePosition),
           m = _global__WEBPACK_IMPORTED_MODULE_0__["mat4"].identity(g.mat4_0),
@@ -40607,6 +41181,7 @@ class EveStretch extends _global__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"] {
       m[8] = up[0];
       m[9] = up[1];
       m[10] = up[2];
+      _global__WEBPACK_IMPORTED_MODULE_0__["mat4"].multiply(m, parentTransform, m);
     }
 
     if (this.destObject && this._displayDestObject) {
@@ -40676,18 +41251,18 @@ class EveStretch extends _global__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"] {
 
     const directionVec = _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].subtract(EveStretch.global.vec3_0, this._destinationPosition, this._sourcePosition);
     this.length.value = _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].length(directionVec);
-    _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].normalize(directionVec, directionVec);
+    _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].normalize(directionVec, directionVec); // Unused - typo?
 
     if (this.sourceObject && this._displaySourceObject) {
       this.sourceObject.Update(dt);
     }
 
-    if (this.stretchObject) {
-      this.stretchObject.Update(dt);
-    }
-
     if (this.destObject && this._displayDestObject) {
       this.destObject.Update(dt);
+    }
+
+    if (this.stretchObject) {
+      this.stretchObject.Update(dt);
     }
   }
   /**
@@ -41149,12 +41724,14 @@ class EveTurretFiringFX extends _global__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseCla
   }
   /**
    * Updates view dependant data
+   * @param {mat4} parentTransform
    */
 
 
-  UpdateViewDependentData() {
+  UpdateViewDependentData(parentTransform) {
+    // Eve Turret handles parentTransforms for muzzles
     for (let i = 0; i < this.stretch.length; ++i) {
-      this.stretch[i].UpdateViewDependentData();
+      this.stretch[i].UpdateViewDependentData(parentTransform);
     }
   }
   /**
@@ -43031,6 +43608,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "EveObjectSet", function() { return EveObjectSet; });
 /* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../global */ "./global/index.js");
 /* harmony import */ var _core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../core */ "./core/index.js");
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 /* eslint no-unused-vars:0 */
 
 
@@ -43042,27 +43621,29 @@ __webpack_require__.r(__webpack_exports__);
  * @property {Boolean} _dirty  - Identifies that the item is dirty
  */
 
-function EveObjectSetItem() {
-  _global__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"].defineID(this);
-  this.display = true;
-  this._dirty = true;
-}
-EveObjectSetItem.prototype = Object.assign(Object.create(_global__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"].prototype), {
-  constructor: EveObjectSetItem,
+class EveObjectSetItem extends _global__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"] {
+  constructor() {
+    super(...arguments);
+
+    _defineProperty(this, "display", true);
+
+    _defineProperty(this, "_dirty", true);
+  }
 
   /**
    * Fire on value changes
    */
   OnValueChanged() {
     this._dirty = true;
-  },
-
+  }
   /**
    * Fires when the object is destroyed
    */
+
+
   OnDestroyed() {}
 
-});
+}
 /**
  * EveObjectSet base class
  * @ccp N/A
@@ -43074,104 +43655,144 @@ EveObjectSetItem.prototype = Object.assign(Object.create(_global__WEBPACK_IMPORT
  * @property {Boolean} _autoRebuild   - Auto rebuilds the object if a child is dirty
  */
 
-function EveObjectSet() {
-  // ccpwgl
-  _global__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"].defineID(this);
-  this.autoRebuild = true;
-  this.display = true;
-  this.items = [];
-  this._dirty = true;
-  this._visibleItems = [];
-}
-EveObjectSet.prototype = Object.assign(Object.create(_global__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"].prototype), {
-  constructor: EveObjectSet,
+class EveObjectSet extends _global__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"] {
+  constructor() {
+    super(...arguments);
+
+    _defineProperty(this, "autoRebuild", true);
+
+    _defineProperty(this, "display", true);
+
+    _defineProperty(this, "items", []);
+
+    _defineProperty(this, "_dirty", true);
+
+    _defineProperty(this, "_visibleItems", []);
+  }
 
   /**
    * Initializes the set
    */
   Initialize() {
     this.Rebuild();
-  },
-
+  }
   /**
    * Fires on value changes
    */
+
+
   OnValueChanged() {
     this._dirty = true;
-  },
-
+  }
   /**
    * Creates an item from an options object and then adds it to the set
-   * @param {*} {values}
-   * @param {*} [opt={}]
+   * @param {*} [values={}]
+   * @param {Boolean} [skipUpdate]
+   * @param {Boolean} [skipEvents]
    * @returns {*}
    */
+
+
   CreateItem() {
     let values = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-    let opt = arguments.length > 1 ? arguments[1] : undefined;
-    const item = this.constructor.Item.from(values, opt);
-    this.AddItem(item, opt ? opt.skipUpdate : false);
-    return item;
-  },
+    let skipUpdate = arguments.length > 1 ? arguments[1] : undefined;
+    let skipEvents = arguments.length > 2 ? arguments[2] : undefined;
+    const item = this.constructor.Item.from(values);
+    this.items.push(item);
+    this._dirty = true;
 
+    if (!skipEvents) {
+      this.emit("item_created", {
+        ctx: item
+      });
+    }
+
+    if (!skipUpdate) {
+      this.UpdateValues();
+    }
+
+    return item;
+  }
   /**
    * Adds a set item
    * @param {*} item
    * @param {Boolean} [skipUpdate]
+   * @param {Boolean} [skipEvents]
    */
-  AddItem(item, skipUpdate) {
-    if (!this.items.includes(item)) {
-      this.emit("child_added", {
-        ctx: item
-      }); //item.SetParent(this);
 
+
+  AddItem(item, skipUpdate, skipEvents) {
+    if (!this.items.includes(item)) {
       this.items.push(item);
       this._dirty = true;
-      if (!skipUpdate) this.UpdateValues(item);
+
+      if (!skipEvents) {
+        this.emit("item_added", {
+          ctx: item
+        });
+      }
+
+      if (!skipUpdate) {
+        this.UpdateValues(item);
+      }
+
       return true;
     }
 
     return false;
-  },
-
+  }
   /**
    * Removes a set item
    * @param {*} item
    * @param {Boolean} [skipUpdate]
+   * @param {Boolean} [skipEvents]
    */
-  RemoveItem(item, skipUpdate) {
+
+
+  RemoveItem(item, skipUpdate, skipEvents) {
     const index = this.items.indexOf(item);
 
     if (index !== -1) {
-      this.emit("child_removed", {
-        ctx: item
-      }); //item.UnsetParent(this);
-
       this.items.splice(index, 1);
       this._dirty = true;
-      if (!skipUpdate) this.UpdateValues(item);
+
+      if (!skipEvents) {
+        this.emit("item_removed", {
+          ctx: item
+        });
+      }
+
+      if (!skipUpdate) {
+        this.UpdateValues(item);
+      }
+
       return true;
     }
 
     return false;
-  },
-
+  }
   /**
    * Clears all items
    * @param {Boolean} [skipUpdate]
+   * @param {Boolean} [skipEvents]
    */
-  ClearItems(skipUpdate) {
+
+
+  ClearItems(skipUpdate, skipEvents) {
     for (let i = 0; i < this.items.length; i++) {
-      this.RemoveItem(this.items[i], true);
+      this.RemoveItem(this.items[i], true, skipEvents);
       i--;
     }
 
-    if (!skipUpdate) this.UpdateValues();
-  },
-
+    if (!skipUpdate) {
+      this.UpdateValues();
+    }
+  }
   /**
    * Rebuilds items
    */
+
+
   RebuildItems() {
     this._visibleItems.splice(0);
 
@@ -43186,12 +43807,13 @@ EveObjectSet.prototype = Object.assign(Object.create(_global__WEBPACK_IMPORTED_M
     }
 
     this._dirty = true;
-  },
-
+  }
   /**
    * Checks if any children are dirty
    * @returns {boolean}
    */
+
+
   AreItemsDirty() {
     for (let i = 0; i < this.items.length; i++) {
       if (this.items[i]._dirty) {
@@ -43200,14 +43822,14 @@ EveObjectSet.prototype = Object.assign(Object.create(_global__WEBPACK_IMPORTED_M
     }
 
     return false;
-  },
-
+  }
   /**
    * Per frame update
    * @param {Number} dt
-   * @param {mat4} parentMatrix
    */
-  Update(dt, parentMatrix) {
+
+
+  Update(dt) {
     if (!this._dirty && this.autoRebuild && this.AreItemsDirty()) {
       this._dirty = true;
     }
@@ -43215,61 +43837,62 @@ EveObjectSet.prototype = Object.assign(Object.create(_global__WEBPACK_IMPORTED_M
     if (this._dirty) {
       this.Rebuild();
     }
-  },
-
+  }
   /**
    * Unloads the set's buffers
    */
+
+
   Unload(skipEvent) {
     if (!skipEvent) {
       this.emit("unloaded");
     }
-  },
-
+  }
   /**
    * Rebuilds the set
    */
+
+
   Rebuild() {
     this.emit("rebuilt");
-  },
-
+  }
   /**
    * Gets render batches
    * @param {Number} mode
    * @param {Tw2BatchAccumulator} accumulator
    * @param {Tw2PerObjectData} perObjectData
    */
+
+
   GetBatches(mode, accumulator, perObjectData) {
     throw new _core__WEBPACK_IMPORTED_MODULE_1__["ErrAbstractClassMethod"]();
-  },
-
+  }
   /**
    * Renders the set
    */
+
+
   Render() {
     throw new _core__WEBPACK_IMPORTED_MODULE_1__["ErrAbstractClassMethod"]();
   }
+  /**
+   * The object set's item
+   * @type {?Function}
+   */
 
-});
-/**
- * The object set's item
- * @type {?Function}
- */
 
-EveObjectSet.Item = null;
-/**
- * Global and scratch variables
- * @type {*}
- */
+}
 
-EveObjectSet.global = {
+_defineProperty(EveObjectSet, "Item", null);
+
+_defineProperty(EveObjectSet, "global", {
   vec3_0: _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].create(),
   vec3_1: _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].create(),
   vec3_2: _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].create(),
   vec4_0: _global__WEBPACK_IMPORTED_MODULE_0__["vec4"].create(),
   vec4_1: _global__WEBPACK_IMPORTED_MODULE_0__["vec4"].create(),
   mat4_0: _global__WEBPACK_IMPORTED_MODULE_0__["mat4"].create()
-};
+});
 
 /***/ }),
 
@@ -44177,15 +44800,15 @@ class EveSpotlightSetItem extends _EveObjectSet__WEBPACK_IMPORTED_MODULE_2__["Ev
  * Todo: Implement "intensity"
  * @ccp EveSpotlightSet
  *
- * @property {String} name                               - The spotlight set's name
- * @property {Tw2Effect} coneEffect                      - The spotlight set's cone effect
- * @property {Tw2Effect} glowEffect                      - The spotlight set's glow effect
- * @property {Number} intensity                          - The spotlight set's intensity
- * @property {Array.<EveSpotlightSetItem) spotlightItems - The spotlight set's children
- * @property {WebGLBuffer} _coneVertexBuffer             - Vertex buffer for the spotlight set's cone vertices
- * @property {WebGLBuffer} _spriteVertexBuffer           - Vertex buffer for the spotlight set's sprite/glow vertices
- * @property {WebGLBuffer} _indexBuffer                  - Index buffer for the spotlight set
- * @property {Tw2VertexDeclaration} _decl                - The spotlight set's vertex declarations
+ * @property {String} name                                - The spotlight set's name
+ * @property {Tw2Effect} coneEffect                       - The spotlight set's cone effect
+ * @property {Tw2Effect} glowEffect                       - The spotlight set's glow effect
+ * @property {Number} intensity                           - The spotlight set's intensity
+ * @property {Array.<EveSpotlightSetItem>} spotlightItems - The spotlight set's children
+ * @property {WebGLBuffer} _coneVertexBuffer              - Vertex buffer for the spotlight set's cone vertices
+ * @property {WebGLBuffer} _spriteVertexBuffer            - Vertex buffer for the spotlight set's sprite/glow vertices
+ * @property {WebGLBuffer} _indexBuffer                   - Index buffer for the spotlight set
+ * @property {Tw2VertexDeclaration} _decl                 - The spotlight set's vertex declarations
  */
 
 class EveSpotlightSet extends _EveObjectSet__WEBPACK_IMPORTED_MODULE_2__["EveObjectSet"] {
@@ -44198,7 +44821,7 @@ class EveSpotlightSet extends _EveObjectSet__WEBPACK_IMPORTED_MODULE_2__["EveObj
 
     _defineProperty(this, "glowEffect", null);
 
-    _defineProperty(this, "intensity", 0);
+    _defineProperty(this, "intensity", 1);
 
     _defineProperty(this, "_coneVertexBuffer", null);
 
@@ -44292,9 +44915,9 @@ class EveSpotlightSet extends _EveObjectSet__WEBPACK_IMPORTED_MODULE_2__["EveObj
       for (let q = 0; q < coneQuadCount; ++q) {
         for (let v = 0; v < vertCount; ++v) {
           const offset = (i * coneQuadCount * vertCount + vertCount * q + v) * vertexSize;
-          coneArray[offset] = item.coneColor[0] * item.coneIntensity;
-          coneArray[offset + 1] = item.coneColor[1] * item.coneIntensity;
-          coneArray[offset + 2] = item.coneColor[2] * item.coneIntensity;
+          coneArray[offset] = item.coneColor[0] * item.coneIntensity * this.intensity;
+          coneArray[offset + 1] = item.coneColor[1] * item.coneIntensity * this.intensity;
+          coneArray[offset + 2] = item.coneColor[2] * item.coneIntensity * this.intensity;
           coneArray[offset + 3] = item.coneColor[3];
           coneArray[offset + 4] = item.transform[0];
           coneArray[offset + 5] = item.transform[4];
@@ -44335,17 +44958,17 @@ class EveSpotlightSet extends _EveObjectSet__WEBPACK_IMPORTED_MODULE_2__["EveObj
           const offset = (i * spriteQuadCount * vertCount + vertCount * q + v) * vertexSize;
 
           if (q % 2 === 0) {
-            spriteArray[offset] = item.spriteColor[0] * item.spriteIntensity;
-            spriteArray[offset + 1] = item.spriteColor[1] * item.spriteIntensity;
-            spriteArray[offset + 2] = item.spriteColor[2] * item.spriteIntensity;
+            spriteArray[offset] = item.spriteColor[0] * item.spriteIntensity * this.intensity;
+            spriteArray[offset + 1] = item.spriteColor[1] * item.spriteIntensity * this.intensity;
+            spriteArray[offset + 2] = item.spriteColor[2] * item.spriteIntensity * this.intensity;
             spriteArray[offset + 3] = item.spriteColor[3];
             spriteArray[offset + 16] = item.spriteScale[0];
             spriteArray[offset + 17] = 1;
             spriteArray[offset + 18] = 1;
           } else {
-            spriteArray[offset] = item.flareColor[0] * item.flareIntensity;
-            spriteArray[offset + 1] = item.flareColor[1] * item.flareIntensity;
-            spriteArray[offset + 2] = item.flareColor[2] * item.flareIntensity;
+            spriteArray[offset] = item.flareColor[0] * item.flareIntensity * this.intensity;
+            spriteArray[offset + 1] = item.flareColor[1] * item.flareIntensity * this.intensity;
+            spriteArray[offset + 2] = item.flareColor[2] * item.flareIntensity * this.intensity;
             spriteArray[offset + 3] = item.flareColor[3];
             spriteArray[offset + 16] = 1;
             spriteArray[offset + 17] = item.spriteScale[1];
@@ -44476,11 +45099,19 @@ class EveSpotlightSet extends _EveObjectSet__WEBPACK_IMPORTED_MODULE_2__["EveObj
       Object(_global_util__WEBPACK_IMPORTED_MODULE_3__["assignIfExists"])(item, values, ["name", "display", "intensity"]);
 
       if (values.coneEffect) {
-        item.coneEffect = _core_mesh__WEBPACK_IMPORTED_MODULE_4__["Tw2Effect"].from(values.coneEffect);
+        if (Object(_global_util__WEBPACK_IMPORTED_MODULE_3__["isFunction"])(values.coneEffect)) {
+          item.coneEffect = values.coneEffect;
+        } else {
+          item.coneEffect = _core_mesh__WEBPACK_IMPORTED_MODULE_4__["Tw2Effect"].from(values.coneEffect);
+        }
       }
 
       if (values.glowEffect) {
-        item.glowEffect = _core_mesh__WEBPACK_IMPORTED_MODULE_4__["Tw2Effect"].from(values.glowEffect);
+        if (Object(_global_util__WEBPACK_IMPORTED_MODULE_3__["isFunction"])(values.glowEffect)) {
+          item.glowEffect = values.glowEffect;
+        } else {
+          item.glowEffect = _core_mesh__WEBPACK_IMPORTED_MODULE_4__["Tw2Effect"].from(values.glowEffect);
+        }
       }
 
       if (values.items) {
@@ -44928,12 +45559,13 @@ class EveSpriteSet extends _EveObjectSet__WEBPACK_IMPORTED_MODULE_2__["EveObject
   /**
    * Per frame update
    * @param {Number} dt - Delta time
-   * @param {mat4} [parentMatrix]
+   * @param {Number} [worldSpriteScale=1]
    */
 
 
-  Update(dt, parentMatrix) {
+  Update(dt, worldSpriteScale) {
     this._time += dt;
+    this._worldSpriteScale = worldSpriteScale === undefined ? 1 : worldSpriteScale;
     super.Update(dt);
   }
   /**
@@ -45012,8 +45644,8 @@ class EveSpriteSet extends _EveObjectSet__WEBPACK_IMPORTED_MODULE_2__["EveObject
         array[vtxOffset + 7] = item.color[2];
         array[vtxOffset + 8] = item.blinkPhase;
         array[vtxOffset + 9] = item.blinkRate;
-        array[vtxOffset + 10] = item.minScale;
-        array[vtxOffset + 11] = item.maxScale;
+        array[vtxOffset + 10] = item.minScale * this._worldSpriteScale;
+        array[vtxOffset + 11] = item.maxScale * this._worldSpriteScale;
         array[vtxOffset + 12] = item.falloff;
       }
     }
@@ -45144,8 +45776,8 @@ class EveSpriteSet extends _EveObjectSet__WEBPACK_IMPORTED_MODULE_2__["EveObject
       array[index++] = world[8];
       array[index++] = item.blinkPhase;
       array[index++] = world[9];
-      array[index++] = item.minScale;
-      array[index++] = item.maxScale;
+      array[index++] = item.minScale * this._worldSpriteScale;
+      array[index++] = item.maxScale * this._worldSpriteScale;
       array[index++] = world[10];
       array[index++] = item.color[0];
       array[index++] = item.color[1];
@@ -45218,8 +45850,8 @@ class EveSpriteSet extends _EveObjectSet__WEBPACK_IMPORTED_MODULE_2__["EveObject
       array[index++] = 1;
       array[index++] = item.blinkPhase;
       array[index++] = item.blinkRate;
-      array[index++] = item.minScale;
-      array[index++] = item.maxScale;
+      array[index++] = item.minScale * this._worldSpriteScale;
+      array[index++] = item.maxScale * this._worldSpriteScale;
       array[index++] = item.falloff;
       array[index++] = item.color[0];
       array[index++] = item.color[1];
@@ -45667,7 +46299,7 @@ class EveTurretSetItem extends _EveObjectSet__WEBPACK_IMPORTED_MODULE_2__["EveOb
  * @property {?Function} _fireCallbackPending            -
  * @property {Boolean} _hasCyclingFiringPos              -
  * @property {Tw2AnimationController} _inactiveAnimation -
- * @property {mat4} _parentMatrix                        -
+ * @property {mat4} _parentTransform                        -
  * @property {Number} _state                             -
  * @property {vec3} _targetPosition                      -
  * @property {Object} visible                           -
@@ -45754,7 +46386,7 @@ class EveTurretSet extends _EveObjectSet__WEBPACK_IMPORTED_MODULE_2__["EveObject
 
     _defineProperty(this, "_locatorDirty", true);
 
-    _defineProperty(this, "_parentMatrix", _global__WEBPACK_IMPORTED_MODULE_0__["mat4"].create());
+    _defineProperty(this, "_parentTransform", _global__WEBPACK_IMPORTED_MODULE_0__["mat4"].create());
 
     _defineProperty(this, "_perObjectDataActive", _core__WEBPACK_IMPORTED_MODULE_1__["Tw2PerObjectData"].from(EveTurretSet.perObjectData));
 
@@ -45878,12 +46510,12 @@ class EveTurretSet extends _EveObjectSet__WEBPACK_IMPORTED_MODULE_2__["EveObject
       turretPosition[1] = item._localTransform[13];
       turretPosition[2] = item._localTransform[14];
       turretPosition[3] = 1;
-      _global__WEBPACK_IMPORTED_MODULE_0__["vec4"].transformMat4(turretPosition, turretPosition, this._parentMatrix);
+      _global__WEBPACK_IMPORTED_MODULE_0__["vec4"].transformMat4(turretPosition, turretPosition, this._parentTransform);
       _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].subtract(nrmToTarget, this._targetPosition, turretPosition);
       _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].normalize(nrmToTarget, nrmToTarget);
       _global__WEBPACK_IMPORTED_MODULE_0__["vec4"].set(nrmUp, 0, 1, 0, 0);
       _global__WEBPACK_IMPORTED_MODULE_0__["vec4"].transformMat4(nrmUp, nrmUp, item._localTransform);
-      _global__WEBPACK_IMPORTED_MODULE_0__["vec4"].transformMat4(nrmUp, nrmUp, this._parentMatrix);
+      _global__WEBPACK_IMPORTED_MODULE_0__["vec4"].transformMat4(nrmUp, nrmUp, this._parentTransform);
       const angle = _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].dot(nrmUp, nrmToTarget);
 
       if (angle > closestAngle) {
@@ -46137,12 +46769,15 @@ class EveTurretSet extends _EveObjectSet__WEBPACK_IMPORTED_MODULE_2__["EveObject
   }
   /**
    * Updates view dependent data
+   * @param {mat4} parentTransform
    */
 
 
-  UpdateViewDependentData(parentTransform, dt) {
+  UpdateViewDependentData(parentTransform) {
+    _global__WEBPACK_IMPORTED_MODULE_0__["mat4"].copy(this._parentTransform, parentTransform);
+
     if (this.firingEffect) {
-      this.firingEffect.UpdateViewDependentData(parentTransform, dt);
+      this.firingEffect.UpdateViewDependentData(parentTransform);
     }
   }
   /**
@@ -46159,11 +46794,10 @@ class EveTurretSet extends _EveObjectSet__WEBPACK_IMPORTED_MODULE_2__["EveObject
   /**
    * Per frame update
    * @param {Number} dt - Delta Time
-   * @param {mat4} parentMatrix
    */
 
 
-  Update(dt, parentMatrix) {
+  Update(dt) {
     super.Update(dt);
 
     if (this.turretEffect) {
@@ -46171,8 +46805,6 @@ class EveTurretSet extends _EveObjectSet__WEBPACK_IMPORTED_MODULE_2__["EveObject
 
       this._inactiveAnimation.Update(dt);
     }
-
-    _global__WEBPACK_IMPORTED_MODULE_0__["mat4"].copy(this._parentMatrix, parentMatrix);
 
     if (this.firingEffect && this._visibleItems.length) {
       if (this._activeTurret !== -1) {
@@ -46195,11 +46827,11 @@ class EveTurretSet extends _EveObjectSet__WEBPACK_IMPORTED_MODULE_2__["EveObject
             const transform = bones[EveTurretSet.positionBoneSkeletonNames[i]].worldTransform,
                   out = this.firingEffect.GetMuzzleTransform(i);
             _global__WEBPACK_IMPORTED_MODULE_0__["mat4"].multiply(out, activeTurret._localTransform, transform);
-            _global__WEBPACK_IMPORTED_MODULE_0__["mat4"].multiply(out, out, parentMatrix);
+            _global__WEBPACK_IMPORTED_MODULE_0__["mat4"].multiply(out, this._parentTransform, out);
           }
         } else {
           for (let i = 0; i < this.firingEffect.GetPerMuzzleEffectCount(); ++i) {
-            _global__WEBPACK_IMPORTED_MODULE_0__["mat4"].multiply(this.firingEffect.GetMuzzleTransform(i), parentMatrix, activeTurret._localTransform);
+            _global__WEBPACK_IMPORTED_MODULE_0__["mat4"].multiply(this.firingEffect.GetMuzzleTransform(i), this._parentTransform, activeTurret._localTransform);
           }
         }
 
@@ -46325,7 +46957,7 @@ class EveTurretSet extends _EveObjectSet__WEBPACK_IMPORTED_MODULE_2__["EveObject
 
 
   UpdatePerObjectData(perObjectData, transforms, skipBoneCalculations) {
-    _global__WEBPACK_IMPORTED_MODULE_0__["mat4"].transpose(perObjectData.Get("shipMatrix"), this._parentMatrix);
+    _global__WEBPACK_IMPORTED_MODULE_0__["mat4"].transpose(perObjectData.Get("shipMatrix"), this._parentTransform);
     const transformCount = transforms.length / 12;
     perObjectData.Get("turretSetData")[0] = transformCount;
     perObjectData.Get("baseCutoffData")[0] = this.bottomClipHeight;
@@ -46742,7 +47374,7 @@ class EveBoosterSetItem extends _EveObjectSet__WEBPACK_IMPORTED_MODULE_2__["EveO
  * @property {Number} glowDistance             - The distance between the booster's locators and glow sprites
  * @property {Number} glowScale                - The base scale of the booster's glow sprites
  * @property {vec4} glowColor                  - The color of the booster set's glow sprites
- * @property {?Tw2Effect} glows                - The booster's glows (sprites)
+ * @property {?EveSpriteSet} glows             - The booster's glows (sprites)
  * @property {vec4} warpGlowColor              - The color of the booster set's glow sprites when warping (Not implemented)
  * @property {Number} haloDistance             - The distance between the booster set's locators and halo sprites
  * @property {Number} haloScaleX               - The base vertical scale of the booster set's halos
@@ -46820,6 +47452,8 @@ class EveBoosterSet extends _EveObjectSet__WEBPACK_IMPORTED_MODULE_2__["EveObjec
     _defineProperty(this, "_perObjectData", _core__WEBPACK_IMPORTED_MODULE_1__["Tw2PerObjectData"].from(EveBoosterSet.perObjectData));
 
     _defineProperty(this, "_locatorDirty", true);
+
+    _defineProperty(this, "_worldSpriteScale", 1);
   }
 
   /**
@@ -46982,13 +47616,22 @@ class EveBoosterSet extends _EveObjectSet__WEBPACK_IMPORTED_MODULE_2__["EveObjec
    * Per frame update
    * @param {Number} dt - DeltaTime
    * @param {mat4} parentMatrix
+   * @param {Number} worldSpriteScale
    */
 
 
-  Update(dt, parentMatrix) {
+  Update(dt, parentMatrix, worldSpriteScale) {
     _global__WEBPACK_IMPORTED_MODULE_0__["mat4"].copy(this._parentTransform, parentMatrix);
+
+    if (this._worldSpriteScale !== worldSpriteScale) {
+      this._dirty = true;
+    }
+
     super.Update(dt);
-    if (this.glows) this.glows.Update(dt);
+
+    if (this.glows) {
+      this.glows.Update(dt, worldSpriteScale);
+    }
   }
   /**
    * Unloads the booster's buffers
@@ -48264,6 +48907,17 @@ class EveTransform extends _legacy_EveObject__WEBPACK_IMPORTED_MODULE_2__["EveOb
     _global__WEBPACK_IMPORTED_MODULE_0__["mat4"].fromRotationTranslationScale(this.localTransform, this.rotation, this.translation, this.scaling);
   }
   /**
+   * Sets the object's local transform
+   * @param {mat4} m
+   */
+
+
+  SetLocalTransform(m) {
+    _global__WEBPACK_IMPORTED_MODULE_0__["mat4"].getRotation(this.rotation, m);
+    _global__WEBPACK_IMPORTED_MODULE_0__["mat4"].getScaling(this.scaling, m);
+    _global__WEBPACK_IMPORTED_MODULE_0__["mat4"].getTranslation(this.translation, m);
+  }
+  /**
    * Gets object resources
    * @param {Array} [out=[]] - Optional receiving array
    * @returns {Array.<Tw2Resource>} [out]
@@ -48608,7 +49262,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
  * @property {quat} rotation
  * @property {vec3} translation
  * @property {mat4} localTransform
- * @property {mat4} rotationTransform
  * @property {vec3} boundingSphereCenter
  * @property {number} boundingSphereRadius
  * @property {number} duration
@@ -48634,20 +49287,31 @@ class EveEffectRoot extends _EveObject__WEBPACK_IMPORTED_MODULE_2__["EveObject"]
 
     _defineProperty(this, "localTransform", _global_index__WEBPACK_IMPORTED_MODULE_0__["mat4"].create());
 
-    _defineProperty(this, "rotationTransform", _global_index__WEBPACK_IMPORTED_MODULE_0__["mat4"].create());
-
     _defineProperty(this, "boundingSphereCenter", _global_index__WEBPACK_IMPORTED_MODULE_0__["vec3"].create());
 
     _defineProperty(this, "boundingSphereRadius", 0);
+
+    _defineProperty(this, "_worldTransform", _global_index__WEBPACK_IMPORTED_MODULE_0__["mat4"].create());
 
     _defineProperty(this, "_perObjectData", _core_index__WEBPACK_IMPORTED_MODULE_1__["Tw2PerObjectData"].from(_EveSpaceObject__WEBPACK_IMPORTED_MODULE_3__["EveSpaceObject"].perObjectData));
   }
 
   /**
+   * Sets the object's local transform
+   * @param {mat4} m
+   */
+  SetLocalTransform(m) {
+    _global_index__WEBPACK_IMPORTED_MODULE_0__["mat4"].getRotation(this.rotation, m);
+    _global_index__WEBPACK_IMPORTED_MODULE_0__["mat4"].getScaling(this.scaling, m);
+    _global_index__WEBPACK_IMPORTED_MODULE_0__["mat4"].getTranslation(this.translation, m);
+  }
+  /**
    * Gets effect root res objects
    * @param {Array} [out=[]] - Optional receiving array
    * @returns {Array.<Tw2EffectRes|Tw2TextureRes>} [out]
    */
+
+
   GetResources() {
     let out = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
 
@@ -48679,21 +49343,30 @@ class EveEffectRoot extends _EveObject__WEBPACK_IMPORTED_MODULE_2__["EveObject"]
   }
   /**
    * Internal per frame update
+   * @param {mat4} parentTransform
+   */
+
+
+  UpdateViewDependentData(parentTransform) {
+    _global_index__WEBPACK_IMPORTED_MODULE_0__["mat4"].fromRotationTranslationScale(this.localTransform, this.rotation, this.translation, this.scaling);
+    _global_index__WEBPACK_IMPORTED_MODULE_0__["mat4"].multiply(this._worldTransform, parentTransform, this.localTransform);
+  }
+  /**
+   * Internal per frame update
    * @param {number} dt - Delta Time
    */
 
 
   Update(dt) {
-    _global_index__WEBPACK_IMPORTED_MODULE_0__["quat"].normalize(this.rotation, this.rotation); // Don't really need to normalize...
-
-    _global_index__WEBPACK_IMPORTED_MODULE_0__["mat4"].fromRotationTranslationScale(this.localTransform, this.rotation, this.translation, this.scaling);
-
+    //quat.normalize(this.rotation, this.rotation); // Don't really need to normalize...
+    //mat4.fromRotationTranslationScale(this.localTransform, this.rotation, this.translation, this.scaling);
     for (let i = 0; i < this.curveSets.length; ++i) {
       this.curveSets[i].Update(dt);
     }
 
     for (let i = 0; i < this.effectChildren.length; ++i) {
-      this.effectChildren[i].Update(dt, this.localTransform);
+      //this.effectChildren[i].Update(dt, this.localTransform);
+      this.effectChildren[i].Update(dt, this._worldTransform);
     }
   }
   /**
@@ -48727,16 +49400,19 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "EveObject", function() { return EveObject; });
 /* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../global */ "./global/index.js");
 /* harmony import */ var _core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../../core */ "./core/index.js");
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 /* eslint no-unused-vars:0 */
 
 
-function EveObject() {
-  _global__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"].defineID(this);
-  this.name = "";
-  this.display = true;
-}
-EveObject.prototype = Object.assign(Object.create(_global__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"].prototype), {
-  constructor: EveObject,
+class EveObject extends _global__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseClass"] {
+  constructor() {
+    super(...arguments);
+
+    _defineProperty(this, "name", "");
+
+    _defineProperty(this, "display", true);
+  }
 
   /**
    * Gets object resources
@@ -48746,32 +49422,35 @@ EveObject.prototype = Object.assign(Object.create(_global__WEBPACK_IMPORTED_MODU
   GetResources() {
     let out = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
     throw new _core__WEBPACK_IMPORTED_MODULE_1__["ErrAbstractClassMethod"]();
-  },
-
+  }
   /**
    * Per frame update
    * @param {number} dt - delta time
    */
+
+
   Update(dt) {
     throw new _core__WEBPACK_IMPORTED_MODULE_1__["ErrAbstractClassMethod"]();
-  },
-
+  }
   /**
    * Accumulates batches
    * @param {number} mode
    * @param {Tw2BatchAccumulator} accumulator
    */
+
+
   GetBatches(mode, accumulator) {
     throw new _core__WEBPACK_IMPORTED_MODULE_1__["ErrAbstractClassMethod"]();
   }
+  /**
+   * Global and scratch variables
+   * @type {*}
+   */
 
-});
-/**
- * Global and scratch variables
- * @type {*}
- */
 
-EveObject.global = {
+}
+
+_defineProperty(EveObject, "global", {
   vec3_0: _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].create(),
   vec3_1: _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].create(),
   vec3_2: _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].create(),
@@ -48783,7 +49462,7 @@ EveObject.global = {
   mat4_0: _global__WEBPACK_IMPORTED_MODULE_0__["mat4"].create(),
   mat4_1: _global__WEBPACK_IMPORTED_MODULE_0__["mat4"].create(),
   mat4_2: _global__WEBPACK_IMPORTED_MODULE_0__["mat4"].create()
-};
+});
 
 /***/ }),
 
@@ -48801,7 +49480,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _core_index__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../../core/index */ "./core/index.js");
 /* harmony import */ var _EveTransform__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../EveTransform */ "./eve/object/EveTransform.js");
 /* harmony import */ var _EveObject__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./EveObject */ "./eve/object/legacy/EveObject.js");
+/* harmony import */ var gl_matrix__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! gl-matrix */ "../node_modules/gl-matrix/lib/gl-matrix.js");
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 
 
 
@@ -48856,10 +49537,19 @@ class EvePlanet extends _EveObject__WEBPACK_IMPORTED_MODULE_3__["EveObject"] {
   }
 
   /**
+   * Sets the object's local transform
+   * @param {mat4} m
+   */
+  SetLocalTransform(m) {
+    this.highDetail.SetTransform(m);
+  }
+  /**
    * Gets object resources
    * @param {Array} [out=[]] - Optional receiving array
    * @returns {Array.<Tw2Resource>} [out]
    */
+
+
   GetResources() {
     let out = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
     if (this.highDetail) this.highDetail.GetResources(out);
@@ -49239,14 +49929,17 @@ class EveShip extends _EveSpaceObject__WEBPACK_IMPORTED_MODULE_0__["EveSpaceObje
   }
   /**
    * Updates view dependant data
+   * @param {mat4} parentTransform
+   * @param {Number} dt
+   * @param {Number} worldSpriteScale
    */
 
 
-  UpdateViewDependentData() {
-    super.UpdateViewDependentData();
+  UpdateViewDependentData(parentTransform, dt, worldSpriteScale) {
+    super.UpdateViewDependentData(parentTransform, dt, worldSpriteScale);
 
     for (let i = 0; i < this.turretSets.length; ++i) {
-      this.turretSets[i].UpdateViewDependentData();
+      this.turretSets[i].UpdateViewDependentData(parentTransform);
     }
   }
   /**
@@ -49263,7 +49956,7 @@ class EveShip extends _EveSpaceObject__WEBPACK_IMPORTED_MODULE_0__["EveSpaceObje
         this.RebuildBoosterSet();
       }
 
-      this.boosters.Update(dt, this.transform);
+      this.boosters.Update(dt, this._worldTransform, this._worldSpriteScale);
     }
 
     for (let i = 0; i < this.turretSets.length; ++i) {
@@ -49271,7 +49964,7 @@ class EveShip extends _EveSpaceObject__WEBPACK_IMPORTED_MODULE_0__["EveSpaceObje
         this.RebuildTurretSet(i);
       }
 
-      this.turretSets[i].Update(dt, this.transform);
+      this.turretSets[i].Update(dt);
     }
   }
   /**
@@ -49369,6 +50062,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
  * @property {Tw2AnimationController} animation
  * @property {number} killCount                            - number of kills to show on kill counter decals
  * @property {Tw2PerObjectData} _perObjectData
+ * @property {mat4} _worldTransform
+ * @property {Number} _worldSpriteScale
  * @class
  */
 
@@ -49434,6 +50129,10 @@ class EveSpaceObject extends _EveObject__WEBPACK_IMPORTED_MODULE_2__["EveObject"
 
     _defineProperty(this, "shapeEllipsoidCenter", _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].create());
 
+    _defineProperty(this, "_worldSpriteScale", 1);
+
+    _defineProperty(this, "_worldTransform", _global__WEBPACK_IMPORTED_MODULE_0__["mat4"].create());
+
     _defineProperty(this, "_perObjectData", _core__WEBPACK_IMPORTED_MODULE_1__["Tw2PerObjectData"].from(EveSpaceObject.perObjectData));
   }
 
@@ -49447,6 +50146,20 @@ class EveSpaceObject extends _EveObject__WEBPACK_IMPORTED_MODULE_2__["EveObject"
       for (let i = 0; i < this.decals.length; ++i) {
         this.decals[i].SetParentGeometry(this.mesh.geometryResource);
       }
+    }
+  }
+  /**
+   * Sets the object's local transform
+   * @param {mat4} m
+   * @param {mat4} offset
+   */
+
+
+  SetLocalTransform(m, offset) {
+    if (offset) {
+      _global__WEBPACK_IMPORTED_MODULE_0__["mat4"].multiply(this.transform, m, offset);
+    } else {
+      _global__WEBPACK_IMPORTED_MODULE_0__["mat4"].copy(this.transform, m);
     }
   }
   /**
@@ -49486,7 +50199,7 @@ class EveSpaceObject extends _EveObject__WEBPACK_IMPORTED_MODULE_2__["EveObject"
 
 
   UpdateLod(frustum) {
-    const center = _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].transformMat4(EveSpaceObject.global.vec3_0, this.boundingSphereCenter, this.transform);
+    const center = _global__WEBPACK_IMPORTED_MODULE_0__["vec3"].transformMat4(EveSpaceObject.global.vec3_0, this.boundingSphereCenter, this._worldTransform);
 
     if (frustum.IsSphereVisible(center, this.boundingSphereRadius)) {
       const size = frustum.GetPixelSizeAcross(center, this.boundingSphereRadius);
@@ -49650,16 +50363,22 @@ class EveSpaceObject extends _EveObject__WEBPACK_IMPORTED_MODULE_2__["EveObject"
   }
   /**
    * A Per frame function that updates view dependent data
+   * @param {mat4} parentTransform
+   * @param {Number} dt
+   * @param {Number} worldSpriteScale
    */
 
 
-  UpdateViewDependentData() {
+  UpdateViewDependentData(parentTransform, dt, worldSpriteScale) {
+    _global__WEBPACK_IMPORTED_MODULE_0__["mat4"].multiply(this._worldTransform, parentTransform, this.transform);
+    this._worldSpriteScale = worldSpriteScale;
+
     for (let i = 0; i < this.children.length; ++i) {
-      this.children[i].UpdateViewDependentData(this.transform);
+      this.children[i].UpdateViewDependentData(this._worldTransform);
     }
 
-    _global__WEBPACK_IMPORTED_MODULE_0__["mat4"].transpose(this._perObjectData.vs.Get("WorldMat"), this.transform);
-    _global__WEBPACK_IMPORTED_MODULE_0__["mat4"].transpose(this._perObjectData.vs.Get("WorldMatLast"), this.transform);
+    _global__WEBPACK_IMPORTED_MODULE_0__["mat4"].transpose(this._perObjectData.vs.Get("WorldMat"), this._worldTransform);
+    _global__WEBPACK_IMPORTED_MODULE_0__["mat4"].transpose(this._perObjectData.vs.Get("WorldMatLast"), this._worldTransform);
 
     const center = this._perObjectData.vs.Get("EllipsoidCenter"),
           radii = this._perObjectData.vs.Get("EllipsoidRadii");
@@ -49693,7 +50412,7 @@ class EveSpaceObject extends _EveObject__WEBPACK_IMPORTED_MODULE_2__["EveObject"
     const maxCustomMasks = Math.min(this.customMasks.length, 2);
     for (let i = 0; i < maxCustomMasks; ++i)
     {
-        this.customMasks[i].UpdatePerObjectData(this.transform, this._perObjectData, i, this.visible.customMasks);
+        this.customMasks[i].UpdatePerObjectData(this._worldTransform, this._perObjectData, i, this.visible.customMasks);
     }
     */
 
@@ -49703,7 +50422,7 @@ class EveSpaceObject extends _EveObject__WEBPACK_IMPORTED_MODULE_2__["EveObject"
     }
 
     for (let i = 0; i < this.lineSets.length; ++i) {
-      this.lineSets[i].UpdateViewDependentData(this.transform);
+      this.lineSets[i].UpdateViewDependentData(this._worldTransform);
     }
   }
   /**
@@ -49715,7 +50434,7 @@ class EveSpaceObject extends _EveObject__WEBPACK_IMPORTED_MODULE_2__["EveObject"
   Update(dt) {
     if (this.lod > 0) {
       for (let i = 0; i < this.spriteSets.length; ++i) {
-        this.spriteSets[i].Update(dt);
+        this.spriteSets[i].Update(dt, this._worldSpriteScale);
       }
 
       for (let i = 0; i < this.planeSets.length; i++) {
@@ -49731,7 +50450,7 @@ class EveSpaceObject extends _EveObject__WEBPACK_IMPORTED_MODULE_2__["EveObject"
       }
 
       for (let i = 0; i < this.effectChildren.length; ++i) {
-        this.effectChildren[i].Update(dt, this.transform, this.lod);
+        this.effectChildren[i].Update(dt, this._worldTransform, this.lod);
       }
 
       for (let i = 0; i < this.curveSets.length; ++i) {
@@ -49767,7 +50486,7 @@ class EveSpaceObject extends _EveObject__WEBPACK_IMPORTED_MODULE_2__["EveObject"
       if (this.lod > 1) {
         if (show.spriteSets) {
           for (let i = 0; i < this.spriteSets.length; i++) {
-            this.spriteSets[i].GetBatches(mode, accumulator, this._perObjectData, this.transform);
+            this.spriteSets[i].GetBatches(mode, accumulator, this._perObjectData, this._worldTransform);
           }
         }
 
@@ -50379,7 +51098,7 @@ __webpack_require__.r(__webpack_exports__);
 /*!******************************!*\
   !*** ./global/Tw2Library.js ***!
   \******************************/
-/*! exports provided: tw2, store, resMan, device, client, logger, util */
+/*! exports provided: tw2, store, resMan, device, logger, util */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -50388,7 +51107,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "store", function() { return store; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "resMan", function() { return resMan; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "device", function() { return device; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "client", function() { return client; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "logger", function() { return logger; });
 /* harmony import */ var _engine__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./engine */ "./global/engine/index.js");
 /* harmony import */ var _math__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./math */ "./global/math/index.js");
@@ -50474,7 +51192,7 @@ class Tw2Library extends _class_Tw2EventEmitter__WEBPACK_IMPORTED_MODULE_4__["Tw
 
 
   Log(log) {
-    return this.logger.Log(log);
+    return this.logger.log(log);
   }
   /**
    * Per frame tick
@@ -50637,17 +51355,27 @@ class Tw2Library extends _class_Tw2EventEmitter__WEBPACK_IMPORTED_MODULE_4__["Tw
 
   Register(opt) {
     if (!opt) return;
-
-    if ("uuid" in opt) {
-      Object(_util__WEBPACK_IMPORTED_MODULE_2__["enableUUID"])(opt.uuid);
-    }
-
-    this.client.Register(opt.client); //this.clock.Register(opt.clock);
-
-    this.device.Register(opt.device);
+    if (opt.uuid) Object(_util__WEBPACK_IMPORTED_MODULE_2__["enableUUID"])(opt.uuid);
     this.logger.Register(opt.logger);
+    if (opt.debug) this.Debug(opt.debug);
+    this.client.Register(opt.client);
+    this.device.Register(opt.device);
     this.resMan.Register(opt.resMan);
-    this.store.Register(opt.store);
+    this.store.Register(opt.store); //this.clock.Register(opt.clock);
+  }
+  /**
+   * Enables debug mode
+   * @param {Boolean} bool
+   */
+
+
+  Debug(bool) {
+    this.store.classes.Debug(bool);
+    this.Log({
+      type: "warn",
+      name: "Tw2Library",
+      message: "Debugging ".concat(bool ? "enabled" : "disabled")
+    });
   }
   /**
    * Sets an object's tw2 instantiation
@@ -50684,7 +51412,6 @@ const tw2 = new Tw2Library(); // Temporary until instances of Tw2Library are sup
 const store = tw2.store,
       resMan = tw2.resMan,
       device = tw2.device,
-      client = tw2.client,
       logger = tw2.logger;
 
 
@@ -50703,87 +51430,96 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _core_Tw2Error__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../core/Tw2Error */ "./core/Tw2Error.js");
 /* harmony import */ var _util__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../util */ "./global/util/index.js");
 /* harmony import */ var _Tw2EventEmitter__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Tw2EventEmitter */ "./global/class/Tw2EventEmitter.js");
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 
 
 
 /**
- * Base class
- * @param {Tw2Library} [tw2]
+ * Tw2BaseClass
  */
 
-function Tw2BaseClass(tw2) {
-  Tw2BaseClass.defineID(this);
-}
-Tw2BaseClass.prototype = Object.assign(Object.create(_Tw2EventEmitter__WEBPACK_IMPORTED_MODULE_2__["Tw2EventEmitter"].prototype), {
-  constructor: Tw2BaseClass,
-
+class Tw2BaseClass extends _Tw2EventEmitter__WEBPACK_IMPORTED_MODULE_2__["Tw2EventEmitter"] {
+  constructor() {
+    super();
+    Tw2BaseClass.defineID(this);
+  }
   /**
    * Copies another object's values
    * @param {*} a
    * @param {*} [opt]
    * @returns {*}
    */
+
+
   Copy(a, opt) {
     return this.constructor.copy(this, a, opt);
-  },
-
+  }
   /**
    * Clones the object
    * @param [opt]
    * @returns {*}
    */
+
+
   Clone(opt) {
     this.constructor.clone(this, opt);
-  },
-
+  }
   /**
    * Sets the object's values from a plain object
    * @param [values]
    * @param [opt]
    * @returns {Boolean}
    */
+
+
   Set(values, opt) {
     return this.constructor.set(this, values, opt);
-  },
-
+  }
   /**
    * Gets the object's values as a plain object
    * @param [out]
    * @param [opt]
    * @returns {*}
    */
+
+
   Get(out, opt) {
     return this.constructor.get(this, out, opt);
-  },
-
+  }
   /**
    * Internal handler for value changes
    * @param [opt]
    */
-  OnValueChanged(opt) {},
 
+
+  OnValueChanged(opt) {}
   /**
    * Triggers update handlers
    * @param {*} [opt]
    */
+
+
   UpdateValues(opt) {
     this.OnValueChanged(opt);
 
     if (!opt || !opt["skipEvents"]) {
       this.emit("modified", opt);
     }
-  },
-
+  }
   /**
    * Internal handler for object destruction
    * @param [opt]
    */
-  OnDestroy(opt) {},
 
+
+  OnDestroy(opt) {}
   /**
    * Destroys the object
    * @param {*} [opt]
    */
+
+
   Destroy(opt) {
     this.OnDestroy(opt);
 
@@ -50792,8 +51528,7 @@ Tw2BaseClass.prototype = Object.assign(Object.create(_Tw2EventEmitter__WEBPACK_I
     }
 
     this.kill();
-  },
-
+  }
   /**
    * Traverses the object
    * @param {Function} callback
@@ -50801,6 +51536,8 @@ Tw2BaseClass.prototype = Object.assign(Object.create(_Tw2EventEmitter__WEBPACK_I
    * @param {String} [path]
    * @returns {*}
    */
+
+
   Traverse(callback, parent, path) {
     const result = callback(this, parent, path);
     if (result) return result;
@@ -50814,168 +51551,141 @@ Tw2BaseClass.prototype = Object.assign(Object.create(_Tw2EventEmitter__WEBPACK_I
 
     return this.constructor.perChild(this, onChild, path);
   }
-
-});
-let OBJECT_ID = 0;
-/**
- * Defines an id
- * @param {*} target
- */
-
-Tw2BaseClass.defineID = function (target) {
-  Reflect.defineProperty(target, "_id", {
-    value: OBJECT_ID++,
-    writable: false,
-    configurable: true
-  });
-};
-/**
- * Creates an object from values
- * @param [values]
- * @param [opt={}]
- * @returns {*}
- */
+  /**
+   * Internal handler for copying one object's values to another
+   * @param {*} a
+   * @param {*} b
+   * @param {*} [opt]
+   * @private
+   */
 
 
-Tw2BaseClass.from = function (values, opt) {
-  if (values && values instanceof this) return values;
-  const item = new this();
-  if (values) this.set(item, values, {
-    skipUpdate: true
-  });
-  if (!opt || !opt.skipUpdate) if ("Initialize" in item) item.Initialize();
-  return item;
-};
-/**
- * Internal handler for copying one object's values to another
- * @param {*} a
- * @param {*} b
- * @param {*} [opt]
- * @private
- */
-
-
-Tw2BaseClass.copy = function (a, b) {
-  let opt = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-  const skipUpdate = opt.skipUpdate;
-  return this.set(a, this.get(b, {}, {
-    skipIds: true
-  }), {
-    skipUpdate,
-    verb: "copy"
-  });
-};
-/**
- * Internal handler for cloning an object
- * @param {*} a
- * @param {*} [opt]
- * @private
- */
-
-
-Tw2BaseClass.clone = function (a, opt) {
-  return this.from(this.get(a, {}, {
-    skipIds: true
-  }), opt);
-};
-/**
- * Internal handler for setting an object's values from a plain object
- * @param {*} a
- * @param {*} [values]
- * @param {*} [opt]
- * @returns {boolean}
- * @private
- */
-
-
-Tw2BaseClass.set = function (a, values) {
-  let opt = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-  throw new _core_Tw2Error__WEBPACK_IMPORTED_MODULE_0__["ErrAbstractClassMethod"]();
-};
-/**
- * Internal handler for getting an object's value as a plain object
- * @param {*} a
- * @param {*} [out={}]
- * @param {*} [opt]
- * @returns {*} out
- * @private
- */
-
-
-Tw2BaseClass.get = function (a) {
-  let out = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-  let opt = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-  throw new _core_Tw2Error__WEBPACK_IMPORTED_MODULE_0__["ErrAbstractClassMethod"]();
-};
-/**
- *
- * @type {*}
- * @private
- */
-
-
-Tw2BaseClass.keys = null;
-/**
- *
- * @type {*}
- */
-
-Tw2BaseClass.black = null;
-/**
- *
- * @type {null|String}
- */
-
-Tw2BaseClass.category = null;
-/**
- * Caches the classes keys
- * -- Fallback if schema not present
- * @param {*} obj
- */
-
-function cacheKeys(obj) {
-  const cache = obj.constructor.keys || {};
-
-  function add(name, key) {
-    if (!cache[name]) cache[name] = [];
-    if (!cache[name].includes(key)) cache[name].push(key);
+  static copy(a, b) {
+    let opt = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+    opt.verb = "copy";
+    const values = this.get(b, {}, {
+      skipIDs: true
+    });
+    return this.set(a, values, opt);
   }
+  /**
+   * Internal handler for cloning an object
+   * @param {*} a
+   * @param {*} [opt]
+   * @private
+   */
 
-  for (const key in obj) {
-    if (obj.hasOwnProperty(key) && key.charAt(0) !== "_") {
-      const value = obj[key];
-      if (Object(_util__WEBPACK_IMPORTED_MODULE_1__["isPrimary"])(value)) add("primary", key);else if (Object(_util__WEBPACK_IMPORTED_MODULE_1__["isArray"])(value)) add("array", key);else if (Object(_util__WEBPACK_IMPORTED_MODULE_1__["isTyped"])(value)) add("typed", key);else if (value === null || Object(_util__WEBPACK_IMPORTED_MODULE_1__["isObjectObject"])(value)) add("object", key);else if (Object(_util__WEBPACK_IMPORTED_MODULE_1__["isPlain"])(value)) add("plain", key);
+
+  static clone(a, opt) {
+    const values = this.get(a, {}, {
+      skipIDs: true
+    });
+    return this.from(values, opt);
+  }
+  /**
+   * Creates an object from values
+   * @param [values]
+   * @param [opt={}]
+   * @returns {*}
+   */
+
+
+  static from(values, opt) {
+    if (values && values instanceof this) {
+      return values;
     }
+
+    const item = new this();
+
+    if (values) {
+      this.set(item, values, {
+        skipUpdate: true,
+        verb: "create"
+      });
+    }
+
+    if ((!opt || !opt.skipUpdate) && "Initialize" in item) {
+      item.Initialize();
+    }
+
+    return item;
   }
-
-  obj.constructor.keys = cache;
-}
-/**
- * Fires a callback on an object's children, and no further
- * @param {*} obj
- * @param {Function} callback
- * @param {String} [path="root"]
- * @returns {!*}
- */
+  /**
+   * Internal handler for setting an object's values from a plain object
+   * @param {*} a
+   * @param {*} [values]
+   * @param {*} [opt]
+   * @returns {boolean}
+   * @private
+   */
 
 
-Tw2BaseClass.perChild = function (obj, callback) {
-  let path = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : "root";
-  if (!obj.constructor.keys) cacheKeys(obj);
-  const _obj$constructor$keys = obj.constructor.keys,
-        array = _obj$constructor$keys.array,
-        object = _obj$constructor$keys.object;
+  static set(a, values) {
+    let opt = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+    throw new _core_Tw2Error__WEBPACK_IMPORTED_MODULE_0__["ErrAbstractClassMethod"]();
+  }
+  /**
+   * Internal handler for getting an object's value as a plain object
+   * @param {*} a
+   * @param {*} [out={}]
+   * @param {*} [opt]
+   * @param {Boolean} [opt.skipID]
+   * @param {Boolean} [opt.skipType]
+   * @param {Boolean} [opt.skipVerb]
+   * @returns {*} out
+   * @private
+   */
 
-  if (array) {
-    for (let i = 0; i < array.length; i++) {
-      const key = array[i],
-            arr = obj[key];
 
-      for (let x = 0; x < arr.length; x++) {
-        const item = arr[x];
+  static get(a) {
+    let out = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+    let opt = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+    throw new _core_Tw2Error__WEBPACK_IMPORTED_MODULE_0__["ErrAbstractClassMethod"]();
+  }
+  /**
+   * Fires a callback on an object's child lists and types, and no further
+   * @param {*} obj
+   * @param {Function} callback
+   * @param {String} [path="root"]
+   * @returns {!*}
+   */
+
+
+  static perChild(obj, callback) {
+    let path = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : "root";
+
+    if (!obj.constructor.keys) {
+      cacheKeys(obj);
+    }
+
+    const _obj$constructor$keys = obj.constructor.keys,
+          list = _obj$constructor$keys.list,
+          type = _obj$constructor$keys.type;
+
+    if (list) {
+      for (let i = 0; i < list.length; i++) {
+        const key = list[i],
+              arr = obj[key];
+
+        for (let x = 0; x < arr.length; x++) {
+          const item = arr[x];
+
+          if (Object(_util__WEBPACK_IMPORTED_MODULE_1__["isObjectObject"])(item)) {
+            let currentPath = "".concat(path, "/").concat(key, "/").concat(x);
+            const result = callback(item, obj, currentPath);
+            if (result) return result;
+          }
+        }
+      }
+    }
+
+    if (type) {
+      for (let i = 0; i < type.length; i++) {
+        const key = type[i],
+              item = obj[key];
 
         if (Object(_util__WEBPACK_IMPORTED_MODULE_1__["isObjectObject"])(item)) {
-          let currentPath = "".concat(path, "/").concat(key, "/").concat(x);
+          let currentPath = "".concat(path, "/").concat(key);
           const result = callback(item, obj, currentPath);
           if (result) return result;
         }
@@ -50983,19 +51693,81 @@ Tw2BaseClass.perChild = function (obj, callback) {
     }
   }
 
-  if (object) {
-    for (let i = 0; i < object.length; i++) {
-      const key = object[i],
-            item = obj[key];
+  static defineID(target) {
+    Reflect.defineProperty(target, "_id", {
+      value: Object(_util__WEBPACK_IMPORTED_MODULE_1__["generateID"])(),
+      writable: false,
+      configurable: true
+    });
+  }
+  /**
+   *
+   * @type {*}
+   * @private
+   */
 
-      if (Object(_util__WEBPACK_IMPORTED_MODULE_1__["isObjectObject"])(item)) {
-        let currentPath = "".concat(path, "/").concat(key);
-        const result = callback(item, obj, currentPath);
-        if (result) return result;
+
+}
+/**
+ * Caches the classes keys
+ * -- Fallback if schema not present
+ * @param {*} obj
+ */
+
+_defineProperty(Tw2BaseClass, "keys", null);
+
+_defineProperty(Tw2BaseClass, "black", null);
+
+_defineProperty(Tw2BaseClass, "category", null);
+
+function cacheKeys(obj) {
+  if (obj.constructor.hasOwnProperty("keys")) {
+    return;
+  }
+
+  const cache = {};
+
+  function add(name, key) {
+    if (!cache[name]) {
+      cache[name] = [];
+    }
+
+    if (!cache[name].includes(key)) {
+      cache[name].push(key);
+    }
+  }
+
+  for (const key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      // Don't cache privates
+      if (key.charAt(0) === "_") {
+        continue;
+      }
+
+      const value = obj[key];
+
+      if (Object(_util__WEBPACK_IMPORTED_MODULE_1__["isPrimary"])(value)) {
+        add("primary", key);
+      } else if (Object(_util__WEBPACK_IMPORTED_MODULE_1__["isArray"])(value)) {
+        // Assumes empty arrays are lists
+        // Assumes if first element is a primary value that is all it contains
+        if (value.length && Object(_util__WEBPACK_IMPORTED_MODULE_1__["isPrimary"])(value[0])) {
+          add("array", key);
+        } else {
+          add("list", key);
+        }
+      } else if (Object(_util__WEBPACK_IMPORTED_MODULE_1__["isTyped"])(value)) {
+        add("typed", key);
+      } else if (Object(_util__WEBPACK_IMPORTED_MODULE_1__["isPlain"])(value)) {
+        add("plain", key);
+      } else if (value === null || Object(_util__WEBPACK_IMPORTED_MODULE_1__["isObjectObject"])(value)) {
+        add("type", key);
       }
     }
   }
-};
+
+  obj.constructor.keys = cache;
+}
 
 /***/ }),
 
@@ -52362,7 +53134,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 /**
  * Tw2Device
  *
- * @property {?WebGLRenderingContext|*} gl         - The device's gl context
+ * @property {WebGLRenderingContext} gl             - The device's gl context
  * @property {?number} glVersion                   - The device's gl version
  * @property {?VRDisplay} vrDisplay                - An optional VRDisplay context
  * @property {?{}} ext                             - An object containing compatibility extensions
@@ -53390,9 +54162,9 @@ class Tw2Logger extends _class_Tw2EventEmitter__WEBPACK_IMPORTED_MODULE_0__["Tw2
 
     _defineProperty(this, "visible", {
       log: true,
-      info: true,
-      debug: true,
-      warn: true,
+      info: false,
+      debug: false,
+      warn: false,
       error: true
     });
 
@@ -53480,6 +54252,7 @@ class Tw2Logger extends _class_Tw2EventEmitter__WEBPACK_IMPORTED_MODULE_0__["Tw2
       if (log.err || log.data) {
         console.group(header, log.message);
         if (log.err) console.debug(log.err.stack || log.err.toString());
+        if (log.stack) console.debug(log.stack);
         if (log.data) console.debug(JSON.stringify(log.data, null, 4));
         console.groupEnd();
       } else {
@@ -53712,10 +54485,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _class_Tw2EventEmitter__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../class/Tw2EventEmitter */ "./global/class/Tw2EventEmitter.js");
 /* harmony import */ var _core__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../core */ "./core/index.js");
 /* harmony import */ var _util__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../util */ "./global/util/index.js");
-function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
-
-function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
-
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 
@@ -53904,6 +54673,7 @@ class Tw2ResMan extends _class_Tw2EventEmitter__WEBPACK_IMPORTED_MODULE_2__["Tw2
         res.Prepare(data, xml);
       } catch (err) {
         res.OnError(err);
+        console.error(err);
       }
 
       this._prepareBudget -= (device.now - startTime) * 0.001;
@@ -54030,24 +54800,9 @@ class Tw2ResMan extends _class_Tw2EventEmitter__WEBPACK_IMPORTED_MODULE_2__["Tw2
 
 
   GetObjectAsync(path) {
-    var _this = this;
-
-    return _asyncToGenerator(
-    /*#__PURE__*/
-    regeneratorRuntime.mark(function _callee() {
-      return regeneratorRuntime.wrap(function _callee$(_context) {
-        while (1) switch (_context.prev = _context.next) {
-          case 0:
-            return _context.abrupt("return", new Promise((resolve, reject) => {
-              _this.GetObject(path, resolve, reject);
-            }));
-
-          case 1:
-          case "end":
-            return _context.stop();
-        }
-      }, _callee);
-    }))();
+    return new Promise((resolve, reject) => {
+      this.GetObject(path, resolve, reject);
+    });
   }
   /**
    * Reloads a resource
@@ -54750,14 +55505,35 @@ _defineProperty(Tw2SchemaStore, "__storeType", "schema");
 
 class Tw2ClassStore extends Tw2GenericStore {
   /**
+   * Enables debugging
+   * @param {Boolean} value
+   */
+  Debug(value) {
+    value = !!value;
+    Tw2ClassStore.DEBUG_ENABLED = !!value;
+
+    this._values.forEach(x => {
+      if ("DEBUG_ENABLED" in x) {
+        x.DEBUG_ENABLED = value;
+      }
+    });
+  }
+  /**
    * Sets a class
    * @param {String} key
    * @param {*} value
    * @param {Boolean} [override]
    * @returns {*} value
    */
+
+
   Set(key, value, override) {
-    const result = super.Set(key, value, override); // Auto add black definitions
+    const result = super.Set(key, value, override); // Set debug mode
+
+    if ("DEBUG_ENABLED" in value) {
+      value.DEBUG_ENABLED = Tw2ClassStore.DEBUG_ENABLED;
+    } // Auto add black definitions
+
 
     if (value.black && (override || !this._store.blacks.Has(key))) {
       this._store.blacks.Set(key, value.black, override);
@@ -54832,6 +55608,8 @@ class Tw2ClassStore extends Tw2GenericStore {
 _defineProperty(Tw2ClassStore, "isValue", _util__WEBPACK_IMPORTED_MODULE_2__["isFunction"]);
 
 _defineProperty(Tw2ClassStore, "__storeType", "class");
+
+_defineProperty(Tw2ClassStore, "DEBUG_ENABLED", false);
 
 class Tw2VariableStore extends Tw2GenericStore {
   /**
@@ -55676,7 +56454,7 @@ __webpack_require__.r(__webpack_exports__);
 /*!*************************!*\
   !*** ./global/index.js ***!
   \*************************/
-/*! exports provided: GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT, GL_STENCIL_BUFFER_BIT, GL_TEXTURE_2D, GL_TEXTURE_CUBE_MAP, GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_TEXTURE_MIN_FILTER, GL_TEXTURE_WRAP_S, GL_TEXTURE_WRAP_T, GL_BYTE, GL_UNSIGNED_BYTE, GL_SHORT, GL_UNSIGNED_SHORT, GL_INT, GL_UNSIGNED_INT, GL_FLOAT, GL_HALF_FLOAT_OES, GL_HALF_FLOAT, GL_DEPTH_COMPONENT16, GL_DEPTH_COMPONENT24, GL_DEPTH_COMPONENT32F, GL_FLOAT_VEC2, GL_FLOAT_VEC3, GL_FLOAT_VEC4, GL_INT_VEC2, GL_INT_VEC3, GL_INT_VEC4, GL_BOOL, GL_BOOL_VEC2, GL_BOOL_VEC3, GL_BOOL_VEC4, GL_FLOAT_MAT2, GL_FLOAT_MAT3, GL_FLOAT_MAT4, GL_TYPE_LENGTH, GL_SAMPLER_2D, GL_SAMPLER_3D, GL_SAMPLER_CUBE, GL_DEPTH_COMPONENT, GL_ALPHA, GL_RGB, GL_RGBA, GL_LUMINANCE, GL_LUMINANCE_ALPHA, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8_WEBGL, GL_R8, GL_R16F, GL_R32F, GL_R8UI, GL_RG8, GL_RG16F, GL_RG32F, GL_RGB8, GL_SRGB8, GL_RGB565, GL_R11F_G11F_B10F, GL_RGB9_E5, GL_RGB16F, GL_RGB32F, GL_RGB8UI, GL_RGBA8, GL_RGB5_A1, GL_RGBA16F, GL_RGBA32F, GL_RGBA8UI, GL_RGBA16I, GL_RGBA16UI, GL_RGBA32I, GL_RGBA32UI, GL_NEAREST, GL_LINEAR, GL_NEAREST_MIPMAP_NEAREST, GL_LINEAR_MIPMAP_NEAREST, GL_NEAREST_MIPMAP_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_REPEAT, GL_CLAMP_TO_EDGE, GL_MIRRORED_REPEAT, GL_ZERO, GL_ONE, GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA, GL_DST_COLOR, GL_ONE_MINUS_DST_COLOR, GL_SRC_ALPHA_SATURATE, GL_CONSTANT_COLOR, GL_ONE_MINUS_CONSTANT_COLOR, GL_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA, GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, GL_FRONT, GL_BACK, GL_FRONT_AND_BACK, GL_NEVER, GL_LESS, GL_EQUAL, GL_LEQUAL, GL_GREATER, GL_NOTEQUAL, GL_GEQUAL, GL_ALWAYS, GL_KEEP, GL_REPLACE, GL_INCR, GL_DECR, GL_INCR_WRAP, GL_DECR_WRAP, GL_INVERT, GL_STREAM_DRAW, GL_STATIC_DRAW, GL_DYNAMIC_DRAW, GL_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER, GL_POINTS, GL_LINES, GL_LINE_LOOP, GL_LINE_STRIP, GL_TRIANGLES, GL_TRIANGLE_STRIP, GL_TRIANGLE_FAN, GL_CW, GL_CCW, GL_CULL_FACE, GL_DEPTH_TEST, GL_BLEND, RM_ANY, RM_OPAQUE, RM_DECAL, RM_TRANSPARENT, RM_ADDITIVE, RM_DEPTH, RM_FULLSCREEN, RM_PICKABLE, RM_DISTORTION, RS_ZENABLE, RS_FILLMODE, RS_SHADEMODE, RS_ZWRITEENABLE, RS_ALPHATESTENABLE, RS_LASTPIXEL, RS_SRCBLEND, RS_DESTBLEND, RS_CULLMODE, RS_ZFUNC, RS_ALPHAREF, RS_ALPHAFUNC, RS_DITHERENABLE, RS_ALPHABLENDENABLE, RS_FOGENABLE, RS_SPECULARENABLE, RS_FOGCOLOR, RS_FOGTABLEMODE, RS_FOGSTART, RS_FOGEND, RS_FOGDENSITY, RS_RANGEFOGENABLE, RS_STENCILENABLE, RS_STENCILFAIL, RS_STENCILZFAIL, RS_STENCILPASS, RS_STENCILFUNC, RS_STENCILREF, RS_STENCILMASK, RS_STENCILWRITEMASK, RS_TEXTUREFACTOR, RS_WRAP0, RS_WRAP1, RS_WRAP2, RS_WRAP3, RS_WRAP4, RS_WRAP5, RS_WRAP6, RS_WRAP7, RS_CLIPPING, RS_LIGHTING, RS_AMBIENT, RS_FOGVERTEXMODE, RS_COLORVERTEX, RS_LOCALVIEWER, RS_NORMALIZENORMALS, RS_DIFFUSEMATERIALSOURCE, RS_SPECULARMATERIALSOURCE, RS_AMBIENTMATERIALSOURCE, RS_EMISSIVEMATERIALSOURCE, RS_VERTEXBLEND, RS_CLIPPLANEENABLE, RS_POINTSIZE, RS_POINTSIZE_MIN, RS_POINTSPRITEENABLE, RS_POINTSCALEENABLE, RS_POINTSCALE_A, RS_POINTSCALE_B, RS_POINTSCALE_C, RS_MULTISAMPLEANTIALIAS, RS_MULTISAMPLEMASK, RS_PATCHEDGESTYLE, RS_DEBUGMONITORTOKEN, RS_POINTSIZE_MAX, RS_INDEXEDVERTEXBLENDENABLE, RS_COLORWRITEENABLE, RS_TWEENFACTOR, RS_BLENDOP, RS_POSITIONDEGREE, RS_NORMALDEGREE, RS_SCISSORTESTENABLE, RS_SLOPESCALEDEPTHBIAS, RS_ANTIALIASEDLINEENABLE, RS_TWOSIDEDSTENCILMODE, RS_CCW_STENCILFAIL, RS_CCW_STENCILZFAIL, RS_CCW_STENCILPASS, RS_CCW_STENCILFUNC, RS_COLORWRITEENABLE1, RS_COLORWRITEENABLE2, RS_COLORWRITEENABLE3, RS_BLENDFACTOR, RS_SRGBWRITEENABLE, RS_DEPTHBIAS, RS_SEPARATEALPHABLENDENABLE, RS_SRCBLENDALPHA, RS_DESTBLENDALPHA, RS_BLENDOPALPHA, CULL_NONE, CULL_CW, CULL_CCW, CMP_NEVER, CMP_LESS, CMP_EQUAL, CMP_LEQUAL, CMP_GREATER, CMP_NOTEQUAL, CMP_GREATEREQUAL, CMP_ALWAYS, BLEND_ZERO, BLEND_ONE, BLEND_SRCCOLOR, BLEND_INVSRCCOLOR, BLEND_SRCALPHA, BLEND_INVSRCALPHA, BLEND_DESTALPHA, BLEND_INVDESTALPHA, BLEND_DESTCOLOR, BLEND_INVDESTCOLOR, BLEND_SRCALPHASAT, BLEND_BOTHSRCALPHA, BLEND_BOTHINVSRCALPHA, BLEND_BLENDFACTOR, BLEND_INVBLENDFACTOR, BLENDOP_ADD, BLENDOP_SUBTRACT, BLENDOP_REVSUBTRACT, BLENDOP_MIN, BLENDOP_MAX, TF_ALPHA, TF_LUMINANCE, TF_LUMINANCE_ALPHA, TF_RGB, TF_RGBA, TF_RED, TF_R, TF_RG, TF_RED_INTEGER, TF_R_INTEGER, TF_RG_INTEGER, TF_RGB_INTEGER, TF_RGBA_INTEGER, TT_UNSIGNED_BYTE, TT_UNSIGNED_INT, TT_FLOAT, TT_HALF_FLOAT, TT_BYTE, TT_SHORT, TT_UNSIGNED_SHORT, TT_INT, TT_UNSIGNED_INTEGER, TT_UNSIGNED_SHORT_4_4_4_4, TT_UNSIGNED_SHORT_5_5_5_1, TT_UNSIGNED_SHORT_5_6_5, TT_UNSIGNED_INT_2_10_10_10_REV, TT_UNSIGNED_INT_24_8, TT_UNSIGNED_INT_10F_11F_11F_REV, TT_UNSIGNED_INT_5_9_9_9_REV, TT_FLOAT_32_UNSIGNED_INT_24_8_REV, WrapModes, BlendTable, FilterMode, MipFilterMode, DDS_MAGIC, DDSD_CAPS, DDSD_HEIGHT, DDSD_WIDTH, DDSD_PITCH, DDSD_PIXELFORMAT, DDSD_MIPMAPCOUNT, DDSD_LINEARSIZE, DDSD_DEPTH, DDSCAPS_COMPLEX, DDSCAPS_MIPMAP, DDSCAPS_TEXTURE, DDSCAPS2_CUBEMAP, DDSCAPS2_CUBEMAP_POSITIVEX, DDSCAPS2_CUBEMAP_NEGATIVEX, DDSCAPS2_CUBEMAP_POSITIVEY, DDSCAPS2_CUBEMAP_NEGATIVEY, DDSCAPS2_CUBEMAP_POSITIVEZ, DDSCAPS2_CUBEMAP_NEGATIVEZ, DDSCAPS2_VOLUME, DDPF_ALPHAPIXELS, DDPF_ALPHA, DDPF_FOURCC, DDPF_RGB, DDPF_YUV, DDPF_LUMINANCE, DDS_HEADER_LENGTH_INT, DDS_HEADER_OFFSET_MAGIC, DDS_HEADER_OFFSET_SIZE, DDS_HEADER_OFFSET_FLAGS, DDS_HEADER_OFFSET_HEIGHT, DDS_HEADER_OFFSET_WIDTH, DDS_HEADER_OFFSET_MIPMAP_COUNT, DDS_HEADER_OFFSET_PF_FLAGS, DDS_HEADER_OFFSET_PF_FOURCC, DDS_HEADER_OFFSET_RGB_BPP, DDS_HEADER_OFFSET_R_MASK, DDS_HEADER_OFFSET_G_MASK, DDS_HEADER_OFFSET_B_MASK, DDS_HEADER_OFFSET_A_MASK, DDS_HEADER_OFFSET_CAPS1, DDS_HEADER_OFFSET_CAPS2, DDS_HEADER_OFFSET_CAPS3, DDS_HEADER_OFFSET_CAPS4, DDS_HEADER_OFFSET_DXGI_FORMAT, FOURCC_DXT1, FOURCC_DXT5, FOURCC_DXT3, FOURCC_DXT10, FOURCC_D3DFMT_R16G16B16A16F, FOURCC_D3DFMT_R32G32B32A32F, DXGI_FORMAT_R16G16B16A16_FLOAT, DXGI_FORMAT_B8G8R8X8_UNORM, VendorRequestAnimationFrame, VendorCancelAnimationFrame, VendorRequestFullScreen, VendorExitFullScreen, VendorGetFullScreenElement, VendorWebglPrefixes, WebglContextNames, Webgl2ContextNames, WebglVersion, tw2, store, resMan, device, client, logger, util, Tw2BaseClass, Tw2EventEmitter, Tw2Schema, num, vec2, vec3, vec4, quat, mat3, mat4, noise, curve, box3, tri3, lne3, pln, ray3, sph3 */
+/*! exports provided: GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT, GL_STENCIL_BUFFER_BIT, GL_TEXTURE_2D, GL_TEXTURE_CUBE_MAP, GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_TEXTURE_MIN_FILTER, GL_TEXTURE_WRAP_S, GL_TEXTURE_WRAP_T, GL_BYTE, GL_UNSIGNED_BYTE, GL_SHORT, GL_UNSIGNED_SHORT, GL_INT, GL_UNSIGNED_INT, GL_FLOAT, GL_HALF_FLOAT_OES, GL_HALF_FLOAT, GL_DEPTH_COMPONENT16, GL_DEPTH_COMPONENT24, GL_DEPTH_COMPONENT32F, GL_FLOAT_VEC2, GL_FLOAT_VEC3, GL_FLOAT_VEC4, GL_INT_VEC2, GL_INT_VEC3, GL_INT_VEC4, GL_BOOL, GL_BOOL_VEC2, GL_BOOL_VEC3, GL_BOOL_VEC4, GL_FLOAT_MAT2, GL_FLOAT_MAT3, GL_FLOAT_MAT4, GL_TYPE_LENGTH, GL_SAMPLER_2D, GL_SAMPLER_3D, GL_SAMPLER_CUBE, GL_DEPTH_COMPONENT, GL_ALPHA, GL_RGB, GL_RGBA, GL_LUMINANCE, GL_LUMINANCE_ALPHA, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8_WEBGL, GL_R8, GL_R16F, GL_R32F, GL_R8UI, GL_RG8, GL_RG16F, GL_RG32F, GL_RGB8, GL_SRGB8, GL_RGB565, GL_R11F_G11F_B10F, GL_RGB9_E5, GL_RGB16F, GL_RGB32F, GL_RGB8UI, GL_RGBA8, GL_RGB5_A1, GL_RGBA16F, GL_RGBA32F, GL_RGBA8UI, GL_RGBA16I, GL_RGBA16UI, GL_RGBA32I, GL_RGBA32UI, GL_NEAREST, GL_LINEAR, GL_NEAREST_MIPMAP_NEAREST, GL_LINEAR_MIPMAP_NEAREST, GL_NEAREST_MIPMAP_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_REPEAT, GL_CLAMP_TO_EDGE, GL_MIRRORED_REPEAT, GL_ZERO, GL_ONE, GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_DST_ALPHA, GL_ONE_MINUS_DST_ALPHA, GL_DST_COLOR, GL_ONE_MINUS_DST_COLOR, GL_SRC_ALPHA_SATURATE, GL_CONSTANT_COLOR, GL_ONE_MINUS_CONSTANT_COLOR, GL_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA, GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, GL_FRONT, GL_BACK, GL_FRONT_AND_BACK, GL_NEVER, GL_LESS, GL_EQUAL, GL_LEQUAL, GL_GREATER, GL_NOTEQUAL, GL_GEQUAL, GL_ALWAYS, GL_KEEP, GL_REPLACE, GL_INCR, GL_DECR, GL_INCR_WRAP, GL_DECR_WRAP, GL_INVERT, GL_STREAM_DRAW, GL_STATIC_DRAW, GL_DYNAMIC_DRAW, GL_ARRAY_BUFFER, GL_ELEMENT_ARRAY_BUFFER, GL_POINTS, GL_LINES, GL_LINE_LOOP, GL_LINE_STRIP, GL_TRIANGLES, GL_TRIANGLE_STRIP, GL_TRIANGLE_FAN, GL_CW, GL_CCW, GL_CULL_FACE, GL_DEPTH_TEST, GL_BLEND, RM_ANY, RM_OPAQUE, RM_DECAL, RM_TRANSPARENT, RM_ADDITIVE, RM_DEPTH, RM_FULLSCREEN, RM_PICKABLE, RM_DISTORTION, RS_ZENABLE, RS_FILLMODE, RS_SHADEMODE, RS_ZWRITEENABLE, RS_ALPHATESTENABLE, RS_LASTPIXEL, RS_SRCBLEND, RS_DESTBLEND, RS_CULLMODE, RS_ZFUNC, RS_ALPHAREF, RS_ALPHAFUNC, RS_DITHERENABLE, RS_ALPHABLENDENABLE, RS_FOGENABLE, RS_SPECULARENABLE, RS_FOGCOLOR, RS_FOGTABLEMODE, RS_FOGSTART, RS_FOGEND, RS_FOGDENSITY, RS_RANGEFOGENABLE, RS_STENCILENABLE, RS_STENCILFAIL, RS_STENCILZFAIL, RS_STENCILPASS, RS_STENCILFUNC, RS_STENCILREF, RS_STENCILMASK, RS_STENCILWRITEMASK, RS_TEXTUREFACTOR, RS_WRAP0, RS_WRAP1, RS_WRAP2, RS_WRAP3, RS_WRAP4, RS_WRAP5, RS_WRAP6, RS_WRAP7, RS_CLIPPING, RS_LIGHTING, RS_AMBIENT, RS_FOGVERTEXMODE, RS_COLORVERTEX, RS_LOCALVIEWER, RS_NORMALIZENORMALS, RS_DIFFUSEMATERIALSOURCE, RS_SPECULARMATERIALSOURCE, RS_AMBIENTMATERIALSOURCE, RS_EMISSIVEMATERIALSOURCE, RS_VERTEXBLEND, RS_CLIPPLANEENABLE, RS_POINTSIZE, RS_POINTSIZE_MIN, RS_POINTSPRITEENABLE, RS_POINTSCALEENABLE, RS_POINTSCALE_A, RS_POINTSCALE_B, RS_POINTSCALE_C, RS_MULTISAMPLEANTIALIAS, RS_MULTISAMPLEMASK, RS_PATCHEDGESTYLE, RS_DEBUGMONITORTOKEN, RS_POINTSIZE_MAX, RS_INDEXEDVERTEXBLENDENABLE, RS_COLORWRITEENABLE, RS_TWEENFACTOR, RS_BLENDOP, RS_POSITIONDEGREE, RS_NORMALDEGREE, RS_SCISSORTESTENABLE, RS_SLOPESCALEDEPTHBIAS, RS_ANTIALIASEDLINEENABLE, RS_TWOSIDEDSTENCILMODE, RS_CCW_STENCILFAIL, RS_CCW_STENCILZFAIL, RS_CCW_STENCILPASS, RS_CCW_STENCILFUNC, RS_COLORWRITEENABLE1, RS_COLORWRITEENABLE2, RS_COLORWRITEENABLE3, RS_BLENDFACTOR, RS_SRGBWRITEENABLE, RS_DEPTHBIAS, RS_SEPARATEALPHABLENDENABLE, RS_SRCBLENDALPHA, RS_DESTBLENDALPHA, RS_BLENDOPALPHA, CULL_NONE, CULL_CW, CULL_CCW, CMP_NEVER, CMP_LESS, CMP_EQUAL, CMP_LEQUAL, CMP_GREATER, CMP_NOTEQUAL, CMP_GREATEREQUAL, CMP_ALWAYS, BLEND_ZERO, BLEND_ONE, BLEND_SRCCOLOR, BLEND_INVSRCCOLOR, BLEND_SRCALPHA, BLEND_INVSRCALPHA, BLEND_DESTALPHA, BLEND_INVDESTALPHA, BLEND_DESTCOLOR, BLEND_INVDESTCOLOR, BLEND_SRCALPHASAT, BLEND_BOTHSRCALPHA, BLEND_BOTHINVSRCALPHA, BLEND_BLENDFACTOR, BLEND_INVBLENDFACTOR, BLENDOP_ADD, BLENDOP_SUBTRACT, BLENDOP_REVSUBTRACT, BLENDOP_MIN, BLENDOP_MAX, TF_ALPHA, TF_LUMINANCE, TF_LUMINANCE_ALPHA, TF_RGB, TF_RGBA, TF_RED, TF_R, TF_RG, TF_RED_INTEGER, TF_R_INTEGER, TF_RG_INTEGER, TF_RGB_INTEGER, TF_RGBA_INTEGER, TT_UNSIGNED_BYTE, TT_UNSIGNED_INT, TT_FLOAT, TT_HALF_FLOAT, TT_BYTE, TT_SHORT, TT_UNSIGNED_SHORT, TT_INT, TT_UNSIGNED_INTEGER, TT_UNSIGNED_SHORT_4_4_4_4, TT_UNSIGNED_SHORT_5_5_5_1, TT_UNSIGNED_SHORT_5_6_5, TT_UNSIGNED_INT_2_10_10_10_REV, TT_UNSIGNED_INT_24_8, TT_UNSIGNED_INT_10F_11F_11F_REV, TT_UNSIGNED_INT_5_9_9_9_REV, TT_FLOAT_32_UNSIGNED_INT_24_8_REV, WrapModes, BlendTable, FilterMode, MipFilterMode, DDS_MAGIC, DDSD_CAPS, DDSD_HEIGHT, DDSD_WIDTH, DDSD_PITCH, DDSD_PIXELFORMAT, DDSD_MIPMAPCOUNT, DDSD_LINEARSIZE, DDSD_DEPTH, DDSCAPS_COMPLEX, DDSCAPS_MIPMAP, DDSCAPS_TEXTURE, DDSCAPS2_CUBEMAP, DDSCAPS2_CUBEMAP_POSITIVEX, DDSCAPS2_CUBEMAP_NEGATIVEX, DDSCAPS2_CUBEMAP_POSITIVEY, DDSCAPS2_CUBEMAP_NEGATIVEY, DDSCAPS2_CUBEMAP_POSITIVEZ, DDSCAPS2_CUBEMAP_NEGATIVEZ, DDSCAPS2_VOLUME, DDPF_ALPHAPIXELS, DDPF_ALPHA, DDPF_FOURCC, DDPF_RGB, DDPF_YUV, DDPF_LUMINANCE, DDS_HEADER_LENGTH_INT, DDS_HEADER_OFFSET_MAGIC, DDS_HEADER_OFFSET_SIZE, DDS_HEADER_OFFSET_FLAGS, DDS_HEADER_OFFSET_HEIGHT, DDS_HEADER_OFFSET_WIDTH, DDS_HEADER_OFFSET_MIPMAP_COUNT, DDS_HEADER_OFFSET_PF_FLAGS, DDS_HEADER_OFFSET_PF_FOURCC, DDS_HEADER_OFFSET_RGB_BPP, DDS_HEADER_OFFSET_R_MASK, DDS_HEADER_OFFSET_G_MASK, DDS_HEADER_OFFSET_B_MASK, DDS_HEADER_OFFSET_A_MASK, DDS_HEADER_OFFSET_CAPS1, DDS_HEADER_OFFSET_CAPS2, DDS_HEADER_OFFSET_CAPS3, DDS_HEADER_OFFSET_CAPS4, DDS_HEADER_OFFSET_DXGI_FORMAT, FOURCC_DXT1, FOURCC_DXT5, FOURCC_DXT3, FOURCC_DXT10, FOURCC_D3DFMT_R16G16B16A16F, FOURCC_D3DFMT_R32G32B32A32F, DXGI_FORMAT_R16G16B16A16_FLOAT, DXGI_FORMAT_B8G8R8X8_UNORM, VendorRequestAnimationFrame, VendorCancelAnimationFrame, VendorRequestFullScreen, VendorExitFullScreen, VendorGetFullScreenElement, VendorWebglPrefixes, WebglContextNames, Webgl2ContextNames, WebglVersion, tw2, store, resMan, device, logger, util, Tw2BaseClass, Tw2EventEmitter, Tw2Schema, num, vec2, vec3, vec4, quat, mat3, mat4, noise, curve, box3, tri3, lne3, pln, ray3, sph3 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -56441,8 +57219,6 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "device", function() { return _Tw2Library__WEBPACK_IMPORTED_MODULE_3__["device"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "client", function() { return _Tw2Library__WEBPACK_IMPORTED_MODULE_3__["client"]; });
-
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "logger", function() { return _Tw2Library__WEBPACK_IMPORTED_MODULE_3__["logger"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "util", function() { return _Tw2Library__WEBPACK_IMPORTED_MODULE_3__["util"]; });
@@ -56466,6 +57242,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "box3", function() { return box3; });
 /* harmony import */ var _num__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./num */ "./global/math/num.js");
 /* harmony import */ var _vec3__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./vec3 */ "./global/math/vec3.js");
+/* harmony import */ var _sph3__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./sph3 */ "./global/math/sph3.js");
+/* harmony import */ var _mat4__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./mat4 */ "./global/math/mat4.js");
+
+
 
 
 /**
@@ -56475,7 +57255,11 @@ __webpack_require__.r(__webpack_exports__);
 
 const box3 = {
   bounds: {}
-};
+}; // Scratch
+
+let mat4_0 = null,
+    box3_0 = null,
+    vec3_A = null;
 /**
  * Gets a subarray of a box3's min vector
  * @property {box3} a
@@ -56670,14 +57454,7 @@ box3.copyMax = function (out, a) {
 
 
 box3.create = function () {
-  let out = new Float32Array(6);
-  out[0] = -Infinity;
-  out[1] = -Infinity;
-  out[2] = -Infinity;
-  out[3] = Infinity;
-  out[4] = Infinity;
-  out[5] = Infinity;
-  return out;
+  return box3.empty(new Float32Array(6));
 };
 /**
  * Gets the distance from a box3 to a point
@@ -56720,12 +57497,12 @@ box3.distanceToValues = function (a, px, py, pz) {
 
 
 box3.empty = function (a) {
-  a[0] = +Infinity;
-  a[1] = +Infinity;
-  a[2] = +Infinity;
-  a[3] = -Infinity;
-  a[4] = -Infinity;
-  a[5] = -Infinity;
+  a[0] = 0;
+  a[1] = 0;
+  a[2] = 0;
+  a[3] = 0;
+  a[4] = 0;
+  a[5] = 0;
   return a;
 };
 /**
@@ -56737,12 +57514,12 @@ box3.empty = function (a) {
 
 
 box3.bounds.empty = function (min, max) {
-  min[0] = +Infinity;
-  min[1] = +Infinity;
-  min[2] = +Infinity;
-  max[0] = -Infinity;
-  min[1] = -Infinity;
-  min[2] = -Infinity;
+  min[0] = 0;
+  min[1] = 0;
+  min[2] = 0;
+  max[0] = 0;
+  max[1] = 0;
+  max[2] = 0;
 };
 /**
  * Checks two box3's for equality
@@ -56911,9 +57688,63 @@ box3.fromBounds = function (out, min, max) {
   out[0] = min[0];
   out[1] = min[1];
   out[2] = min[2];
-  out[0] = max[0];
-  out[1] = max[1];
-  out[2] = max[2];
+  out[3] = max[0];
+  out[4] = max[1];
+  out[5] = max[2];
+  return out;
+};
+/**
+ * Helper method which creates a box3 from an eve object's bounding box properties
+ *
+ * @param {box3} out
+ * @param {*} obj
+ * @param {vec3} obj.minBounds
+ * @param {vec3} obj.maxBounds
+ * @param {mat4} [m]
+ * @returns {box3} out
+ */
+
+
+box3.fromObjectBounds = function (out, obj, m) {
+  if (obj.minBounds) {
+    box3.fromBounds(out, obj.minBounds, obj.maxBounds);
+  } else if (obj._boundingBox) {
+    box3.copy(out, obj._boundingBox);
+  } else {
+    throw new Error("Invalid object bounds");
+  }
+
+  if (m) {
+    box3.transformMat4(out, out, m);
+  }
+
+  return out;
+};
+/**
+ * Helper method which creates a box3 from an eve object's bounding sphere properties
+ *
+ * @param {box3} out
+ * @param {*} obj
+ * @param {vec3} obj.boundsSpherePosition
+ * @param {Number} obj.boundsSphereRadius
+ * @param {mat4} [m]
+ * @returns {box3} out
+ */
+
+
+box3.fromObjectPositionRadius = function (out, obj, m) {
+  if (obj.boundsSpherePosition) {
+    box3.fromPositionRadius(out, obj.boundsSpherePosition, obj.boundsSphereRadius);
+  } else if (obj.boundingSphereCenter) {
+    box3.fromPositionRadius(out, obj.boundingSphereCenter, obj.boundingSphereRadius);
+  } else {
+    throw new Error("Invalid object bounds");
+  }
+
+  if (m) {
+    box3.transformMat4(out, out, m);
+  }
+
   return out;
 };
 /**
@@ -56945,12 +57776,7 @@ box3.fromPositionSize = function (out, position, size) {
 
 
 box3.fromPoints = function (out, points) {
-  out[0] = +Infinity;
-  out[1] = +Infinity;
-  out[2] = +Infinity;
-  out[3] = -Infinity;
-  out[4] = -Infinity;
-  out[5] = -Infinity;
+  box3.empty(out);
 
   for (let i = 0; i < points.length; i++) {
     out[0] = Math.min(out[0], points[i][0]);
@@ -56998,6 +57824,28 @@ box3.fromSph3 = function (out, sphere) {
   out[3] = sphere[0] + sphere[3];
   out[4] = sphere[1] + sphere[3];
   out[5] = sphere[2] + sphere[3];
+  return out;
+};
+/**
+ * Creates a box3 from values
+ * @param {Number} minx
+ * @param {Number} miny
+ * @param {Number} minz
+ * @param {Number} maxx
+ * @param {Number} maxy
+ * @param {Number} maxz
+ * @returns {box3}
+ */
+
+
+box3.fromValues = function (minx, miny, minz, maxx, maxy, maxz) {
+  const out = box3.create();
+  out[0] = minx;
+  out[1] = miny;
+  out[2] = minz;
+  out[3] = maxx;
+  out[4] = maxy;
+  out[5] = maxz;
   return out;
 };
 /**
@@ -57075,6 +57923,19 @@ box3.getPosition = function (out, a) {
   out[1] = (a[1] + a[4]) * 0.5;
   out[2] = (a[2] + a[5]) * 0.5;
   return out;
+};
+/**
+ * Gets the effective radius of a bounding box
+ * @param {box3} a
+ * @returns {number}
+ */
+
+
+box3.radius = function (a) {
+  let sX = a[3] - a[0],
+      sY = a[4] - a[1],
+      sZ = a[5] - a[2];
+  return Math.sqrt(sX * sX + sY * sY + sZ * sZ) * 0.5;
 };
 /**
  * Sets a box3 from the intersect of two box3s
@@ -57258,6 +58119,7 @@ box3.intersectsSph3 = function (a, sphere) {
 
 
 box3.isEmpty = function (a) {
+  if (a[0] + a[1] + a[2] + a[0] + a[1] + a[2] === 0) return true;
   return a[3] < a[0] || a[4] < a[1] || a[5] < a[2];
 };
 /**
@@ -57270,6 +58132,7 @@ box3.isEmpty = function (a) {
 
 
 box3.bounds.isEmpty = function (min, max) {
+  if (min[0] + min[1] + min[2] + max[0] + max[1] + max[2] === 0) return true;
   return max[0] < min[0] || max[1] < min[1] || max[2] < min[2];
 };
 /**
@@ -57363,6 +58226,127 @@ box3.toBounds = function (a, outMin, outMax) {
   return a;
 };
 /**
+ *
+ *
+ * @param {box3} a
+ * @param {*} obj
+ * @param {vec3} obj.minBounds
+ * @param {vec3} obj.maxBounds
+ * @param {mat4} [m]
+ */
+
+
+box3.toObjectBounds = function (a, obj, m) {
+  const has = obj.minBounds || obj._boundingBox;
+
+  if (!has) {
+    console.dir(obj);
+    throw new Error("Invalid object bounds");
+  }
+
+  if (m) {
+    if (!box3_0) box3_0 = box3.create();
+    a = box3.transformMat4(box3_0, a, m);
+  }
+
+  if (obj.minBounds) {
+    box3.toBounds(a, obj.minBounds, obj.maxBounds);
+  } else {
+    box3.copy(obj._boundingBox, a);
+  }
+};
+/**
+ *
+ *
+ * @param {box3} a
+ * @param {*} obj
+ * @param {vec3} obj.boundsSpherePosition
+ * @param {Number} obj.boundsSphereRadius
+ * @param {mat4} [m]
+ */
+
+
+box3.toObjectPositionRadius = function (a, obj, m) {
+  if (m) {
+    if (!box3_0) box3_0 = box3.create();
+    a = box3.transformMat4(box3_0, a, m);
+  }
+
+  if (obj.boundsSpherePosition) {
+    obj.boundsSphereRadius = box3.toPositionRadius(a, obj.boundsSpherePosition);
+    return;
+  } else if (obj.boundingSphereCenter) {
+    obj.boundingSphereRadius = box3.toPositionRadius(a, obj.boundingSphereCenter);
+    return;
+  }
+
+  throw new Error("Invalid object bounds");
+};
+/**
+ * Converts a box3 to an array of points
+ * @param {box3} a
+ * @param {Array} [points]
+ * @returns {Array<Array>} points
+ */
+
+
+box3.toPoints = function (a) {
+  let points = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+  const ax = a[0],
+        ay = a[1],
+        az = a[2],
+        bx = a[3],
+        by = a[4],
+        bz = a[5],
+        x = bx + Math.abs(ax),
+        y = by + Math.abs(ay),
+        z = bz + Math.abs(az);
+  points.push([bx + 0, by + 0, bz + 0]);
+  points.push([bx - x, by + 0, bz + 0]);
+  points.push([bx + 0, by + 0, bz - z]);
+  points.push([bx - x, by + 0, bz - z]);
+  points.push([bx + 0, by - y, bz + 0]);
+  points.push([bx - x, by - y, bz + 0]);
+  points.push([bx + 0, by - y, bz - z]);
+  points.push([bx - x, by - y, bz - z]);
+  return points;
+};
+/**
+ * Converts a box3 to position radius
+ * @param a
+ * @param outCenter
+ * @returns {number}
+ */
+
+
+box3.toPositionRadius = function (a, outCenter) {
+  let sX = a[3] - a[0],
+      sY = a[4] - a[1],
+      sZ = a[5] - a[2];
+  outCenter[0] = (a[0] + a[3]) * 0.5;
+  outCenter[1] = (a[1] + a[4]) * 0.5;
+  outCenter[2] = (a[2] + a[5]) * 0.5;
+  return Math.sqrt(sX * sX + sY * sY + sZ * sZ) * 0.5;
+};
+/**
+ * Converts bounds to position radius
+ * @param {vec3} minBounds
+ * @param {vec3} maxBounds
+ * @param {vec3} outCenter
+ * @returns {number}
+ */
+
+
+box3.bounds.toPositionRadius = function (minBounds, maxBounds, outCenter) {
+  let sX = maxBounds[0] - minBounds[0],
+      sY = maxBounds[1] - minBounds[1],
+      sZ = maxBounds[2] - minBounds[2];
+  outCenter[0] = (minBounds[0] + maxBounds[0]) * 0.5;
+  outCenter[1] = (minBounds[1] + maxBounds[1]) * 0.5;
+  outCenter[2] = (minBounds[2] + maxBounds[2]) * 0.5;
+  return Math.sqrt(sX * sX + sY * sY + sZ * sZ) * 0.5;
+};
+/**
  * Sets a receiving box3 from the translation of a box3 and a vec3
  *
  * @param {box3} out   - receiving box3
@@ -57391,27 +58375,24 @@ box3.translate = function (out, a, v) {
  */
 
 
-box3.transformMat4 = function () {
-  let points;
-  return function (out, a, m) {
-    if (!points) {
-      points = [_vec3__WEBPACK_IMPORTED_MODULE_1__["vec3"].create(), _vec3__WEBPACK_IMPORTED_MODULE_1__["vec3"].create(), _vec3__WEBPACK_IMPORTED_MODULE_1__["vec3"].create(), _vec3__WEBPACK_IMPORTED_MODULE_1__["vec3"].create(), _vec3__WEBPACK_IMPORTED_MODULE_1__["vec3"].create(), _vec3__WEBPACK_IMPORTED_MODULE_1__["vec3"].create(), _vec3__WEBPACK_IMPORTED_MODULE_1__["vec3"].create(), _vec3__WEBPACK_IMPORTED_MODULE_1__["vec3"].create()];
-    }
+box3.transformMat4 = function (out, a, m) {
+  if (!vec3_A) {
+    vec3_A = [_vec3__WEBPACK_IMPORTED_MODULE_1__["vec3"].create(), _vec3__WEBPACK_IMPORTED_MODULE_1__["vec3"].create(), _vec3__WEBPACK_IMPORTED_MODULE_1__["vec3"].create(), _vec3__WEBPACK_IMPORTED_MODULE_1__["vec3"].create(), _vec3__WEBPACK_IMPORTED_MODULE_1__["vec3"].create(), _vec3__WEBPACK_IMPORTED_MODULE_1__["vec3"].create(), _vec3__WEBPACK_IMPORTED_MODULE_1__["vec3"].create(), _vec3__WEBPACK_IMPORTED_MODULE_1__["vec3"].create()];
+  }
 
-    if (box3.isEmpty(a)) {
-      return box3.empty(out);
-    }
+  if (box3.isEmpty(a)) {
+    return box3.empty(out);
+  }
 
-    _vec3__WEBPACK_IMPORTED_MODULE_1__["vec3"].transformMat4(points[0], [a[0], a[1], a[2]], m);
-    _vec3__WEBPACK_IMPORTED_MODULE_1__["vec3"].transformMat4(points[1], [a[0], a[1], a[5]], m);
-    _vec3__WEBPACK_IMPORTED_MODULE_1__["vec3"].transformMat4(points[2], [a[0], a[4], a[2]], m);
-    _vec3__WEBPACK_IMPORTED_MODULE_1__["vec3"].transformMat4(points[3], [a[0], a[4], a[5]], m);
-    _vec3__WEBPACK_IMPORTED_MODULE_1__["vec3"].transformMat4(points[4], [a[3], a[1], a[2]], m);
-    _vec3__WEBPACK_IMPORTED_MODULE_1__["vec3"].transformMat4(points[5], [a[3], a[1], a[5]], m);
-    _vec3__WEBPACK_IMPORTED_MODULE_1__["vec3"].transformMat4(points[6], [a[3], a[4], a[2]], m);
-    _vec3__WEBPACK_IMPORTED_MODULE_1__["vec3"].transformMat4(points[7], [a[3], a[4], a[5]], m);
-    return box3.fromPoints(out, points);
-  };
+  _vec3__WEBPACK_IMPORTED_MODULE_1__["vec3"].transformMat4(vec3_A[0], [a[0], a[1], a[2]], m);
+  _vec3__WEBPACK_IMPORTED_MODULE_1__["vec3"].transformMat4(vec3_A[1], [a[0], a[1], a[5]], m);
+  _vec3__WEBPACK_IMPORTED_MODULE_1__["vec3"].transformMat4(vec3_A[2], [a[0], a[4], a[2]], m);
+  _vec3__WEBPACK_IMPORTED_MODULE_1__["vec3"].transformMat4(vec3_A[3], [a[0], a[4], a[5]], m);
+  _vec3__WEBPACK_IMPORTED_MODULE_1__["vec3"].transformMat4(vec3_A[4], [a[3], a[1], a[2]], m);
+  _vec3__WEBPACK_IMPORTED_MODULE_1__["vec3"].transformMat4(vec3_A[5], [a[3], a[1], a[5]], m);
+  _vec3__WEBPACK_IMPORTED_MODULE_1__["vec3"].transformMat4(vec3_A[6], [a[3], a[4], a[2]], m);
+  _vec3__WEBPACK_IMPORTED_MODULE_1__["vec3"].transformMat4(vec3_A[7], [a[3], a[4], a[5]], m);
+  return box3.fromPoints(out, vec3_A);
 };
 /**
  * Sets a box3 from the union of two box3s
@@ -57451,6 +58432,26 @@ box3.unionBounds = function (out, a, min, max) {
   out[4] = Math.max(a[4], max[1]);
   out[5] = Math.max(a[5], max[2]);
   return out;
+};
+/**
+ * Sets bounds from the union of two sets of bounds
+ *
+ * @param {vec3} outMin
+ * @param {vec3} outMax
+ * @param {vec3} aMin
+ * @param {vec3} aMax
+ * @param {vec3} bMin
+ * @param {vec3} bMax
+ */
+
+
+box3.bounds.union = function (outMin, outMax, aMin, aMax, bMin, bMax) {
+  outMin[0] = Math.min(aMin[0], bMin[0]);
+  outMin[1] = Math.min(aMin[1], bMin[1]);
+  outMin[2] = Math.min(aMin[2], bMin[2]);
+  outMax[0] = Math.max(aMax[0], bMax[0]);
+  outMax[1] = Math.max(aMax[1], bMax[1]);
+  outMax[2] = Math.max(aMax[2], bMax[2]);
 };
 
 /***/ }),
@@ -59393,13 +60394,16 @@ const pln = {};
  * @returns {*}   - plane normal reference
  */
 
-pln.$normal = _box3__WEBPACK_IMPORTED_MODULE_4__["box3"].$min;
+pln.$normal = function (a) {
+  return a.subarray(0, 3);
+};
 /**
  * Clones a pln
  *
  * @param {pln} a - Source plane
  * @returns {pln} - Cloned plane
  */
+
 
 pln.clone = _vec4__WEBPACK_IMPORTED_MODULE_2__["vec4"].clone;
 /**
@@ -60975,7 +61979,9 @@ __webpack_require__.r(__webpack_exports__);
  * @typedef {Float32Array} sph3
  */
 
-const sph3 = {};
+const sph3 = {}; // Scratch
+
+let sph3_0 = null;
 /**
  * Returns a subarray containing the position component of the sph3
  * - Why does webpack fail to resolve this if referencing pln.normal?
@@ -61053,6 +62059,20 @@ sph3.distanceToPoint = function (a, p) {
       y = p[1] - a[1],
       z = p[2] - a[2];
   return Math.sqrt(x * x + y * y + z * z) - a[3];
+};
+/**
+ * Empties a sphere
+ * @param {sph3} a
+ * @returns {sph3} a
+ */
+
+
+sph3.empty = function (a) {
+  a[0] = 0;
+  a[1] = 0;
+  a[2] = 0;
+  a[3] = 0;
+  return a;
 };
 /**
  * Compares two sphere's for equality
@@ -61138,6 +62158,60 @@ sph3.fromBounds = function (out, min, max) {
   out[1] = (min[1] + max[1]) * 0.5;
   out[2] = (min[2] + max[2]) * 0.5;
   out[3] = Math.sqrt(sX * sX + sY * sY + sZ * sZ) * 0.5;
+  return out;
+};
+/**
+ * Helper method which creates a sph3 from an eve object's bounding box properties
+ *
+ * @param {sph3} out
+ * @param {*} obj
+ * @param {vec3} obj.minBounds
+ * @param {vec3} obj.maxBounds
+ * @param {mat4} [m]
+ * @returns {sph3} out
+ */
+
+
+sph3.fromObjectBounds = function (out, obj, m) {
+  if (obj.minBounds) {
+    sph3.fromBounds(out, obj.minBounds, obj.maxBounds);
+  } else if (obj._boundingBox) {
+    sph3.fromBox3(out, obj._boundingBox);
+  } else {
+    throw new Error("Invalid object bounds");
+  }
+
+  if (m) {
+    sph3.transformMat4(out, out, m);
+  }
+
+  return out;
+};
+/**
+ * Helper method which creates a sph3 from an eve object's bounding sphere properties
+ *
+ * @param {sph3} out
+ * @param {*} obj
+ * @param {vec3} obj.boundsSpherePosition
+ * @param {Number} obj.boundsSphereRadius
+ * @param {mat4} [m]
+ * @returns {sph3} out
+ */
+
+
+sph3.fromObjectPositionRadius = function (out, obj, m) {
+  if (obj.boundsSpherePosition) {
+    sph3.fromPositionRadius(out, obj.boundsSpherePosition, obj.boundsSphereRadius);
+  } else if (obj.boundingSphereCenter) {
+    sph3.fromPositionRadius(out, obj.boundingSphereCenter, obj.boundingSphereRadius);
+  } else {
+    throw new Error("Invalid object bounds");
+  }
+
+  if (m) {
+    sph3.transformMat4(out, out, m);
+  }
+
   return out;
 };
 /**
@@ -61450,6 +62524,61 @@ sph3.squaredDistanceToPoint = function (a, p) {
 
 sph3.toArray = _vec4__WEBPACK_IMPORTED_MODULE_1__["vec4"].toArray;
 /**
+ *
+ *
+ * @param {sph3} a
+ * @param {*} obj
+ * @param {vec3} obj.minBounds
+ * @param {vec3} obj.maxBounds
+ * @param {mat4} [m]
+ */
+
+sph3.toObjectBounds = function (a, obj, m) {
+  const has = obj.minBounds || obj._boundingBox;
+
+  if (!has) {
+    throw new Error("Invalid object bounds");
+  }
+
+  if (m) {
+    if (!sph3_0) sph3_0 = sph3.create();
+    a = sph3.transformMat4(sph3_0, a, m);
+  }
+
+  if (obj.minBounds) {
+    sph3.toBounds(a, obj.minBounds, obj.maxBounds);
+  } else {
+    _box3__WEBPACK_IMPORTED_MODULE_4__["box3"].fromSph3(obj._boundingBox, a);
+  }
+};
+/**
+ *
+ *
+ * @param {sph3} a
+ * @param {*} obj
+ * @param {vec3} obj.boundsSpherePosition
+ * @param {Number} obj.boundsSphereRadius
+ * @param {mat4} [m]
+ */
+
+
+sph3.toObjectPositionRadius = function (a, obj, m) {
+  if (m) {
+    if (!sph3_0) sph3_0 = sph3.create();
+    a = sph3.transformMat4(sph3_0, a, m);
+  }
+
+  if (obj.boundsSpherePosition) {
+    obj.boundsSphereRadius = sph3.toPositionRadius(a, obj.boundsSpherePosition);
+    return;
+  } else if (obj.boundingSphereCenter) {
+    obj.boundingSphereRadius = sph3.toPositionRadius(a, obj.boundingSphereCenter);
+    return;
+  }
+
+  throw new Error("Invalid object bounds");
+};
+/**
  * Transforms a sphere with a mat4
  *
  * @author three.js authors (conversion)
@@ -61458,6 +62587,7 @@ sph3.toArray = _vec4__WEBPACK_IMPORTED_MODULE_1__["vec4"].toArray;
  * @param {mat4} m   - the matrix to transform by
  * @returns {sph3}
  */
+
 
 sph3.transformMat4 = function (out, a, m) {
   let x = a[0],
@@ -62533,16 +63663,20 @@ __webpack_require__.r(__webpack_exports__);
  * @param {*} dest
  * @param {*} src
  * @param {String|string[]} attrs
+ * @returns {boolean} true if something was assigned
  */
 
 function assignIfExists(dest, src, attrs) {
-  if (!src) return;
+  if (!src) return false;
   attrs = Object(_arr__WEBPACK_IMPORTED_MODULE_1__["toArray"])(attrs);
+  let modified = false;
 
   for (let i = 0; i < attrs.length; i++) {
     const attr = attrs[i];
 
     if (src[attr] !== undefined) {
+      modified = true;
+
       if (Object(_type__WEBPACK_IMPORTED_MODULE_0__["isArrayLike"])(dest[attr])) {
         if (Object(_type__WEBPACK_IMPORTED_MODULE_0__["isTyped"])(dest[attr])) {
           if (dest[attr].length !== src[attr].length) {
@@ -62566,6 +63700,8 @@ function assignIfExists(dest, src, attrs) {
       }
     }
   }
+
+  return modified;
 }
 /**
  * Gets a source's property value if it exists else returns a default value
@@ -64867,7 +66003,7 @@ class Tw2ParticleElementDeclaration extends _global__WEBPACK_IMPORTED_MODULE_2__
 /*!***********************************!*\
   !*** ./particle/element/index.js ***!
   \***********************************/
-/*! exports provided: Tw2ParticleElement, Tw2ParticleElementDeclaration */
+/*! exports provided: Tw2ParticleElementDeclaration, Tw2ParticleElement */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -66666,7 +67802,7 @@ __webpack_require__.r(__webpack_exports__);
 /*!***************************!*\
   !*** ./particle/index.js ***!
   \***************************/
-/*! exports provided: Tr2GpuParticleSystem, Tw2ParticleSystem, Tr2PlaneConstraint, Tw2ParticleElement, Tw2ParticleElementDeclaration, Tr2GpuSharedEmitter, Tr2GpuUniqueEmitter, Tw2StaticEmitter, Tw2DynamicEmitter, Tr2ForceSphereVolume, Tr2ParticleVortexForce, Tw2ParticleAttractorForce, Tw2ParticleDirectForce, Tw2ParticleDragForce, Tw2ParticleFluidDragForce, Tw2ParticleSpring, Tw2ParticleTurbulenceForce, Tw2RandomIntegerAttributeGenerator, Tw2RandomUniformAttributeGenerator, Tw2SphereShapeAttributeGenerator */
+/*! exports provided: Tw2ParticleElementDeclaration, Tr2GpuParticleSystem, Tw2ParticleSystem, Tr2PlaneConstraint, Tw2ParticleElement, Tr2GpuSharedEmitter, Tr2GpuUniqueEmitter, Tw2StaticEmitter, Tw2DynamicEmitter, Tr2ForceSphereVolume, Tr2ParticleVortexForce, Tw2ParticleAttractorForce, Tw2ParticleDirectForce, Tw2ParticleDragForce, Tw2ParticleFluidDragForce, Tw2ParticleSpring, Tw2ParticleTurbulenceForce, Tw2RandomIntegerAttributeGenerator, Tw2RandomUniformAttributeGenerator, Tw2SphereShapeAttributeGenerator */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -66675,9 +67811,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2PlaneConstraint", function() { return _constraint__WEBPACK_IMPORTED_MODULE_0__["Tr2PlaneConstraint"]; });
 
 /* harmony import */ var _element__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./element */ "./particle/element/index.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ParticleElement", function() { return _element__WEBPACK_IMPORTED_MODULE_1__["Tw2ParticleElement"]; });
-
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ParticleElementDeclaration", function() { return _element__WEBPACK_IMPORTED_MODULE_1__["Tw2ParticleElementDeclaration"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ParticleElement", function() { return _element__WEBPACK_IMPORTED_MODULE_1__["Tw2ParticleElement"]; });
 
 /* harmony import */ var _emitter__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./emitter */ "./particle/emitter/index.js");
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2GpuSharedEmitter", function() { return _emitter__WEBPACK_IMPORTED_MODULE_2__["Tr2GpuSharedEmitter"]; });
@@ -66740,8 +67876,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "EveSOF", function() { return EveSOF; });
 /* harmony import */ var _global__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../global */ "./global/index.js");
 /* harmony import */ var _global_util__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../global/util */ "./global/util/index.js");
-/* harmony import */ var _curve_legacy__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../curve/legacy */ "./curve/legacy/index.js");
-/* harmony import */ var _core_index__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../core/index */ "./core/index.js");
+/* harmony import */ var _curve__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../curve */ "./curve/index.js");
+/* harmony import */ var _core__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../core */ "./core/index.js");
 /* harmony import */ var _eve__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../eve */ "./eve/index.js");
 
 
@@ -66879,7 +68015,7 @@ function EveSOF(tw2) {
 
     for (var i = 0; i < hullAreas.length; ++i) {
       var area = hullAreas[i];
-      var effect = new _core_index__WEBPACK_IMPORTED_MODULE_3__["Tw2Effect"]();
+      var effect = new _core__WEBPACK_IMPORTED_MODULE_3__["Tw2Effect"]();
       effect.effectFilePath = data["generic"]["areaShaderLocation"] + ModifyShaderPath(shaderOverride ? shaderOverride : area.shader, hull["isSkinned"]);
       var names = Object(_global_util__WEBPACK_IMPORTED_MODULE_1__["get"])(Object(_global_util__WEBPACK_IMPORTED_MODULE_1__["get"])(data["generic"]["areaShaders"], area.shader, {}), "parameters", []);
 
@@ -66892,7 +68028,7 @@ function EveSOF(tw2) {
         param = param || Object(_global_util__WEBPACK_IMPORTED_MODULE_1__["get"])(Object(_global_util__WEBPACK_IMPORTED_MODULE_1__["get"])(area, "parameters", {}), name);
 
         if (param) {
-          effect.parameters[name] = new _core_index__WEBPACK_IMPORTED_MODULE_3__["Tw2Vector4Parameter"](name, param);
+          effect.parameters[name] = new _core__WEBPACK_IMPORTED_MODULE_3__["Tw2Vector4Parameter"](name, param);
         }
       }
 
@@ -66902,13 +68038,13 @@ function EveSOF(tw2) {
         if (hullTextures.hasOwnProperty(j)) {
           var path = hullTextures[j];
           path = ModifyTextureResPath(path, j, area, faction, commands);
-          effect.parameters[j] = new _core_index__WEBPACK_IMPORTED_MODULE_3__["Tw2TextureParameter"](j, path);
+          effect.parameters[j] = new _core__WEBPACK_IMPORTED_MODULE_3__["Tw2TextureParameter"](j, path);
         }
       }
 
       for (j = 0; j < pattern.layers.length; ++j) {
         if (pattern.layers[j] && !(pattern.layers[j].textureName in effect.parameters)) {
-          var patternTex = new _core_index__WEBPACK_IMPORTED_MODULE_3__["Tw2TextureParameter"](pattern.layers[j].textureName);
+          var patternTex = new _core__WEBPACK_IMPORTED_MODULE_3__["Tw2TextureParameter"](pattern.layers[j].textureName);
           patternTex.resourcePath = pattern.layers[j].textureResFilePath;
           patternTex.useAllOverrides = true;
           patternTex.addressUMode = GetAddressMode(Object(_global_util__WEBPACK_IMPORTED_MODULE_1__["get"])(pattern.layers[j], "projectionTypeU", 0));
@@ -66923,13 +68059,13 @@ function EveSOF(tw2) {
       for (var texName in defaultTextures) {
         if (defaultTextures.hasOwnProperty(texName)) {
           if (!(texName in effect.parameters)) {
-            effect.parameters[texName] = new _core_index__WEBPACK_IMPORTED_MODULE_3__["Tw2TextureParameter"](texName, defaultTextures[texName]);
+            effect.parameters[texName] = new _core__WEBPACK_IMPORTED_MODULE_3__["Tw2TextureParameter"](texName, defaultTextures[texName]);
           }
         }
       }
 
       effect.Initialize();
-      var newArea = new _core_index__WEBPACK_IMPORTED_MODULE_3__["Tw2MeshArea"]();
+      var newArea = new _core__WEBPACK_IMPORTED_MODULE_3__["Tw2MeshArea"]();
       newArea.name = area.name;
       newArea.effect = effect;
       newArea.index = Object(_global_util__WEBPACK_IMPORTED_MODULE_1__["get"])(area, "index", 0);
@@ -66939,7 +68075,7 @@ function EveSOF(tw2) {
   }
 
   function SetupMesh(ship, hull, faction, race, commands, pattern) {
-    var mesh = new _core_index__WEBPACK_IMPORTED_MODULE_3__["Tw2Mesh"]();
+    var mesh = new _core__WEBPACK_IMPORTED_MODULE_3__["Tw2Mesh"]();
     mesh.geometryResPath = hull["geometryResFilePath"];
     ship.boundingSphereCenter[0] = hull.boundingSphere[0];
     ship.boundingSphereCenter[1] = hull.boundingSphere[1];
@@ -67044,7 +68180,7 @@ function EveSOF(tw2) {
 
     for (var i = 0; i < instancedMeshes.length; ++i) {
       var him = instancedMeshes[i];
-      var mesh = new _core_index__WEBPACK_IMPORTED_MODULE_3__["Tw2InstancedMesh"]();
+      var mesh = new _core__WEBPACK_IMPORTED_MODULE_3__["Tw2InstancedMesh"]();
       mesh.instanceGeometryResPath = him.instanceGeometryResPath;
       mesh.geometryResPath = him.geometryResPath;
       mesh.Initialize();
@@ -67427,7 +68563,7 @@ function EveSOF(tw2) {
     if (Array.isArray(obj.particleEmitters)) {
       for (var i = 0; i < obj.particleEmitters.length; ++i) {
         if ("rate" in obj.particleEmitters[i]) {
-          var binding = new _core_index__WEBPACK_IMPORTED_MODULE_3__["Tw2ValueBinding"]();
+          var binding = new _curve__WEBPACK_IMPORTED_MODULE_2__["Tw2ValueBinding"]();
           binding.sourceObject = curve;
           binding.sourceAttribute = "currentValue";
           binding.destinationObject = obj.particleEmitters[i];
@@ -67494,12 +68630,12 @@ function EveSOF(tw2) {
     for (var i = 0; i < animations.length; ++i) {
       if (Object(_global_util__WEBPACK_IMPORTED_MODULE_1__["get"])(animations[i], "id", -1) !== -1 && Object(_global_util__WEBPACK_IMPORTED_MODULE_1__["get"])(animations[i], "startRate", -1) !== -1) {
         if (!curveSet) {
-          curveSet = new _core_index__WEBPACK_IMPORTED_MODULE_3__["Tw2CurveSet"]();
+          curveSet = new _curve__WEBPACK_IMPORTED_MODULE_2__["Tw2CurveSet"]();
         }
 
-        var curve = new _curve_legacy__WEBPACK_IMPORTED_MODULE_2__["Tw2ScalarCurve2"]();
-        curve.keys.push(new _curve_legacy__WEBPACK_IMPORTED_MODULE_2__["Tw2ScalarKey2"]());
-        curve.keys.push(new _curve_legacy__WEBPACK_IMPORTED_MODULE_2__["Tw2ScalarKey2"]());
+        var curve = new _curve__WEBPACK_IMPORTED_MODULE_2__["Tw2ScalarCurve2"]();
+        curve.keys.push(new _curve__WEBPACK_IMPORTED_MODULE_2__["Tw2ScalarKey2"]());
+        curve.keys.push(new _curve__WEBPACK_IMPORTED_MODULE_2__["Tw2ScalarKey2"]());
         curve.keys[0].value = Object(_global_util__WEBPACK_IMPORTED_MODULE_1__["get"])(animations[i], "startRate", -1);
         curve.keys[1].time = 1;
         curve.keys[1].value = Object(_global_util__WEBPACK_IMPORTED_MODULE_1__["get"])(animations[i], "endRate", -1);
@@ -67618,7 +68754,7 @@ function EveSOF(tw2) {
 
       for (var i in params) {
         if (params.hasOwnProperty(i)) {
-          if (params[i].constructor.prototype !== _core_index__WEBPACK_IMPORTED_MODULE_3__["Tw2Vector4Parameter"].prototype) {
+          if (params[i].constructor.prototype !== _core__WEBPACK_IMPORTED_MODULE_3__["Tw2Vector4Parameter"].prototype) {
             continue;
           }
 
@@ -67654,7 +68790,7 @@ function EveSOF(tw2) {
 
   function setupSpriteEffect() {
     if (!spriteEffect) {
-      spriteEffect = _core_index__WEBPACK_IMPORTED_MODULE_3__["Tw2Effect"].from({
+      spriteEffect = _core__WEBPACK_IMPORTED_MODULE_3__["Tw2Effect"].from({
         effectFilePath: "res:/graphics/effect/managed/space/spaceobject/fx/blinkinglightspool.fx",
         parameters: {
           MainIntensity: 1,

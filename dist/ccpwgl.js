@@ -9,8 +9,7 @@ var ccpwgl = (function (ccpwgl_int)
     Object.defineProperty(ccpwgl, "debug", {
         set: function (a)
         {
-            ccpwgl_int.Tw2ObjectReader.DEBUG_ENABLED = !!a;
-            ccpwgl_int.Tw2BlackReader.DEBUG_ENABLED = !!a;
+            ccpwgl_int.Debug(a);
         }
     });
 
@@ -570,6 +569,8 @@ var ccpwgl = (function (ccpwgl_int)
         /** Parameter for holding visibility status **/
         var display = true;
 
+        var self = this;
+
         Object.defineProperty(this, "display", {
             get: function ()
             {
@@ -592,25 +593,13 @@ var ccpwgl = (function (ccpwgl_int)
         {
             obj.display = display;
             self.wrappedObjects[0] = obj;
-            if ("transform" in self.wrappedObjects[0])
-            {
-                self.wrappedObjects[0].transform.set(self.transform);
-            }
-            else if ("translation" in self.wrappedObjects[0])
-            {
-                self.wrappedObjects[0].translation.set(self.transform.subarray(12, 15));
-                self.wrappedObjects[0].scaling[0] = vec3.length(self.transform);
-                self.wrappedObjects[0].scaling[1] = vec3.length(self.transform.subarray(4, 7));
-                self.wrappedObjects[0].scaling[2] = vec3.length(self.transform.subarray(8, 11));
-            }
+            obj.SetLocalTransform(self.transform);
             rebuildOverlays();
             if (onload)
             {
                 onload.call(self);
             }
         }
-
-        var self = this;
 
         /**
          * Gets the object's resources
@@ -671,17 +660,7 @@ var ccpwgl = (function (ccpwgl_int)
             this.transform.set(newTransform);
             if (this.wrappedObjects[0])
             {
-                var tr = this.wrappedObjects[0];
-                if ("transform" in tr)
-                {
-                    mat4.copy(tr.transform, this.transform);
-                }
-                else if ("translation" in tr)
-                {
-                    mat4.getTranslation(tr.translation, this.transform);
-                    mat4.getScaling(tr.scaling, this.transform);
-                    //mat4.getRotation(tr.rotation, this.transform);
-                }
+               this.wrappedObjects[0].SetLocalTransform(this.transform);
             }
         };
 
@@ -847,7 +826,7 @@ var ccpwgl = (function (ccpwgl_int)
                     console.error("Object loaded with scene.loadShip is not a ship");
                     return;
                 }
-                self.wrappedObjects[index].transform.set(self.transform);
+                self.wrappedObjects[index].SetLocalTransform(self.transform);
                 if (self.boosters[index])
                 {
                     self.wrappedObjects[index].boosters = self.boosters[index];
@@ -1017,13 +996,14 @@ var ccpwgl = (function (ccpwgl_int)
                 }
             }
             var offset = vec3.create();
+            var transform = mat4.create();
             for (i = 0; i < systems.length; ++i)
             {
                 var index = systems[i][0];
                 self.partTransforms[index] = mat4.create();
                 mat4.translate(self.partTransforms[index], self.partTransforms[index], offset);
                 vec3.add(offset, offset, systems[i][1]);
-                mat4.multiply(self.wrappedObjects[index].transform, self.transform, self.partTransforms[index]);
+                self.wrappedObjects[index].SetLocalTransform(self.transform, self.partTransforms[index]);
             }
         }
 
@@ -1071,19 +1051,16 @@ var ccpwgl = (function (ccpwgl_int)
             var i;
             if (this.wrappedObjects.length < 2 || !this.isLoaded())
             {
-                for (i = 0; i < this.wrappedObjects.length; ++i)
+                if (this.wrappedObjects[0])
                 {
-                    if (this.wrappedObjects[i])
-                    {
-                        mat4.copy(this.wrappedObjects[0].transform, this.transform);
-                    }
+                    this.wrappedObjects[0].SetLocalTransform(this.transform);
                 }
             }
             else
             {
                 for (i = 0; i < this.wrappedObjects.length; ++i)
                 {
-                    mat4.multiply(self.wrappedObjects[i].transform, self.transform, self.partTransforms[i]);
+                    this.wrappedObjects[i].SetLocalTransform(self.transform, self.partTransforms[i]);
                 }
             }
         };
@@ -1609,8 +1586,10 @@ var ccpwgl = (function (ccpwgl_int)
         /** Wrapped ccpwgl_int planet object @type {ccpwgl_int.EvePlanet} **/
         this.wrappedObjects = [new ccpwgl_int.EvePlanet()];
 
-        var self = this;
+        /** Local transform **/
+        this.transform = mat4.create();
 
+        var self = this;
 
         /** Per-frame on update callback @type {!function(dt): void} **/
         this.onUpdate = null;
@@ -1636,13 +1615,7 @@ var ccpwgl = (function (ccpwgl_int)
         this.getResources = function (out)
         {
             if (!out) out = [];
-            for (let i = 0; i < this.wrappedObjects.length; i++)
-            {
-                if (this.wrappedObjects[i] && "GetResources" in this.wrappedObjects[i])
-                {
-                    this.wrappedObjects[i].GetResources(out);
-                }
-            }
+            this.wrappedObjects[0].GetResource(out);
             return out;
         };
 
@@ -1676,10 +1649,8 @@ var ccpwgl = (function (ccpwgl_int)
          */
         this.setTransform = function (newTransform)
         {
-            var tr = this.wrappedObjects[0].highDetail;
-            mat4.getTranslation(tr.translation, newTransform);
-            mat4.getScaling(tr.scaling, newTransform);
-            mat4.copy(tr.localTransform, newTransform);
+            mat4.copy(this.transform, newTransform);
+            this.wrappedObjects[0].SetLocalTransform(this.transform);
         };
 
         /**

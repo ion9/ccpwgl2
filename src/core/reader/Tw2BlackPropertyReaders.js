@@ -1,4 +1,4 @@
-import {vec2, vec3, vec4, mat4, store, logger} from "../../global";
+import {vec2, vec3, vec4, mat4, store} from "../../global";
 import {ErrBinaryObjectTypeNotFound, ErrBinaryReaderReadError} from "../Tw2Error";
 
 /**
@@ -27,44 +27,32 @@ function onString(path)
             // Will need to provide all quality versions of these files in the cdn even if they
             // don't exist as ccpwgl will have no idea if they exist or not, and so we'd get
             // errors when changing texture qualities in the ccpwgl_int.device
-            /*
-            logger.log({
-                name: "Black reader",
-                type: "debug",
-                message: `Renaming cdn quality format to ccpwgl quality format: ${path}`
-            });
-            */
-            path = path.replace(`_lowdetail.${ext}`);       // Shouldn't exist
-            path = path.replace(`_mediumdetail.${ext}`);    // Shouldn't exist
+            path = path.replace("_lowdetail", "");       // Shouldn't exist
+            path = path.replace("_mediumdetail", "");    // Shouldn't exist
             path = path.replace(ext, `0.${ext}`);
             break;
 
         case "gr2":
-        case "fx":
-        case "sm_hi":
-        case "sm_lo":
-        case "sm_depth":
             // TODO: Add support for these files
-            /*
-            logger.log({
-                name: "Black reader",
-                type: "debug",
-                message: `Removing unsupported file: ${path}`
-            });
-            */
-            path = "";
+            // Temporarily use ccpwgl resources (this won't always work but will do for now)
+            path = path.replace(ext, "wbg").replace("cdn:", "res:");
             break;
 
         case "red":
-            // Dunno why ccp still calls them .red
-            /*
-            logger.log({
-                name: "Black reader",
-                type: "debug",
-                message: `Renaming '.red' file to '.black': ${path}`
-            });
-            */
-            path = path.replace("red", "black");
+            // TODO: Handle red files
+            // There may still be legit .red files some of which we won't be able to read
+            // (Some are in .black format so we'll just rename for now...)
+            path = path.replace(ext, "black");
+            break;
+
+        case "sm_hi":
+        case "sm_lo":
+            path = path.replace(ext, "fx");
+            break;
+
+        case "sm_depth":
+            // TODO: Add support for depth shaders
+            path = "";
             break;
     }
 
@@ -82,6 +70,7 @@ export function object(reader, out, id)
 {
     let context = reader.context;
     const givenId = id !== undefined;
+    const debugEnabled = store.classes.constructor.DEBUG_ENABLED;
 
     if (!givenId)
     {
@@ -126,7 +115,10 @@ export function object(reader, out, id)
             // Debug
             if (!(propertyName in out))
             {
-                console.log(`'${type}' missing property: '${propertyName}'`);
+                if (debugEnabled)
+                {
+                    console.log(`'${type}' missing property: '${propertyName}'`);
+                }
             }
 
             try
@@ -135,13 +127,25 @@ export function object(reader, out, id)
             }
             catch (err)
             {
-                throw new ErrBinaryReaderReadError(`${propertyName} > ` + err.message);
+                if (debugEnabled)
+                {
+                    console.dir(out);
+                }
+
+                throw new ErrBinaryReaderReadError({
+                    readError: `${propertyName} > ` + err.message
+                });
             }
         }
         else
         {
+            if (debugEnabled)
+            {
+                console.dir(out);
+            }
+
             throw new ErrBinaryReaderReadError({
-                readerError: `Unknown property "${propertyName}" for "${type}"`
+                readError: `Unknown property "${propertyName}" for "${type}"`
             });
         }
     }
