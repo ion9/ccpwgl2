@@ -12,7 +12,7 @@ var ccpwgl = (function (ccpwgl_int)
             ccpwgl_int.Debug(a);
         }
     });
-
+ 
     /**
      * Values for textureQuality option that can be passed to ccpwgl.initialize.
      */
