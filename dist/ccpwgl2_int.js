@@ -25070,6 +25070,7 @@ function onString(path) {
 function object(reader, out, id) {
   let context = reader.context;
   const givenId = id !== undefined;
+  const debugEnabled = _global__WEBPACK_IMPORTED_MODULE_0__["store"].classes.constructor.DEBUG_ENABLED;
 
   if (!givenId) {
     id = reader.ReadU32();
@@ -25106,17 +25107,29 @@ function object(reader, out, id) {
     if (properties.has(propertyName)) {
       // Debug
       if (!(propertyName in out)) {
-        console.log("'".concat(type, "' missing property: '").concat(propertyName, "'"));
+        if (debugEnabled) {
+          console.log("'".concat(type, "' missing property: '").concat(propertyName, "'"));
+        }
       }
 
       try {
         out[propertyName] = properties.get(propertyName)(objectReader, out[propertyName]);
       } catch (err) {
-        throw new _Tw2Error__WEBPACK_IMPORTED_MODULE_1__["ErrBinaryReaderReadError"]("".concat(propertyName, " > ") + err.message);
+        if (debugEnabled) {
+          console.dir(out);
+        }
+
+        throw new _Tw2Error__WEBPACK_IMPORTED_MODULE_1__["ErrBinaryReaderReadError"]({
+          readError: "".concat(propertyName, " > ") + err.message
+        });
       }
     } else {
+      if (debugEnabled) {
+        console.dir(out);
+      }
+
       throw new _Tw2Error__WEBPACK_IMPORTED_MODULE_1__["ErrBinaryReaderReadError"]({
-        readerError: "Unknown property \"".concat(propertyName, "\" for \"").concat(type, "\"")
+        readError: "Unknown property \"".concat(propertyName, "\" for \"").concat(type, "\"")
       });
     }
   }
@@ -26385,11 +26398,11 @@ class Tw2GeometryRes extends _Tw2Resource__WEBPACK_IMPORTED_MODULE_3__["Tw2Resou
       mesh._faces = indexes.length / 3;
       mesh._vertices = buffer.length / (mesh.declaration.stride / 4);
       /*
-        // Reduce memory footprint of vertices
-        const stride = mesh.declaration.stride / 4;
+       // Reduce memory footprint of vertices
+       const stride = mesh.declaration.stride / 4;
       const vertCount = buffer.length / stride;
       const position = mesh.declaration.FindUsage(0, 0);
-        mesh._vertices = new Float32Array(vertCount * 3);
+       mesh._vertices = new Float32Array(vertCount * 3);
       for (let i = 0; i < mesh._vertices.length; i+=3)
       {
           const index = i * stride + position.offset;
@@ -26398,7 +26411,7 @@ class Tw2GeometryRes extends _Tw2Resource__WEBPACK_IMPORTED_MODULE_3__["Tw2Resou
               mesh._vertices[i + x] = buffer[index + x];
           }
       }
-        */
+       */
 
       this.meshes[meshIx] = mesh;
     } // Rebuilds all bounds
@@ -27854,20 +27867,21 @@ class Tw2Shader {
           stage.samplers = [];
           const stageType = reader.ReadUInt8(),
                 inputCount = reader.ReadUInt8();
+          stage.stageType = stageType === 0 ? "vertex" : "fragment";
 
           for (let inputIx = 0; inputIx < inputCount; ++inputIx) {
-            const usage = reader.ReadUInt8();
-            /* let registerIndex = */
+            const usage = reader.ReadUInt8(),
+                  registerIndex = reader.ReadUInt8(),
+                  // unused
+            usageIndex = reader.ReadUInt8(),
+                  usedMask = reader.ReadUInt8(); // unused
 
-            reader.ReadUInt8();
-            const usageIndex = reader.ReadUInt8();
-            /* let usedMask = */
-
-            reader.ReadUInt8();
             stage.inputDefinition.elements[inputIx] = _vertex__WEBPACK_IMPORTED_MODULE_1__["Tw2VertexElement"].from({
               usage,
               usageIndex,
-              type: 0
+              type: 0,
+              registerIndex,
+              usedMask
             });
           }
 
@@ -28298,13 +28312,15 @@ class Tw2Shader {
     program.input = new _vertex__WEBPACK_IMPORTED_MODULE_1__["Tw2VertexDeclaration"]();
 
     for (let j = 0; j < pass.stages[0].inputDefinition.elements.length; ++j) {
-      let location = gl.getAttribLocation(program.program, "attr" + j);
+      const attr = "attr" + j;
+      let location = gl.getAttribLocation(program.program, attr);
 
       if (location >= 0) {
         const el = _vertex__WEBPACK_IMPORTED_MODULE_1__["Tw2VertexElement"].from({
           usage: pass.stages[0].inputDefinition.elements[j].usage,
           usageIndex: pass.stages[0].inputDefinition.elements[j].usageIndex,
-          location
+          location,
+          attr
         });
         program.input.elements.push(el);
       }
@@ -28455,24 +28471,24 @@ class Tw2TextureRes extends _Tw2Resource__WEBPACK_IMPORTED_MODULE_0__["Tw2Resour
         break;
 
       /*
-        DDS methods based off work by Brandon Jones and Babylon
+       DDS methods based off work by Brandon Jones and Babylon
       -----------------------------------------------------------------------
       Copyright (c) 2012 Brandon Jones
-        This software is provided 'as-is', without any express or implied
+       This software is provided 'as-is', without any express or implied
       warranty. In no event will the authors be held liable for any damages
       arising from the use of this software.
-        Permission is granted to anyone to use this software for any purpose,
+       Permission is granted to anyone to use this software for any purpose,
       including commercial applications, and to alter it and redistribute it
       freely, subject to the following restrictions:
-        1. The origin of this software must not be misrepresented; you must not
+       1. The origin of this software must not be misrepresented; you must not
       claim that you wrote the original software. If you use this software
       in a product, an acknowledgment in the product documentation would be
       appreciated but is not required.
-        2. Altered source versions must be plainly marked as such, and must not
+       2. Altered source versions must be plainly marked as such, and must not
       be misrepresented as being the original software.
-        3. This notice may not be removed or altered from any source
+       3. This notice may not be removed or altered from any source
       distribution.
-        */
+       */
 
       case "dds":
         const ext = _global__WEBPACK_IMPORTED_MODULE_2__["device"].ext.CompressedTextureS3TC,
@@ -29570,8 +29586,6 @@ class Tw2VertexDeclaration {
     _defineProperty(this, "stride", null);
   }
 
-  //vertexSize = null;
-
   /**
    * Clears the declaration
    */
@@ -29596,24 +29610,13 @@ class Tw2VertexDeclaration {
 
 
   RebuildHash() {
-    this.elementsSorted.splice(0, this.elementsSorted.length); //this.vertexSize = 0;
+    this.elementsSorted.splice(0, this.elementsSorted.length);
 
     for (let i = 0; i < this.elements.length; ++i) {
       this.elementsSorted.push(this.elements[i]);
-      /*
-      // Doesn't work on turrets
-      if (typeof this.elements[i].elements === "number")
-      {
-          this.vertexSize += this.elements[i].elements;
-      }
-      else
-      {
-          this.vertexSize = null;
-      }
-      */
     }
 
-    this.elementsSorted.sort(Tw2VertexDeclaration.CompareDeclarationElements); //this.stride = this.vertexSize !== null ? this.vertexSize * 4 : null;
+    this.elementsSorted.sort(Tw2VertexDeclaration.CompareDeclarationElements);
   }
   /**
    * Finds an element by it's usage type and usage index
@@ -29689,7 +29692,6 @@ class Tw2VertexDeclaration {
   }
   /**
    * Sets a partial declaration
-   * TODO: Move to the device?
    * @param {Tw2Device} device
    * @param {Tw2VertexDeclaration} inputDecl
    * @param {Number} stride
@@ -29851,16 +29853,31 @@ class Tw2VertexElement {
 
     _defineProperty(this, "type", null);
 
-    _defineProperty(this, "usage", null);
+    _defineProperty(this, "usage", -1);
 
     _defineProperty(this, "usageIndex", null);
+
+    _defineProperty(this, "_registerIndex", null);
+
+    _defineProperty(this, "_usedMask", null);
+
+    _defineProperty(this, "_attr", null);
   }
 
+  /**
+   * Gets the vertex's type as a string
+   * @returns {string|string}
+   */
+  get string() {
+    return Tw2VertexElement.TypeMap[this.usage] || "UNKNOWN";
+  }
   /**
    * Creates a vertex element from values
    * @param {RawVertexData} [values]
    * @returns {Tw2VertexElement}
    */
+
+
   static from(values) {
     const item = new Tw2VertexElement();
 
@@ -29885,7 +29902,18 @@ class Tw2VertexElement {
       item.elements = elements;
       item.type = type;
       item.location = location;
-      item.customSetter = customSetter;
+      item.customSetter = customSetter; // Unused
+
+      const _values$registerIndex = values.registerIndex,
+            registerIndex = _values$registerIndex === void 0 ? null : _values$registerIndex,
+            _values$usedMask = values.usedMask,
+            usedMask = _values$usedMask === void 0 ? null : _values$usedMask,
+            _values$attr = values.attr,
+            attr = _values$attr === void 0 ? null : _values$attr;
+      item._registerIndex = registerIndex;
+      item._usedMask = usedMask; // Debugging
+
+      item._attr = attr;
     }
 
     return item;
@@ -29908,6 +29936,8 @@ _defineProperty(Tw2VertexElement, "Type", {
   BLENDWEIGHT: 6,
   BLENDINDICES: 7
 });
+
+_defineProperty(Tw2VertexElement, "TypeMap", ["POSITION", "COLOR", "NORMAL", "TANGENT", "BINORMAL", "TEXCOORD", "BLENDWEIGHT", "BLENDINDICES"]);
 
 /***/ }),
 
@@ -30739,7 +30769,7 @@ class Tr2RotationAdapter extends _Tw2CurveAdapter__WEBPACK_IMPORTED_MODULE_0__["
    * @returns {*[]}
    */
   static black(r) {
-    return [["curve", r.object], ["value", r.vector3]];
+    return [["curve", r.object], ["value", r.vector4]];
   }
   /**
    * Identifies that the class is in staging
@@ -49541,7 +49571,7 @@ class EvePlanet extends _EveObject__WEBPACK_IMPORTED_MODULE_3__["EveObject"] {
    * @param {mat4} m
    */
   SetLocalTransform(m) {
-    this.highDetail.SetTransform(m);
+    this.highDetail.SetLocalTransform(m);
   }
   /**
    * Gets object resources
@@ -55616,7 +55646,7 @@ class Tw2VariableStore extends Tw2GenericStore {
    * Sets a variable store's value
    * @param {String} key
    * @param {*} value
-   * @returns {*} 
+   * @returns {*}
    */
   SetValue(key, value) {
     if (!this.Has(key)) {
@@ -63115,13 +63145,85 @@ __webpack_require__.r(__webpack_exports__);
 
 
 /**
+ * Adds a scalar to a vec2
+ *
+ * @param {vec2} out
+ * @param {vec2} a
+ * @param {Number} s
+ * @returns {vec2} out
+ */
+
+gl_matrix__WEBPACK_IMPORTED_MODULE_0__["vec2"].addScalar = function (out, a, s) {
+  out[0] = a[0] + s;
+  out[1] = a[1] + s;
+  return out;
+};
+/**
  * Checks if a vector2 is empty
  * @param {vec2} a
  * @returns {boolean}
  */
 
+
 gl_matrix__WEBPACK_IMPORTED_MODULE_0__["vec2"].isEmpty = function (a) {
   return a[0] === 0 && a[1] === 0;
+};
+/**
+ * Divides a vec2 by a scalar
+ *
+ * @param {vec2} out
+ * @param {vec2} a
+ * @param {Number} s
+ * @returns {vec2} out
+ */
+
+
+gl_matrix__WEBPACK_IMPORTED_MODULE_0__["vec2"].divideScalar = function (out, a, s) {
+  return gl_matrix__WEBPACK_IMPORTED_MODULE_0__["vec2"].multiplyScalar(out, a, 1 / s);
+};
+/**
+ * Multiplies a vec2 by a scalar
+ *
+ * @param {vec2} out
+ * @param {vec2} a
+ * @param {Number} s
+ * @returns {vec2} out
+ */
+
+
+gl_matrix__WEBPACK_IMPORTED_MODULE_0__["vec2"].multiplyScalar = function (out, a, s) {
+  out[0] = a[0] * s;
+  out[1] = a[1] * s;
+  return out;
+};
+/**
+ * Sets a vec2 from a scalar
+ *
+ * @param {vec2} out
+ * @param {Number} s
+ * @returns {vec2} out
+ */
+
+
+gl_matrix__WEBPACK_IMPORTED_MODULE_0__["vec2"].setScalar = function (out, s) {
+  out[0] = s;
+  out[1] = s;
+  return out;
+};
+/**
+ * Subtracts a scalar from a vec2
+ *
+ * @param {vec2} out
+ * @param {vec2} a
+ * @param {Number} s
+ * @returns {vec2} out
+ */
+
+
+gl_matrix__WEBPACK_IMPORTED_MODULE_0__["vec2"].subtractScalar = function (out, a, s) {
+  out[0] = a[0] - s;
+  out[1] = a[1] - s;
+  return out;
 };
 
 /***/ }),
@@ -63148,12 +63250,28 @@ __webpack_require__.r(__webpack_exports__);
  */
 
 /**
+ * Adds a scalar to a vec3
+ *
+ * @param {vec3} out
+ * @param {vec3} a
+ * @param {Number} s
+ * @returns {vec3} out
+ */
+
+gl_matrix__WEBPACK_IMPORTED_MODULE_0__["vec3"].addScalar = function (out, a, s) {
+  out[0] = a[0] + s;
+  out[1] = a[1] + s;
+  out[2] = a[2] + s;
+  return out;
+};
+/**
  * Converts radians to degrees
  *
  * @param {vec3} out
  * @param {vec3} a
  * @returns {vec3} out
  */
+
 
 gl_matrix__WEBPACK_IMPORTED_MODULE_0__["vec3"].degrees = function (out, a) {
   out[0] = a[0] * _num__WEBPACK_IMPORTED_MODULE_1__["num"].RAD2DEG;
@@ -63174,6 +63292,258 @@ gl_matrix__WEBPACK_IMPORTED_MODULE_0__["vec3"].degreesUnwrapped = function (out,
   out[0] = _num__WEBPACK_IMPORTED_MODULE_1__["num"].unwrapDegrees(a[0] * _num__WEBPACK_IMPORTED_MODULE_1__["num"].RAD2DEG);
   out[1] = _num__WEBPACK_IMPORTED_MODULE_1__["num"].unwrapDegrees(a[1] * _num__WEBPACK_IMPORTED_MODULE_1__["num"].RAD2DEG);
   out[2] = _num__WEBPACK_IMPORTED_MODULE_1__["num"].unwrapDegrees(a[2] * _num__WEBPACK_IMPORTED_MODULE_1__["num"].RAD2DEG);
+  return out;
+};
+/**
+ * Gets the direction from a quat
+ * @param {vec3} axis
+ * @param {vec3} up
+ * @param {quat} q
+ * @returns {vec3} out
+ */
+
+
+gl_matrix__WEBPACK_IMPORTED_MODULE_0__["vec3"].directionFromQuat = function (out, axis, q) {
+  return gl_matrix__WEBPACK_IMPORTED_MODULE_0__["vec3"].transformQuat(out, axis, q);
+};
+/**
+ * Gets the direction from a mat4's axis
+ * @param {vec3} out
+ * @param {vec3} axis
+ * @param {mat4} m
+ * @returns {vec3} out
+ */
+
+
+gl_matrix__WEBPACK_IMPORTED_MODULE_0__["vec3"].directionFromMat4 = function () {
+  let quat_0;
+  return function directionFromMat4Axis(out, axis, m) {
+    if (!quat_0) quat_0 = gl_matrix__WEBPACK_IMPORTED_MODULE_0__["quat"].create();
+    gl_matrix__WEBPACK_IMPORTED_MODULE_0__["mat4"].getRotation(quat_0, m);
+    return gl_matrix__WEBPACK_IMPORTED_MODULE_0__["vec3"].transformQuat(out, axis, quat_0);
+  };
+}();
+/**
+ * Divides a vec3 by a scalar
+ *
+ * @param {vec3} out
+ * @param {vec3} a
+ * @param {Number} s
+ * @returns {vec3} out
+ */
+
+
+gl_matrix__WEBPACK_IMPORTED_MODULE_0__["vec3"].divideScalar = function (out, a, s) {
+  return gl_matrix__WEBPACK_IMPORTED_MODULE_0__["vec3"].multiplyScalar(out, a, 1 / s);
+};
+/**
+ * Euler functions
+ * @type {{*}}
+ */
+
+
+gl_matrix__WEBPACK_IMPORTED_MODULE_0__["vec3"].euler = {};
+/**
+ * Default euler order
+ * @type {string}
+ */
+
+gl_matrix__WEBPACK_IMPORTED_MODULE_0__["vec3"].euler.DEFAULT_ORDER = "XYZ";
+/**
+ * Sets a euler from a quat
+ *
+ * @param {vec3} out
+ * @param {quat} q
+ * @param {string} [order=vec3.euler.DEFAULT_ORDER]
+ * @returns {vec3} out
+ */
+
+gl_matrix__WEBPACK_IMPORTED_MODULE_0__["vec3"].euler.fromQuat = function () {
+  let mat4_0;
+  return function fromQuat(out, q) {
+    let order = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : gl_matrix__WEBPACK_IMPORTED_MODULE_0__["vec3"].euler.DEFAULT_ORDER;
+    if (!mat4_0) mat4_0 = gl_matrix__WEBPACK_IMPORTED_MODULE_0__["mat4"].create();
+    gl_matrix__WEBPACK_IMPORTED_MODULE_0__["mat4"].fromQuat(mat4_0, q);
+    return gl_matrix__WEBPACK_IMPORTED_MODULE_0__["vec3"].euler.fromMat4(out, mat4_0, order);
+  };
+}();
+/**
+ * Sets a euler from a mat4
+ *
+ * @author three.js (converted)
+ * @param {vec3} out
+ * @param {mat4} m
+ * @param {string} [order=vec3.euler.DEFAULT_ORDER]
+ * @returns {vec3} out
+ */
+
+
+gl_matrix__WEBPACK_IMPORTED_MODULE_0__["vec3"].euler.fromMat4 = function (out, m) {
+  let order = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : gl_matrix__WEBPACK_IMPORTED_MODULE_0__["vec3"].euler.DEFAULT_ORDER;
+  const m11 = m[0],
+        m12 = m[4],
+        m13 = m[8],
+        m21 = m[1],
+        m22 = m[5],
+        m23 = m[9],
+        m31 = m[2],
+        m32 = m[6],
+        m33 = m[10];
+  const clamp = _num__WEBPACK_IMPORTED_MODULE_1__["num"].clamp;
+
+  if (order === "XYZ") {
+    out[1] = Math.asin(clamp(m13, -1, 1));
+
+    if (Math.abs(m13) < 0.99999) {
+      out[0] = Math.atan2(-m23, m33);
+      out[2] = Math.atan2(-m12, m11);
+    } else {
+      out[0] = Math.atan2(m32, m22);
+      out[2] = 0;
+    }
+  } else if (order === "YXZ") {
+    out[0] = Math.asin(-clamp(m23, -1, 1));
+
+    if (Math.abs(m23) < 0.99999) {
+      out[1] = Math.atan2(m13, m33);
+      out[2] = Math.atan2(m21, m22);
+    } else {
+      out[1] = Math.atan2(-m31, m11);
+      out[2] = 0;
+    }
+  } else if (order === "ZXY") {
+    out[0] = Math.asin(clamp(m32, -1, 1));
+
+    if (Math.abs(m32) < 0.99999) {
+      out[1] = Math.atan2(-m31, m33);
+      out[2] = Math.atan2(-m12, m22);
+    } else {
+      out[1] = 0;
+      out[2] = Math.atan2(m21, m11);
+    }
+  } else if (order === "ZYX") {
+    out[1] = Math.asin(-clamp(m31, -1, 1));
+
+    if (Math.abs(m31) < 0.99999) {
+      out[0] = Math.atan2(m32, m33);
+      out[2] = Math.atan2(m21, m11);
+    } else {
+      out[0] = 0;
+      out[2] = Math.atan2(-m12, m22);
+    }
+  } else if (order === "YZX") {
+    out[2] = Math.asin(clamp(m21, -1, 1));
+
+    if (Math.abs(m21) < 0.99999) {
+      out[0] = Math.atan2(-m23, m22);
+      out[1] = Math.atan2(-m31, m11);
+    } else {
+      out[0] = 0;
+      out[1] = Math.atan2(m13, m33);
+    }
+  } else if (order === "XZY") {
+    out[2] = Math.asin(-clamp(m12, -1, 1));
+
+    if (Math.abs(m12) < 0.99999) {
+      out[0] = Math.atan2(m32, m22);
+      out[1] = Math.atan2(m13, m11);
+    } else {
+      out[0] = Math.atan2(-m23, m33);
+      out[1] = 0;
+    }
+  } else {
+    out[0] = 0;
+    out[1] = 0;
+    out[2] = 0;
+    throw new Error("Unrecognised euler order: " + order);
+  }
+
+  return gl_matrix__WEBPACK_IMPORTED_MODULE_0__["vec3"].unwrapRadians(out, out);
+};
+/**
+ * Gets a quat from a euler
+ * - Differs from quat.getEuler as it allows for different euler ordering
+ *
+ * - http://www.mathworks.com/matlabcentral/fileexchange/
+ * - 20696-function-to-convert-between-dcm-euler-angles-quaternions-and-euler-vectors/
+ * - content/SpinCalc.m
+ *
+ * @param {quat} out
+ * @param {vec3} euler
+ * @param [order=vec3.euler.DEFAULT_ORDER]
+ * @returns {quat} out
+ */
+
+
+gl_matrix__WEBPACK_IMPORTED_MODULE_0__["vec3"].euler.getQuat = function (out, euler) {
+  let order = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : gl_matrix__WEBPACK_IMPORTED_MODULE_0__["vec3"].euler.DEFAULT_ORDER;
+  const x = _num__WEBPACK_IMPORTED_MODULE_1__["num"].unwrapRadians(euler[0]),
+        y = _num__WEBPACK_IMPORTED_MODULE_1__["num"].unwrapRadians(euler[1]),
+        z = _num__WEBPACK_IMPORTED_MODULE_1__["num"].unwrapRadians(euler[2]);
+  const cosYaw = Math.cos(x / 2),
+        cosPitch = Math.cos(y / 2),
+        cosRoll = Math.cos(z / 2),
+        sinYaw = Math.sin(x / 2),
+        sinPitch = Math.sin(y / 2),
+        sinRoll = Math.sin(z / 2);
+
+  if (order === "XYZ") {
+    out[0] = sinYaw * cosPitch * cosRoll + cosYaw * sinPitch * sinRoll;
+    out[1] = cosYaw * sinPitch * cosRoll - sinYaw * cosPitch * sinRoll;
+    out[2] = cosYaw * cosPitch * sinRoll + sinYaw * sinPitch * cosRoll;
+    out[3] = cosYaw * cosPitch * cosRoll - sinYaw * sinPitch * sinRoll;
+  } else if (order === "YXZ") {
+    out[0] = sinYaw * cosPitch * cosRoll + cosYaw * sinPitch * sinRoll;
+    out[1] = cosYaw * sinPitch * cosRoll - sinYaw * cosPitch * sinRoll;
+    out[2] = cosYaw * cosPitch * sinRoll - sinYaw * sinPitch * cosRoll;
+    out[3] = cosYaw * cosPitch * cosRoll + sinYaw * sinPitch * sinRoll;
+  } else if (order === "ZXY") {
+    out[0] = sinYaw * cosPitch * cosRoll - cosYaw * sinPitch * sinRoll;
+    out[1] = cosYaw * sinPitch * cosRoll + sinYaw * cosPitch * sinRoll;
+    out[2] = cosYaw * cosPitch * sinRoll + sinYaw * sinPitch * cosRoll;
+    out[3] = cosYaw * cosPitch * cosRoll - sinYaw * sinPitch * sinRoll;
+  } else if (order === "ZYX") {
+    out[0] = sinYaw * cosPitch * cosRoll - cosYaw * sinPitch * sinRoll;
+    out[1] = cosYaw * sinPitch * cosRoll + sinYaw * cosPitch * sinRoll;
+    out[2] = cosYaw * cosPitch * sinRoll - sinYaw * sinPitch * cosRoll;
+    out[3] = cosYaw * cosPitch * cosRoll + sinYaw * sinPitch * sinRoll;
+  } else if (order === "YZX") {
+    out[0] = sinYaw * cosPitch * cosRoll + cosYaw * sinPitch * sinRoll;
+    out[1] = cosYaw * sinPitch * cosRoll + sinYaw * cosPitch * sinRoll;
+    out[2] = cosYaw * cosPitch * sinRoll - sinYaw * sinPitch * cosRoll;
+    out[3] = cosYaw * cosPitch * cosRoll - sinYaw * sinPitch * sinRoll;
+  } else if (order === "XZY") {
+    out[0] = sinYaw * cosPitch * cosRoll - cosYaw * sinPitch * sinRoll;
+    out[1] = cosYaw * sinPitch * cosRoll - sinYaw * cosPitch * sinRoll;
+    out[2] = cosYaw * cosPitch * sinRoll + sinYaw * sinPitch * cosRoll;
+    out[3] = cosYaw * cosPitch * cosRoll + sinYaw * sinPitch * sinRoll;
+  } else {
+    out[0] = 0;
+    out[1] = 0;
+    out[2] = 0;
+    out[3] = 1;
+    throw new Error("Unrecognised euler order: " + order);
+  }
+
+  return out;
+};
+/**
+ * Exponential decay
+ *
+ * @param {vec3} out
+ * @param {vec3} omega0
+ * @param {vec3} torque
+ * @param {number} I
+ * @param {number} drag
+ * @param {number} time
+ * @returns {vec3} out
+ */
+
+
+gl_matrix__WEBPACK_IMPORTED_MODULE_0__["vec3"].exponentialDecay = function (out, omega0, torque, I, drag, time) {
+  out[0] = _num__WEBPACK_IMPORTED_MODULE_1__["num"].exponentialDecay(omega0[0], torque[0], I, drag, time);
+  out[1] = _num__WEBPACK_IMPORTED_MODULE_1__["num"].exponentialDecay(omega0[1], torque[1], I, drag, time);
+  out[2] = _num__WEBPACK_IMPORTED_MODULE_1__["num"].exponentialDecay(omega0[2], torque[2], I, drag, time);
   return out;
 };
 /**
@@ -63225,25 +63595,6 @@ gl_matrix__WEBPACK_IMPORTED_MODULE_0__["vec3"].getSpherical = function (out, a) 
   return out;
 };
 /**
- * Exponential decay
- *
- * @param {vec3} out
- * @param {vec3} omega0
- * @param {vec3} torque
- * @param {number} I
- * @param {number} drag
- * @param {number} time
- * @returns {vec3} out
- */
-
-
-gl_matrix__WEBPACK_IMPORTED_MODULE_0__["vec3"].exponentialDecay = function (out, omega0, torque, I, drag, time) {
-  out[0] = _num__WEBPACK_IMPORTED_MODULE_1__["num"].exponentialDecay(omega0[0], torque[0], I, drag, time);
-  out[1] = _num__WEBPACK_IMPORTED_MODULE_1__["num"].exponentialDecay(omega0[1], torque[1], I, drag, time);
-  out[2] = _num__WEBPACK_IMPORTED_MODULE_1__["num"].exponentialDecay(omega0[2], torque[2], I, drag, time);
-  return out;
-};
-/**
  * Checks if all elements are 0
  * @param {vec3} a
  * @returns {boolean}
@@ -63252,6 +63603,22 @@ gl_matrix__WEBPACK_IMPORTED_MODULE_0__["vec3"].exponentialDecay = function (out,
 
 gl_matrix__WEBPACK_IMPORTED_MODULE_0__["vec3"].isEmpty = function (a) {
   return a[0] === 0 && a[1] === 0 && a[2] === 0;
+};
+/**
+ * Multiplies a vec3 by a scalar
+ *
+ * @param {vec3} out
+ * @param {vec3} a
+ * @param {Number} s
+ * @returns {vec3} out
+ */
+
+
+gl_matrix__WEBPACK_IMPORTED_MODULE_0__["vec3"].multiplyScalar = function (out, a, s) {
+  out[0] = a[0] * s;
+  out[1] = a[1] * s;
+  out[2] = a[2] * s;
+  return out;
 };
 /**
  * Projects a local vec3 to screen space with viewport settings
@@ -63308,7 +63675,39 @@ gl_matrix__WEBPACK_IMPORTED_MODULE_0__["vec3"].radiansUnwrapped = function (out,
   return out;
 };
 /**
+ * Sets a vec3 from a scalar
+ *
+ * @param {vec3} out
+ * @param {Number} s
+ * @returns {vec3} out
+ */
+
+
+gl_matrix__WEBPACK_IMPORTED_MODULE_0__["vec3"].setScalar = function (out, s) {
+  out[0] = s;
+  out[1] = s;
+  out[2] = s;
+  return out;
+};
+/**
+ * Subtracts a scalar from a vec3
+ *
+ * @param {vec3} out
+ * @param {vec3} a
+ * @param {Number} s
+ * @returns {vec3} out
+ */
+
+
+gl_matrix__WEBPACK_IMPORTED_MODULE_0__["vec3"].subtractScalar = function (out, a, s) {
+  out[0] = a[0] - s;
+  out[1] = a[1] - s;
+  out[2] = a[2] - s;
+  return out;
+};
+/**
  * Unprojects a vec3 with canvas coordinates to world space
+ *
  * @param {vec3} out            - receiving vec3
  * @param {vec3} a              - vec3 to unproject
  * @param {mat4} invViewProj    - inverse view projection matrix
@@ -63395,13 +63794,93 @@ __webpack_require__.r(__webpack_exports__);
 
 
 /**
+ * Adds a scalar to a vec4
+ *
+ * @param {vec4} out
+ * @param {vec4} a
+ * @param {Number} s
+ * @returns {vec4} out
+ */
+
+gl_matrix__WEBPACK_IMPORTED_MODULE_0__["vec4"].addScalar = function (out, a, s) {
+  out[0] = a[0] + s;
+  out[1] = a[1] + s;
+  out[2] = a[2] + s;
+  out[3] = a[3] + s;
+  return out;
+};
+/**
  * Checks if all elements are 0
  * @param {vec4} a
  * @returns {boolean}
  */
 
+
 gl_matrix__WEBPACK_IMPORTED_MODULE_0__["vec4"].isEmpty = function (a) {
   return a[0] === 0 && a[1] === 0 && a[2] === 0 && a[3] === 0;
+};
+/**
+ * Divides a vec4 by a scalar
+ *
+ * @param {vec4} out
+ * @param {vec4} a
+ * @param {Number} s
+ * @returns {vec4} out
+ */
+
+
+gl_matrix__WEBPACK_IMPORTED_MODULE_0__["vec4"].divideScalar = function (out, a, s) {
+  return gl_matrix__WEBPACK_IMPORTED_MODULE_0__["vec4"].multiplyScalar(out, a, 1 / s);
+};
+/**
+ * Multiplies a vec4 by a scalar
+ *
+ * @param {vec4} out
+ * @param {vec4} a
+ * @param {Number} s
+ * @returns {vec4} out
+ */
+
+
+gl_matrix__WEBPACK_IMPORTED_MODULE_0__["vec4"].multiplyScalar = function (out, a, s) {
+  out[0] = a[0] * s;
+  out[1] = a[1] * s;
+  out[2] = a[2] * s;
+  out[3] = a[3] * s;
+  return out;
+};
+/**
+ * Sets a vec4 from a scalar
+ *
+ * @param {vec4} out
+ * @param {Number} s
+ * @returns {vec4} out
+ */
+
+
+gl_matrix__WEBPACK_IMPORTED_MODULE_0__["vec4"].setScalar = function (out, s) {
+  out[0] = s;
+  out[1] = s;
+  out[2] = s;
+  out[3] = s;
+  return out;
+};
+/**
+ * Subtracts a scalar from a vec4
+ *
+ * @param {vec4} out
+ * @param {vec4} a
+ * @param {Number} s
+ * @returns {vec4} out
+ */
+
+
+gl_matrix__WEBPACK_IMPORTED_MODULE_0__["vec4"].subtractScalar = function (out, a, s) {
+  out[0] = a[0] - s;
+  out[1] = a[1] - s;
+  out[2] = a[2] - s;
+  out[3] = a[3] - s;
+  return out;
 };
 
 /***/ }),
@@ -65846,10 +66325,19 @@ class Tw2ParticleElement {
   }
 
   /**
+   * Gets the element type as a string
+   * @returns {String}
+   */
+  get string() {
+    return Tw2ParticleElement.TypeMap[this.elementType] || "UNKNOWN";
+  }
+  /**
    * Particle element factory
    * @param {*} values
    * @returns {Tw2ParticleElement}
    */
+
+
   static from(values) {
     const item = new Tw2ParticleElement();
 
@@ -65879,6 +66367,8 @@ _defineProperty(Tw2ParticleElement, "Type", {
   MASS: 3,
   CUSTOM: 4
 });
+
+_defineProperty(Tw2ParticleElement, "TypeMap", ["LIFETIME", "POSITION", "VELOCITY", "MASS", "CUSTOM"]);
 
 /***/ }),
 
@@ -66003,7 +66493,7 @@ class Tw2ParticleElementDeclaration extends _global__WEBPACK_IMPORTED_MODULE_2__
 /*!***********************************!*\
   !*** ./particle/element/index.js ***!
   \***********************************/
-/*! exports provided: Tw2ParticleElementDeclaration, Tw2ParticleElement */
+/*! exports provided: Tw2ParticleElement, Tw2ParticleElementDeclaration */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -66484,8 +66974,7 @@ class Tw2ParticleEmitter extends _global__WEBPACK_IMPORTED_MODULE_0__["Tw2BaseCl
    */
 
 
-  Update(dt) {
-    throw new _core__WEBPACK_IMPORTED_MODULE_1__["ErrAbstractClassMethod"]();
+  Update(dt) {//throw new ErrAbstractClassMethod();
   }
 
 }
@@ -67802,7 +68291,7 @@ __webpack_require__.r(__webpack_exports__);
 /*!***************************!*\
   !*** ./particle/index.js ***!
   \***************************/
-/*! exports provided: Tw2ParticleElementDeclaration, Tr2GpuParticleSystem, Tw2ParticleSystem, Tr2PlaneConstraint, Tw2ParticleElement, Tr2GpuSharedEmitter, Tr2GpuUniqueEmitter, Tw2StaticEmitter, Tw2DynamicEmitter, Tr2ForceSphereVolume, Tr2ParticleVortexForce, Tw2ParticleAttractorForce, Tw2ParticleDirectForce, Tw2ParticleDragForce, Tw2ParticleFluidDragForce, Tw2ParticleSpring, Tw2ParticleTurbulenceForce, Tw2RandomIntegerAttributeGenerator, Tw2RandomUniformAttributeGenerator, Tw2SphereShapeAttributeGenerator */
+/*! exports provided: Tr2GpuParticleSystem, Tw2ParticleSystem, Tr2PlaneConstraint, Tw2ParticleElement, Tw2ParticleElementDeclaration, Tr2GpuSharedEmitter, Tr2GpuUniqueEmitter, Tw2StaticEmitter, Tw2DynamicEmitter, Tr2ForceSphereVolume, Tr2ParticleVortexForce, Tw2ParticleAttractorForce, Tw2ParticleDirectForce, Tw2ParticleDragForce, Tw2ParticleFluidDragForce, Tw2ParticleSpring, Tw2ParticleTurbulenceForce, Tw2RandomIntegerAttributeGenerator, Tw2RandomUniformAttributeGenerator, Tw2SphereShapeAttributeGenerator */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -67811,9 +68300,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2PlaneConstraint", function() { return _constraint__WEBPACK_IMPORTED_MODULE_0__["Tr2PlaneConstraint"]; });
 
 /* harmony import */ var _element__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./element */ "./particle/element/index.js");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ParticleElementDeclaration", function() { return _element__WEBPACK_IMPORTED_MODULE_1__["Tw2ParticleElementDeclaration"]; });
-
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ParticleElement", function() { return _element__WEBPACK_IMPORTED_MODULE_1__["Tw2ParticleElement"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tw2ParticleElementDeclaration", function() { return _element__WEBPACK_IMPORTED_MODULE_1__["Tw2ParticleElementDeclaration"]; });
 
 /* harmony import */ var _emitter__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./emitter */ "./particle/emitter/index.js");
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Tr2GpuSharedEmitter", function() { return _emitter__WEBPACK_IMPORTED_MODULE_2__["Tr2GpuSharedEmitter"]; });
@@ -69101,7 +69590,7 @@ class EveSOFData {
           GradientMap: "res:/texture/particle/whitesharp_gradient.dds.0.png"
       }
   });
-    this._bannerEffect = this.generic.CreateEffect(this.generic.bannerShader);
+   this._bannerEffect = this.generic.CreateEffect(this.generic.bannerShader);
   */
 
   /**
