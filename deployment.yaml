@@ -1,0 +1,54 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ccpwgl2-ingress
+spec:
+  tls:
+  - hosts: 
+    - frontend.m4.com
+    secretName: m4
+  rules:
+  - host: frontend.m4.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: ccpwgl2-service
+          servicePort: 8000
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: ccpwgl2-service
+spec:
+  selector:
+    app: ccpwgl2
+  type: ClusterIP
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ccpwgl2
+  labels:
+    app: ccpwgl2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ccpwgl2
+  template:
+    metadata:
+      labels:
+        app: ccpwgl2
+    spec:
+      imagePullSecrets:
+      - name: pipeline-docker-registry
+      containers:
+      - name: php
+        image: ${CICD_IMAGE}:${CICD_EXECUTION_SEQUENCE}
+        ports:
+        - containerPort: 8000

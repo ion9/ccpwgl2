@@ -1,0 +1,20 @@
+stages:
+- name: Codeception test
+  steps:
+  - runScriptConfig:
+      image: node:8
+- name: Publish image
+  steps:
+  - publishImageConfig:
+      dockerfilePath: ./Dockerfile
+      buildContext: .
+      tag: ccpwgl2:${CICD_EXECUTION_SEQUENCE}
+- name: Deploy
+  steps:
+  - applyYamlConfig:
+      path: deployment.yaml
+branch:
+  include:
+  - master
+notification: {}
+

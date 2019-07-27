@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <title>Stars Demo</title>
+
+    <link rel="stylesheet" href="demos.css">
+    <script type="text/javascript" src="ccpwgl_int.js"></script>
+    <script type="text/javascript" src="ccpwgl.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script type="text/javascript" src="demos.js"></script>
+
+    <script type="text/javascript">
+
+        window.ccpwgl = ccpwgl;
+        window.ccpwgl_int = ccpwgl_int;
+
+        function getRandom(min, max, size) {
+          if (size == null){
+              temp = (Math.random() * (max - min) + min).toFixed(0)
+              if (temp == 0){
+                temp = 1
+              }
+          } else {
+              temp = (Math.random() * (max - min) + min).toFixed(size)
+          }
+          return temp
+        }
+
+        function OnDocLoad()
+        {
+            var { mat4, vec3 } = ccpwgl_int.math;
+            var canvas = document.getElementById('mainCanvas');
+            ccpwgl.initialize(canvas, demos.options);
+
+
+            var camera = new ccpwgl.createCamera(canvas);
+            camera.minDistance = 0.0;
+            camera.maxDistance = 10000000000000;
+            camera.fov = 114;
+            camera.distance = 100000;
+            camera.nearPlane = 10;
+            camera.minPitch = -0.5;
+            camera.maxPitch = 0.35;
+            ccpwgl.setCamera(camera);
+
+            scene = ccpwgl.createScene([0,0,0,1]);
+            scene.lodEnabled = true;
+
+            if (demos.options.postprocess)
+                ccpwgl.enablePostprocessing(true);
+            var suns = []
+
+            let url = './117.541.json';
+            fetch(url).then(res => res.json()).then((out) => { console.log('Checkout this JSON! ', out); }).catch(err => { throw err });
+
+            scene.loadObject("res:/ui/inflight/tactical/rangesphere.red")
+            var suns = [
+                ['res:/dx9/model/worldobject/sun/magnetar.red'],
+                ['res:/dx9/model/worldobject/evegate/neweden3.red'],
+                ['res:/dx9/model/worldobject/sun/cataclysmic.red'],
+            ];
+
+            window.suns = [];
+            for (var q = 0; q < 3; ++q)
+            {
+            for (var t = 0; t < q*8; ++t)
+            {
+            for (var i = 0; i < suns.length; ++i)
+            {
+                var sun = scene.loadObject(suns[i][0])
+                scale = q+1
+                realscale = 0.001
+                sun.setTransform(mat4.fromValues(
+                    realscale, 0, 0, 0,
+                    0, realscale, 0, 0,
+                    0, 0, realscale, 0,
+                    (getRandom(-1, 1)*getRandom(-10000, 14000, 7))*scale, (getRandom(-1, 1)*getRandom(-10000, 14000, 7))*scale, (getRandom(-1, 1)*getRandom(-10000, 14000, 7))*scale, realscale
+                ));
+                sun.translation = vec3.fromValues(getRandom(0, 360, 1), getRandom(0, 360, 1), getRandom(0, 360, 1))
+                window.suns.push(sun);
+            }
+            }
+            }
+
+            ccpwgl.onPreRender = function ()
+            {
+                document.getElementById('loading').style.display = ccpwgl.isLoading() ? 'block' : 'none';
+            };
+
+        }
+    </script>
+
+</head>
+<body onload="OnDocLoad()">
+<canvas id="mainCanvas" width="500" height="500"></canvas>
+<div id="loading">Loading...</div>
+</body>
+</html>
