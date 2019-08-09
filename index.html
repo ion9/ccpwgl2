@@ -1,8 +1,106 @@
-<html xmlns="http://www.w3.org/1999/xhtml">    
-<head>      
-  <title>Oops</title>      
-  <meta http-equiv="refresh" content="0;URL='/demo/index.html'" />    
-</head>    
-<body> 
-</body>  
-</html>   
+<doctype html>
+  <html>
+    <head lang="en">
+        <title>Stars Demo</title>
+    
+        <link rel="stylesheet" href="demos.css">
+        <script type="text/javascript" src="ccpwgl2_int.js"></script>
+        <script type="text/javascript" src="ccpwgl.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        <script type="text/javascript" src="demos.js"></script>
+    
+        <script type="text/javascript">
+            window.ccpwgl = ccpwgl;
+            window.ccpwgl_int = ccpwgl_int;
+            function getRandom(min, max, size) {
+              if (size == null){
+                  temp = (Math.random() * (max - min) + min).toFixed(0)
+                  if (temp == 0){
+                    temp = 1
+                  }
+              } else {
+                  temp = (Math.random() * (max - min) + min).toFixed(size)
+              }
+              return temp
+            }
+            function OnDocLoad()
+            {
+                var { mat4, vec3 } = ccpwgl_int.math;
+                var canvas = document.getElementById('mainCanvas');
+                ccpwgl.initialize(canvas, demos.options);
+                var camera = new ccpwgl.createCamera(canvas);
+                camera.minDistance = 0.0;
+                camera.maxDistance = 9007199254740990;
+                camera.fov = 60;
+                camera.distance = 1000000;
+                camera.farPlane = 9007199254740990;
+                camera.nearPlane = 0.00000001;
+                camera.minPitch = -0.5;
+                camera.maxPitch = 0.35;
+                ccpwgl.setCamera(camera);
+                // scene = ccpwgl.createScene([0,0,0,1]);
+                scene = ccpwgl.loadScene('res:/dx9/scene/wormholes/wormhole_class_01.red');
+                // scene = ccpwgl.loadScene('res:/dx9/scene/universe/m17_cube.red');
+                scene.starfield = false;
+                scene.lodEnabled = true;
+                if (demos.options.postprocess)
+                    ccpwgl.enablePostprocessing(true);
+                // scene.loadObject('rdss2:roguebase:rogue');
+                var wh = scene.loadObject('res:/fisfx/celestial/spatialrift_rt_01a.red');
+                var gate = scene.loadObject('res:/dx9/model/battlestation/talocan/ta_station02/ta_station02_v3/ta_station02_v3.red');
+              
+                gate.setTransform(mat4.fromValues(
+                        1, 0, 0, 0,
+                        0, 1, 0, 0,
+                        0, 0, 1, 0,
+                        0, -1750, 0, .1
+                    ));
+                var suns = []
+                var suns = [
+                    ['res:/dx9/model/worldobject/sun/magnetar.red'],
+                    ['res:/dx9/model/worldobject/evegate/neweden3.red'],
+                    ['res:/dx9/model/worldobject/sun/cataclysmic.red'],
+                ];
+                var suncount = 0
+                window.suns = [];
+                
+                $.getJSON('./made_with_love.json', 
+                    function(data) {
+                        js = data;
+                        js.slice(0, 348).forEach(function(rowdata) {
+                            pushsun(rowdata.X,rowdata.Y,rowdata.Z)
+                        })
+                    }
+                );
+
+                function pushsun(X,Y,Z) {
+                    // console.log('Sun at X,Y,Z: '+X+','+Y+','+Z)
+                    var sun = scene.loadObject(suns[getRandom(0,2)][0])
+                    scale = 99999999
+                    realscale = 1
+                    sun.startDistance = 10
+                    sun.AutoPurgeResources = false;
+                    sun.setTransform(mat4.fromValues(
+                        realscale, 0, 0, 0,
+                        0, realscale, 0, 0,
+                        0, 0, realscale, 0,
+                        X*scale, Y*scale-129999999, Z*scale, realscale
+                    ));
+                    sun.translation = vec3.fromValues(getRandom(0, 360, 1), getRandom(0, 360, 1), getRandom(0, 360, 1))
+                    window.suns.push(sun);
+                }
+
+                ccpwgl.onPreRender = function ()
+                {
+                    document.getElementById('loading').style.display = ccpwgl.isLoading() ? 'block' : 'none';
+                };
+            }
+        </script>
+    
+    </head>
+    <body onload="OnDocLoad()">
+    <canvas id="mainCanvas" width="500" height="500"></canvas>
+    <div id="loading">Loading...</div>
+    </body>
+  </html>
+</doctype>

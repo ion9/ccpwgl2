@@ -1,0 +1,93 @@
+<DOCTYPE html>
+    <html>
+    <head lang="en">
+        <title>Stars Demo</title>
+    
+        <link rel="stylesheet" href="demos.css">
+        <script type="text/javascript" src="ccpwgl2_int.js"></script>
+        <script type="text/javascript" src="ccpwgl.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        <script type="text/javascript" src="demos.js"></script>
+    
+        <script type="text/javascript">
+            window.ccpwgl = ccpwgl;
+            window.ccpwgl_int = ccpwgl_int;
+            function getRandom(min, max, size) {
+              if (size == null){
+                  temp = (Math.random() * (max - min) + min).toFixed(0)
+                  if (temp == 0){
+                    temp = 1
+                  }
+              } else {
+                  temp = (Math.random() * (max - min) + min).toFixed(size)
+              }
+              return temp
+            }
+            function OnDocLoad()
+            {
+                var { mat4, vec3 } = ccpwgl_int.math;
+                var canvas = document.getElementById('mainCanvas');
+                ccpwgl.initialize(canvas, demos.options);
+                var camera = new ccpwgl.createCamera(canvas);
+                camera.minDistance = 0.0;
+                camera.maxDistance = 10000000000000;
+                camera.fov = 60;
+                camera.distance = 100000;
+                camera.nearPlane = 10;
+                camera.minPitch = -0.5;
+                camera.maxPitch = 0.35;
+                ccpwgl.setCamera(camera);
+                scene = ccpwgl.createScene([0,0,0,1]);
+                scene.lodEnabled = true;
+                if (demos.options.postprocess)
+                    ccpwgl.enablePostprocessing(true);
+                var suns = []
+                var suns = [
+                    ['res:/dx9/model/worldobject/sun/magnetar.red'],
+                    ['res:/dx9/model/worldobject/evegate/neweden3.red'],
+                    ['res:/dx9/model/worldobject/sun/cataclysmic.red'],
+                    ['res:/dx9/model/worldobject/sun/redgiant.red']
+                ];
+                var suncount = 0
+                window.suns = [];
+                
+                var sunlist = 
+                
+                $.getJSON('./made_with_love.json', 
+                    function(data) {
+                        js = data;
+                        js.forEach(function(rowdata) {
+                            pushsun(rowdata.X,rowdata.Y,rowdata.Z)
+                        })
+                    }
+                );
+
+                function pushsun(X,Y,Z) {
+                    var sun = scene.loadObject(suns[getRandom(0,3)][0])
+                    scale = 30000
+                    realscale = 0.001
+                    sun.startDistance = 10
+                    
+                    sun.setTransform(mat4.fromValues(
+                        realscale, 0, 0, 0,
+                        0, realscale, 0, 0,
+                        0, 0, realscale, 0,
+                        X*scale, Y*scale, Z*scale, realscale
+                    ));
+                    sun.translation = vec3.fromValues(getRandom(0, 360, 1), getRandom(0, 360, 1), getRandom(0, 360, 1))
+                    window.suns.push(sun);
+                }
+
+                ccpwgl.onPreRender = function ()
+                {
+                    document.getElementById('loading').style.display = ccpwgl.isLoading() ? 'block' : 'none';
+                };
+            }
+        </script>
+    
+    </head>
+    <body onload="OnDocLoad()">
+    <canvas id="mainCanvas" width="500" height="500"></canvas>
+    <div id="loading">Loading...</div>
+    </body>
+    </html>
